@@ -80,7 +80,7 @@ export default function TestStyles() {
       </div>
 
       {/* Content - proper spacing for fixed header */}
-      <main className="pt-16 sm:pt-20">
+      <main className="pt-14 sm:pt-16">
         <StyleDemo variant={activeStyle} />
       </main>
     </div>
@@ -176,29 +176,29 @@ function HeroVisual({ variant }: { variant: StyleVariant }) {
   const visuals: Record<StyleVariant, JSX.Element> = {
     brutalist: (
       <div className="w-full h-full flex items-center justify-center">
-        <div className="text-[120px] md:text-[200px] font-black leading-none opacity-10">
+        <div className="text-[60px] md:text-[200px] font-black leading-none opacity-10">
           ◎
         </div>
       </div>
     ),
     editorial: (
       <div className="w-full h-full relative">
-        <svg viewBox="0 0 400 300" className="w-full h-full">
+        <svg viewBox="0 0 400 150" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
           <defs>
             <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
               <circle cx="2" cy="2" r="1" fill="currentColor" opacity="0.2" />
             </pattern>
           </defs>
-          <rect fill="url(#dots)" width="400" height="300" />
-          <line x1="50" y1="150" x2="350" y2="150" stroke="currentColor" strokeWidth="0.5" />
-          <circle cx="100" cy="150" r="4" fill="currentColor" />
-          <circle cx="200" cy="150" r="4" fill="currentColor" />
-          <circle cx="300" cy="150" r="4" fill="currentColor" />
+          <rect fill="url(#dots)" width="400" height="150" />
+          <line x1="50" y1="75" x2="350" y2="75" stroke="currentColor" strokeWidth="0.5" />
+          <circle cx="100" cy="75" r="4" fill="currentColor" />
+          <circle cx="200" cy="75" r="4" fill="currentColor" />
+          <circle cx="300" cy="75" r="4" fill="currentColor" />
         </svg>
       </div>
     ),
     corporate: (
-      <div className="w-full h-full grid grid-cols-3 gap-4 p-8">
+      <div className="w-full h-full grid grid-cols-3 gap-2 p-2 md:gap-4 md:p-8">
         {[...Array(9)].map((_, i) => (
           <div key={i} className="bg-blue-500/10 border border-blue-500/20 rounded-lg animate-pulse" style={{ animationDelay: `${i * 100}ms` }} />
         ))}
@@ -206,28 +206,28 @@ function HeroVisual({ variant }: { variant: StyleVariant }) {
     ),
     darktech: (
       <div className="w-full h-full relative overflow-hidden">
-        <svg viewBox="0 0 400 300" className="w-full h-full">
-          {[...Array(20)].map((_, i) => (
+        <svg viewBox="0 0 200 200" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+          {[...Array(15)].map((_, i) => (
             <line
               key={i}
-              x1={Math.random() * 400}
-              y1={Math.random() * 300}
-              x2={Math.random() * 400}
-              y2={Math.random() * 300}
+              x1={Math.random() * 200}
+              y1={Math.random() * 200}
+              x2={Math.random() * 200}
+              y2={Math.random() * 200}
               stroke="currentColor"
               strokeWidth="0.5"
               opacity="0.3"
             />
           ))}
-          <circle cx="200" cy="150" r="40" fill="none" stroke="currentColor" strokeWidth="1" className="animate-pulse" />
-          <circle cx="200" cy="150" r="60" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
-          <circle cx="200" cy="150" r="80" fill="none" stroke="currentColor" strokeWidth="0.3" opacity="0.3" />
+          <circle cx="100" cy="100" r="30" fill="none" stroke="currentColor" strokeWidth="1" className="animate-pulse" />
+          <circle cx="100" cy="100" r="45" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.5" />
+          <circle cx="100" cy="100" r="60" fill="none" stroke="currentColor" strokeWidth="0.3" opacity="0.3" />
         </svg>
       </div>
     ),
     warm: (
       <div className="w-full h-full flex items-center justify-center">
-        <svg viewBox="0 0 200 200" className="w-48 h-48">
+        <svg viewBox="0 0 200 200" className="w-24 h-24 md:w-48 md:h-48">
           <circle cx="100" cy="100" r="80" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.3" />
           <circle cx="100" cy="100" r="60" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.4" />
           <circle cx="100" cy="100" r="40" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.5" />
