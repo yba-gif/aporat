@@ -13,8 +13,8 @@ interface Product {
 
 const products: Product[] = [
   {
-    id: 'foundry',
-    name: 'Portolan Foundry',
+    id: 'maris',
+    name: 'Portolan Maris',
     tagline: 'Operational data fabric and evidence vault',
     icon: Database,
     capabilities: [
@@ -25,8 +25,8 @@ const products: Product[] = [
     artifacts: ['Evidence Vault', 'Normalized Schema', 'Provenance Logs'],
   },
   {
-    id: 'gotham',
-    name: 'Portolan Gotham',
+    id: 'nautica',
+    name: 'Portolan Nautica',
     tagline: 'Case intelligence and decision workbench',
     icon: Compass,
     capabilities: [
@@ -37,8 +37,8 @@ const products: Product[] = [
     artifacts: ['Intelligence Graph', 'Case Timeline', 'Decision Audit'],
   },
   {
-    id: 'apollo',
-    name: 'Portolan Apollo',
+    id: 'meridian',
+    name: 'Portolan Meridian',
     tagline: 'Policy deployment and operational governance',
     icon: Cpu,
     capabilities: [
