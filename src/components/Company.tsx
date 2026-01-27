@@ -1,6 +1,7 @@
 import { ArrowRight, Cpu, Zap, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Link } from 'react-router-dom';
 
 interface OpenPosition {
   id: string;
@@ -77,9 +78,9 @@ export function Company() {
               ) : (
                 <div className="space-y-3">
                   {positions.map((position, index) => (
-                    <a
+                    <Link
                       key={position.id}
-                      href="#contact"
+                      to={`/positions/${position.id}`}
                       className="group relative flex items-center justify-between gap-4 p-4 border border-border bg-background hover:bg-secondary/50 transition-all duration-300 overflow-hidden"
                     >
                       {/* Animated border effect */}
@@ -113,7 +114,7 @@ export function Company() {
                       </div>
 
                       <ArrowRight className="relative z-10 w-4 h-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
-                    </a>
+                    </Link>
                   ))}
                 </div>
               )}
