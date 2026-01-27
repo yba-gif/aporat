@@ -16,11 +16,11 @@ interface AuditEvent {
 }
 
 const nodes: Node[] = [
-  { id: 'identity', label: 'Identity', description: 'Verified applicant identity', x: 60, y: 40 },
-  { id: 'evidence', label: 'Evidence', description: 'Standardized document validation', x: 200, y: 100 },
-  { id: 'integrity', label: 'Integrity', description: 'Anomaly detection and scoring', x: 340, y: 40 },
-  { id: 'policy', label: 'Policy', description: 'Configurable compliance rulesets', x: 480, y: 100 },
-  { id: 'decision', label: 'Decision', description: 'Audit-grade resolution', x: 620, y: 40 },
+  { id: 'identity', label: 'Identity', description: 'Verified applicant identity', x: 40, y: 20 },
+  { id: 'evidence', label: 'Evidence', description: 'Standardized document validation', x: 180, y: 20 },
+  { id: 'integrity', label: 'Integrity', description: 'Anomaly detection and scoring', x: 320, y: 20 },
+  { id: 'policy', label: 'Policy', description: 'Configurable compliance rulesets', x: 460, y: 20 },
+  { id: 'decision', label: 'Decision', description: 'Audit-grade resolution', x: 600, y: 20 },
 ];
 
 const connections = [
@@ -107,9 +107,9 @@ export function HeroGraph() {
       </div>
 
       {/* Desktop: Full graph visualization */}
-      <div className="hidden md:block">
+      <div className="hidden md:block h-full">
         {/* Connection lines */}
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 700 160">
+        <svg className="absolute top-0 left-0 w-full h-20" viewBox="0 0 700 60" preserveAspectRatio="xMidYMid meet">
           <defs>
             <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="hsl(var(--line-strong))" />
@@ -126,20 +126,20 @@ export function HeroGraph() {
             return (
               <g key={`${conn.from}-${conn.to}`}>
                 <line
-                  x1={from.x + 50}
-                  y1={from.y + 18}
+                  x1={from.x + 70}
+                  y1={30}
                   x2={to.x}
-                  y2={to.y + 18}
+                  y2={30}
                   stroke="hsl(var(--line-subtle))"
                   strokeWidth="1"
                   strokeDasharray="4 4"
                 />
                 {isAnimated && (
                   <line
-                    x1={from.x + 50}
-                    y1={from.y + 18}
+                    x1={from.x + 70}
+                    y1={30}
                     x2={to.x}
-                    y2={to.y + 18}
+                    y2={30}
                     stroke="url(#lineGradient)"
                     strokeWidth="1.5"
                     className="animate-fade-in"
@@ -150,17 +150,13 @@ export function HeroGraph() {
           })}
         </svg>
 
-        {/* Nodes */}
-        <div className="absolute inset-0">
+        {/* Nodes - horizontal row */}
+        <div className="absolute top-4 left-0 right-0 flex justify-between px-4">
           {nodes.map((node, index) => (
             <div
               key={node.id}
-              className="absolute animate-fade-up"
-              style={{
-                left: `${(node.x / 700) * 100}%`,
-                top: `${(node.y / 160) * 100}%`,
-                animationDelay: `${index * 100}ms`,
-              }}
+              className="animate-fade-up"
+              style={{ animationDelay: `${index * 100}ms` }}
               onMouseEnter={() => setHoveredNode(node.id)}
               onMouseLeave={() => setHoveredNode(null)}
             >
@@ -173,7 +169,7 @@ export function HeroGraph() {
               >
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-accent animate-pulse-soft shrink-0" />
-                  <span className="text-xs font-medium tracking-wide">{node.label}</span>
+                  <span className="text-xs font-medium tracking-wide whitespace-nowrap">{node.label}</span>
                 </div>
               </div>
               
@@ -187,8 +183,8 @@ export function HeroGraph() {
           ))}
         </div>
 
-        {/* Audit Trail Panel */}
-        <div className="absolute bottom-0 left-0 w-64 bg-surface-elevated/90 backdrop-blur-sm border border-border p-3">
+        {/* Audit Trail Panel - positioned at bottom left, clear of nodes */}
+        <div className="absolute bottom-4 left-0 w-64 bg-surface-elevated/90 backdrop-blur-sm border border-border p-3">
           <div className="flex items-center gap-2 mb-2">
             <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse-soft" />
             <span className="text-label text-xs">Audit Trail</span>
