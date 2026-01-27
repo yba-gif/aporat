@@ -1,8 +1,8 @@
 import { ArrowRight } from 'lucide-react';
 
-const advisorPlaceholders = [
-  { expertise: 'GovTech & Enterprise', placeholder: true },
-  { expertise: 'Mobility Compliance', placeholder: true },
+const openPositions = [
+  { title: 'Senior Backend Engineer', location: 'Remote / EU' },
+  { title: 'Product Designer', location: 'Remote / EU' },
 ];
 
 export function Company() {
@@ -27,35 +27,25 @@ export function Company() {
             </div>
           </div>
 
-          {/* Right: Team & Advisors */}
+          {/* Right: Open Positions */}
           <div className="space-y-12">
-            {/* Advisors */}
             <div>
-              <h3 className="font-semibold mb-6">Advisors</h3>
+              <h3 className="font-semibold mb-6">Open Positions</h3>
               <div className="space-y-3">
-                {advisorPlaceholders.map((advisor, index) => (
-                  <div
+                {openPositions.map((position, index) => (
+                  <a
                     key={index}
-                    className="flex items-center gap-4 p-3 border border-border bg-background"
+                    href="#contact"
+                    className="flex items-center justify-between gap-4 p-4 border border-border bg-background hover:bg-secondary/50 transition-colors group"
                   >
-                    <div className="w-8 h-8 bg-secondary flex items-center justify-center">
-                      <span className="text-muted-foreground text-xs">—</span>
+                    <div>
+                      <p className="font-medium">{position.title}</p>
+                      <p className="text-sm text-muted-foreground">{position.location}</p>
                     </div>
-                    <p className="text-sm text-muted-foreground">{advisor.expertise}</p>
-                  </div>
+                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
+                  </a>
                 ))}
               </div>
-            </div>
-
-            {/* Careers */}
-            <div>
-              <a
-                href="#"
-                className="inline-flex items-center gap-2 text-sm font-medium link-underline group"
-              >
-                View open positions
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </a>
             </div>
           </div>
         </div>
