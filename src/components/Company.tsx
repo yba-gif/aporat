@@ -19,10 +19,10 @@ export function Company() {
             
             <div className="space-y-4 text-body max-w-lg">
               <p>
-                Portolan Labs was founded to solve the infrastructure gap in high-stakes decision-making—where fragmented systems, inconsistent evidence, and opaque processes create risk for governments and enterprises alike.
+                Portolan Labs solves the infrastructure gap in high-stakes decision-making: fragmented systems, inconsistent evidence, opaque processes.
               </p>
               <p>
-                We build software for organizations that cannot afford to get it wrong: border security agencies, defense departments, consular networks, and global enterprises navigating complex regulatory environments.
+                We build for organizations that cannot afford to get it wrong: border agencies, defense, consular networks, and regulated enterprises.
               </p>
             </div>
           </div>

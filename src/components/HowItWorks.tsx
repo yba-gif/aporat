@@ -88,7 +88,7 @@ export function HowItWorks() {
             From evidence to audit-ready decision.
           </h2>
           <p className="text-body">
-            A continuous pipeline that ingests, verifies, and records every high-stakes decision with full provenance.
+            A continuous pipeline that ingests, verifies, and records every decision with full provenance.
           </p>
         </div>
 

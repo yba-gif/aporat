@@ -12,29 +12,29 @@ const solutions: Solution[] = [
   {
     icon: Building2,
     title: 'Government & Consular',
-    problem: 'Fragmented systems and manual processes create bottlenecks in high-volume citizen services.',
-    solution: 'Portolan unifies evidence intake, automates verification, and delivers decision workflows with full audit trails.',
+    problem: 'Fragmented systems and manual processes slow high-volume citizen services.',
+    solution: 'Unified evidence intake, automated verification, decision workflows with full audit trails.',
     outcome: 'Reduce processing time by 60–80%',
   },
   {
     icon: Network,
     title: 'Defense & Intelligence',
-    problem: 'Multi-agency operations lack visibility, accountability, and secure information sharing.',
-    solution: 'Portolan provides verified handoff protocols, compartmentalized access, and real-time situational awareness.',
+    problem: 'Multi-agency operations lack visibility and secure information sharing.',
+    solution: 'Verified handoff protocols, compartmentalized access, real-time situational awareness.',
     outcome: 'Unified operational picture',
   },
   {
     icon: Briefcase,
     title: 'Enterprise Compliance',
-    problem: 'Decentralized vendor management and regulatory fragmentation create compliance blind spots.',
-    solution: 'Portolan consolidates risk posture with centralized audit trails, policy enforcement, and evidence retention.',
+    problem: 'Decentralized vendors and regulatory fragmentation create blind spots.',
+    solution: 'Centralized audit trails, policy enforcement, and evidence retention.',
     outcome: 'Enterprise-wide compliance visibility',
   },
   {
     icon: ShieldAlert,
     title: 'Fraud & Integrity Defense',
-    problem: 'Document fraud and network anomalies evade siloed detection systems.',
-    solution: 'Portolan applies graph-based analysis to surface coordinated patterns and flag risks before they materialize.',
+    problem: 'Document fraud and network anomalies evade siloed systems.',
+    solution: 'Graph-based analysis surfaces coordinated patterns before they materialize.',
     outcome: 'Proactive threat detection at scale',
   },
 ];
@@ -50,7 +50,7 @@ export function Solutions() {
             Built for mission-critical operations.
           </h2>
           <p className="text-body">
-            Deployed across governments, defense organizations, and global enterprises where accuracy, accountability, and audit compliance are non-negotiable.
+            For governments, defense, and enterprises where accuracy and audit compliance are non-negotiable.
           </p>
         </div>
 
