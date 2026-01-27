@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown, Database, Compass, Cpu } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
+import { ArchitectureDiagram } from './ArchitectureDiagram';
 
 interface Product {
   id: string;
@@ -155,6 +156,9 @@ export function Products() {
             );
           })}
         </div>
+
+        {/* Architecture Diagram */}
+        <ArchitectureDiagram />
       </div>
     </section>
   );
