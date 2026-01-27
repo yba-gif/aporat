@@ -18,16 +18,17 @@
 }
 
 .style-brutalist .style-hero {
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: auto;
   display: flex;
   flex-direction: column;
   border-bottom: 4px solid rgb(var(--style-fg));
-  padding: 1rem;
+  padding: 4rem 1rem 2rem;
 }
 
 @media (min-width: 768px) {
   .style-brutalist .style-hero {
+    min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding: 2rem;
@@ -51,8 +52,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem 0;
+  padding: 1.5rem 0;
   border-top: 4px solid rgb(var(--style-fg));
+  max-height: 200px;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -60,6 +63,7 @@
     border-top: none;
     border-left: 4px solid rgb(var(--style-fg));
     padding: 0;
+    max-height: none;
   }
 }
 
@@ -456,22 +460,24 @@
 }
 
 .style-editorial .style-hero {
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 3rem 1.25rem;
+  gap: 1.5rem;
+  padding: 4rem 1.25rem 2rem;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 @media (min-width: 768px) {
   .style-editorial .style-hero {
+    min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
     grid-template-columns: 1.2fr 1fr;
     gap: 4rem;
     padding: 6rem 3rem;
+    justify-content: center;
   }
 }
 
@@ -595,12 +601,14 @@
   justify-content: center;
   color: rgb(var(--style-fg));
   width: 100%;
-  max-width: 300px;
+  max-width: 250px;
+  max-height: 180px;
 }
 
 @media (min-width: 768px) {
   .style-editorial .style-hero-visual {
     max-width: none;
+    max-height: none;
   }
 }
 
@@ -882,22 +890,24 @@
 }
 
 .style-corporate .style-hero {
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 3rem 1rem;
+  gap: 1.5rem;
+  padding: 4rem 1rem 2rem;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 @media (min-width: 768px) {
   .style-corporate .style-hero {
+    min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     padding: 5rem 2rem;
+    justify-content: center;
   }
 }
 
@@ -1019,11 +1029,13 @@
 .style-corporate .style-hero-visual {
   background: white;
   border-radius: 0.75rem;
-  padding: 1.5rem;
+  padding: 1rem;
   box-shadow: 0 15px 30px rgb(var(--style-fg) / 0.08);
-  aspect-ratio: 4/3;
+  aspect-ratio: auto;
   width: 100%;
-  max-width: 400px;
+  max-width: 280px;
+  max-height: 120px;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -1032,6 +1044,8 @@
     border-radius: 1rem;
     box-shadow: 0 20px 40px rgb(var(--style-fg) / 0.08);
     max-width: none;
+    max-height: none;
+    aspect-ratio: 4/3;
   }
 }
 
@@ -1342,24 +1356,26 @@
 }
 
 .style-darktech .style-hero {
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: auto;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 3rem 1rem;
+  gap: 1.5rem;
+  padding: 4rem 1rem 2rem;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   overflow: hidden;
 }
 
 @media (min-width: 768px) {
   .style-darktech .style-hero {
+    min-height: 100vh;
+    min-height: 100dvh;
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     padding: 5rem 2rem;
+    justify-content: center;
   }
 }
 
@@ -1506,12 +1522,14 @@
   color: rgb(var(--style-accent));
   aspect-ratio: 1;
   width: 100%;
-  max-width: 280px;
+  max-width: 200px;
+  max-height: 200px;
 }
 
 @media (min-width: 768px) {
   .style-darktech .style-hero-visual {
     max-width: none;
+    max-height: none;
   }
 }
 
@@ -1823,17 +1841,19 @@
 }
 
 .style-warm .style-hero {
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: auto;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 3rem 1.25rem;
+  justify-content: flex-start;
+  padding: 4rem 1.25rem 2rem;
   text-align: center;
 }
 
 @media (min-width: 768px) {
   .style-warm .style-hero {
+    min-height: 100vh;
+    min-height: 100dvh;
+    justify-content: center;
     padding: 5rem 2rem;
   }
 }
@@ -1844,15 +1864,17 @@
 }
 
 .style-warm .style-hero-visual {
-  margin-top: 2.5rem;
+  margin-top: 1.5rem;
   color: rgb(var(--style-accent));
   display: flex;
   justify-content: center;
+  max-height: 150px;
 }
 
 @media (min-width: 768px) {
   .style-warm .style-hero-visual {
     margin-top: 4rem;
+    max-height: none;
   }
 }
 
