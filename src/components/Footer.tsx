@@ -1,10 +1,12 @@
 import { Linkedin, Twitter } from 'lucide-react';
+import { CompassLogo } from '@/components/CompassLogo';
+import { useScrollToSection } from '@/hooks/useScrollToSection';
 
 const links = [
-  { label: 'Privacy', href: '#' },
-  { label: 'Terms', href: '#' },
-  { label: 'Security', href: '#security' },
-  { label: 'Press', href: '#' },
+  { label: 'Privacy', href: null },
+  { label: 'Terms', href: null },
+  { label: 'Security', href: 'security' },
+  { label: 'Press', href: null },
 ];
 
 const socialLinks = [
@@ -12,29 +14,9 @@ const socialLinks = [
   { icon: Linkedin, href: '#', label: 'LinkedIn' },
 ];
 
-function CompassLogo({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 100 100" fill="none" className={className}>
-      <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="1" />
-      <path d="M50 5 L53 40 L50 45 L47 40 Z" fill="currentColor" />
-      <path d="M95 50 L60 53 L55 50 L60 47 Z" fill="currentColor" />
-      <path d="M50 95 L47 60 L50 55 L53 60 Z" fill="currentColor" />
-      <path d="M5 50 L40 47 L45 50 L40 53 Z" fill="currentColor" />
-      <path d="M82 18 L58 42 L55 42 L58 38 Z" fill="currentColor" />
-      <path d="M82 82 L58 58 L58 55 L62 58 Z" fill="currentColor" />
-      <path d="M18 82 L42 58 L45 58 L42 62 Z" fill="currentColor" />
-      <path d="M18 18 L42 42 L42 45 L38 42 Z" fill="currentColor" />
-      <circle cx="50" cy="50" r="8" stroke="currentColor" strokeWidth="1.5" fill="none" />
-      <circle cx="50" cy="50" r="3" fill="currentColor" />
-      <path d="M50 8 L48 2 L52 2 Z" fill="currentColor" />
-      <path d="M92 50 L98 48 L98 52 Z" fill="currentColor" />
-      <path d="M50 92 L52 98 L48 98 Z" fill="currentColor" />
-      <path d="M8 50 L2 52 L2 48 Z" fill="currentColor" />
-    </svg>
-  );
-}
-
 export function Footer() {
+  const { scrollToSection } = useScrollToSection();
+
   return (
     <footer className="py-12 border-t border-border">
       <div className="container-wide">
@@ -48,13 +30,16 @@ export function Footer() {
           {/* Links */}
           <div className="flex items-center gap-6">
             {links.map((link) => (
-              <a
+              <button
                 key={link.label}
-                href={link.href}
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => link.href && scrollToSection(link.href)}
+                className={`text-sm text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none ${
+                  link.href ? 'cursor-pointer' : 'cursor-default'
+                }`}
+                disabled={!link.href}
               >
                 {link.label}
-              </a>
+              </button>
             ))}
           </div>
 
