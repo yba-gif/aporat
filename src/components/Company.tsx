@@ -119,11 +119,6 @@ export function Company() {
                 </div>
               )}
 
-              {/* Status indicator */}
-              <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-                <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-                <span className="font-mono">Actively hiring</span>
-              </div>
             </div>
           </div>
         </div>
