@@ -71,35 +71,66 @@ export function HeroGraph() {
       {/* Grid background */}
       <div className="absolute inset-0 bg-grid opacity-50" />
       
-      {/* Mobile: Simplified vertical flow */}
-      <div className="md:hidden px-4 py-8 space-y-3">
-        {nodes.map((node, index) => (
-          <div key={node.id} className="flex items-center gap-3">
-            <div className="flex flex-col items-center">
-              <div className="w-2 h-2 rounded-full bg-accent" />
-              {index < nodes.length - 1 && (
-                <div className="w-px h-6 bg-accent/50" />
-              )}
-            </div>
-            <div className="flex-1 px-3 py-2 bg-background border border-border">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-medium">{node.label}</span>
+      {/* Mobile: Elegant vertical flow */}
+      <div className="md:hidden px-6 py-6">
+        {/* SVG connection line running through all nodes */}
+        <svg className="absolute left-[34px] top-6 w-4 h-[280px]" viewBox="0 0 16 280">
+          <defs>
+            <linearGradient id="mobileLineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity="0.3" />
+              <stop offset="50%" stopColor="hsl(var(--accent))" stopOpacity="1" />
+              <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+          {/* Main vertical line */}
+          <line
+            x1="8"
+            y1="0"
+            x2="8"
+            y2="280"
+            stroke="url(#mobileLineGradient)"
+            strokeWidth="1"
+            className="animate-fade-in"
+          />
+        </svg>
+
+        <div className="relative space-y-4">
+          {nodes.map((node, index) => (
+            <div
+              key={node.id}
+              className="flex items-center gap-4 animate-fade-up"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              {/* Node indicator */}
+              <div className="relative z-10 flex items-center justify-center w-4 h-4">
+                <div className="absolute w-4 h-4 rounded-full bg-accent/20 animate-pulse-soft" />
+                <div className="w-2 h-2 rounded-full bg-accent" />
+              </div>
+              
+              {/* Node card */}
+              <div className="flex-1 px-4 py-3 bg-background/80 backdrop-blur-sm border border-border hover:border-accent/50 transition-colors">
+                <span className="text-sm font-medium tracking-wide">{node.label}</span>
+                <p className="text-xs text-muted-foreground mt-0.5">{node.description}</p>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
         
         {/* Mobile Audit Trail */}
-        <div className="mt-6 bg-surface-elevated/90 border border-border p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse-soft" />
-            <span className="text-label text-xs">Audit Trail</span>
+        <div className="mt-8 bg-surface-elevated/95 backdrop-blur-sm border border-border p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 rounded-full bg-accent animate-pulse-soft" />
+            <span className="text-xs font-medium tracking-widest uppercase text-muted-foreground">Audit Trail</span>
           </div>
-          <div className="space-y-1">
-            {auditEvents.slice(0, 3).map((event) => (
-              <div key={event.id} className="flex items-start gap-2 text-[10px]">
-                <span className="text-muted-foreground font-mono shrink-0">{event.timestamp}</span>
-                <span className="text-foreground/80 truncate">{event.action}</span>
+          <div className="space-y-2">
+            {auditEvents.slice(0, 3).map((event, index) => (
+              <div
+                key={event.id}
+                className="flex items-start gap-3 text-xs animate-fade-in"
+                style={{ animationDelay: `${(nodes.length + index) * 100}ms` }}
+              >
+                <span className="text-accent font-mono shrink-0">{event.timestamp}</span>
+                <span className="text-foreground/70">{event.action}</span>
               </div>
             ))}
           </div>
