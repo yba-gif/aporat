@@ -1,11 +1,5 @@
 import { ArrowRight } from 'lucide-react';
 
-const teamPlaceholders = [
-  { role: 'CEO & Co-Founder', placeholder: true },
-  { role: 'CTO & Co-Founder', placeholder: true },
-  { role: 'Head of Product', placeholder: true },
-];
-
 const advisorPlaceholders = [
   { expertise: 'GovTech & Enterprise', placeholder: true },
   { expertise: 'Mobility Compliance', placeholder: true },
@@ -35,27 +29,6 @@ export function Company() {
 
           {/* Right: Team & Advisors */}
           <div className="space-y-12">
-            {/* Team */}
-            <div>
-              <h3 className="font-semibold mb-6">Team</h3>
-              <div className="space-y-4">
-                {teamPlaceholders.map((member, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center gap-4 p-4 border border-border bg-background"
-                  >
-                    <div className="w-10 h-10 bg-secondary flex items-center justify-center">
-                      <span className="text-muted-foreground text-sm">—</span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">{member.role}</p>
-                      <p className="text-xs text-muted-foreground/50">Profile coming soon</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             {/* Advisors */}
             <div>
               <h3 className="font-semibold mb-6">Advisors</h3>
