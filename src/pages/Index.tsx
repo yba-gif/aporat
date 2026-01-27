@@ -1,12 +1,58 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useEffect } from 'react';
+import { Navbar } from '@/components/Navbar';
+import { Hero } from '@/components/Hero';
+import { TrustStrip } from '@/components/TrustStrip';
+import { Products } from '@/components/Products';
+import { HowItWorks } from '@/components/HowItWorks';
+import { Solutions } from '@/components/Solutions';
+import { Security } from '@/components/Security';
+import { Differentiators } from '@/components/Differentiators';
+import { Company } from '@/components/Company';
+import { Contact } from '@/components/Contact';
+import { Footer } from '@/components/Footer';
+import { analytics } from '@/lib/analytics';
 
 const Index = () => {
+  useEffect(() => {
+    // Initialize analytics
+    analytics.init();
+
+    // Track section views on scroll
+    const sections = ['product', 'solutions', 'security', 'company', 'contact'];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            analytics.trackSectionView(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    sections.forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) observer.observe(element);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <main>
+        <Hero />
+        <TrustStrip />
+        <Products />
+        <HowItWorks />
+        <Solutions />
+        <Security />
+        <Differentiators />
+        <Company />
+        <Contact />
+      </main>
+      <Footer />
     </div>
   );
 };
