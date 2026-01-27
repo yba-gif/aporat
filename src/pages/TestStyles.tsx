@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 
 type StyleVariant = 'brutalist' | 'editorial' | 'corporate' | 'darktech' | 'warm';
 
@@ -22,31 +22,60 @@ const styleClasses: Record<StyleVariant, string> = {
 
 export default function TestStyles() {
   const [activeStyle, setActiveStyle] = useState<StyleVariant>('brutalist');
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className={`min-h-screen ${styleClasses[activeStyle]}`}>
-      {/* Style Switcher */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 dark:bg-black/95 backdrop-blur-sm border-b border-black/10 dark:border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex flex-wrap items-center gap-3">
+      {/* Style Switcher - Mobile Dropdown */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-black/10">
+        <div className="px-4 py-3">
+          {/* Mobile: Dropdown */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="w-full flex items-center justify-between px-3 py-2 border border-black/20 text-sm font-medium"
+            >
+              <span>{styles.find(s => s.id === activeStyle)?.name}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
+            {isOpen && (
+              <div className="absolute left-4 right-4 mt-1 bg-white border border-black/20 shadow-lg">
+                {styles.map((style) => (
+                  <button
+                    key={style.id}
+                    onClick={() => {
+                      setActiveStyle(style.id);
+                      setIsOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 text-sm ${
+                      activeStyle === style.id ? 'bg-black text-white' : 'hover:bg-black/5'
+                    }`}
+                  >
+                    <span className="font-medium">{style.name}</span>
+                    <span className="text-xs opacity-60 ml-2">{style.description}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          {/* Desktop: Buttons */}
+          <div className="hidden md:flex flex-wrap items-center gap-2">
             <span className="text-sm font-medium mr-2">Style:</span>
             {styles.map((style) => (
               <button
                 key={style.id}
                 onClick={() => setActiveStyle(style.id)}
-                className={`px-4 py-2 text-sm border transition-all ${
+                className={`px-3 py-1.5 text-sm border transition-all ${
                   activeStyle === style.id
-                    ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white'
-                    : 'bg-transparent border-black/20 dark:border-white/20 hover:border-black dark:hover:border-white'
+                    ? 'bg-black text-white border-black'
+                    : 'bg-transparent border-black/20 hover:border-black'
                 }`}
               >
                 {style.name}
               </button>
             ))}
           </div>
-          <p className="text-xs text-black/50 dark:text-white/50 mt-2">
-            {styles.find(s => s.id === activeStyle)?.description}
-          </p>
         </div>
       </div>
 
