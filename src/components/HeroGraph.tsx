@@ -134,10 +134,11 @@ export function HeroGraph() {
                   : 'border-border hover:border-line-strong'
               }`}
             >
-              {/* Node indicator */}
-              <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent animate-pulse-soft" />
-              
-              <span className="text-xs font-medium tracking-wide">{node.label}</span>
+              <div className="flex items-center gap-2">
+                {/* Node indicator */}
+                <div className="w-2 h-2 rounded-full bg-accent animate-pulse-soft shrink-0" />
+                <span className="text-xs font-medium tracking-wide">{node.label}</span>
+              </div>
             </div>
             
             {/* Tooltip */}
