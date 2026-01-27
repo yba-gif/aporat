@@ -83,12 +83,12 @@ export function HowItWorks() {
       <div className="container-wide">
         {/* Header */}
         <div className="max-w-2xl mb-16">
-          <p className="text-label mb-4">How it works</p>
+          <p className="text-label mb-4">Workflow</p>
           <h2 className="text-headline mb-4">
-            From evidence to audit-ready decision.
+            Evidence to audit-ready decision.
           </h2>
           <p className="text-body">
-            A continuous pipeline that ingests, verifies, and records every decision with full provenance.
+            Five stages. Full provenance. Every decision logged.
           </p>
         </div>
 

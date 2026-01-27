@@ -3,23 +3,23 @@ import { Check } from 'lucide-react';
 const differentiators = [
   {
     title: 'Explainable integrity checks',
-    description: 'Every risk score includes rationale and source attribution, ready for regulatory scrutiny.',
+    description: 'Every score includes rationale and source attribution. Audit-ready.',
   },
   {
     title: 'Policy as deployable code',
-    description: 'Define compliance logic once, deploy across environments with version control, rollback, and audit trails.',
+    description: 'Define compliance logic once. Deploy with version control and rollback.',
   },
   {
     title: 'Audit-grade chain-of-custody',
-    description: 'Cryptographically-linked logs for demanding government and enterprise audits.',
+    description: 'Cryptographically-linked logs for government and enterprise audits.',
   },
   {
     title: 'Graph-based threat detection',
-    description: 'Network analysis surfaces coordinated patterns across entities that siloed systems miss.',
+    description: 'Network analysis surfaces coordinated patterns siloed systems miss.',
   },
   {
-    title: 'Sovereign deployment options',
-    description: 'On-premise, air-gapped, or cloud. Your data stays where your security requirements demand.',
+    title: 'Sovereign deployment',
+    description: 'On-premise, air-gapped, or cloud. Data stays where policy demands.',
   },
 ];
 
@@ -31,7 +31,7 @@ export function Differentiators() {
         <div className="max-w-2xl mb-16">
           <p className="text-label mb-4">Why Portolan</p>
           <h2 className="text-headline mb-4">
-            Built for governments and enterprises.
+            Built for high-stakes operations.
           </h2>
         </div>
 
