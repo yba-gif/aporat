@@ -150,17 +150,17 @@ export function HeroGraph() {
         ))}
       </div>
 
-      {/* Audit Trail Panel */}
-      <div className="absolute bottom-0 right-0 w-full md:w-72 bg-surface-elevated/80 backdrop-blur-sm border border-border p-3">
+      {/* Audit Trail Panel - positioned below the graph */}
+      <div className="absolute -bottom-4 left-0 w-full md:w-64 bg-surface-elevated/90 backdrop-blur-sm border border-border p-3">
         <div className="flex items-center gap-2 mb-2">
           <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse-soft" />
-          <span className="text-label">Audit Trail</span>
+          <span className="text-label text-xs">Audit Trail</span>
         </div>
-        <div className="space-y-1 max-h-32 overflow-hidden">
+        <div className="space-y-1 max-h-24 overflow-hidden">
           {auditEvents.slice(0, visibleEvents).map((event, index) => (
             <div
               key={event.id}
-              className="flex items-start gap-2 text-xs animate-fade-in"
+              className="flex items-start gap-2 text-[10px] animate-fade-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <span className="text-muted-foreground font-mono shrink-0">{event.timestamp}</span>
