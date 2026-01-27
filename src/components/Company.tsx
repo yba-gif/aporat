@@ -33,15 +33,15 @@ export function Company() {
           <div>
             <p className="text-label mb-4">Company</p>
             <h2 className="text-headline mb-6">
-              Building decision infrastructure for the world's most critical operations.
+              Decision infrastructure for critical operations.
             </h2>
             
             <div className="space-y-4 text-body max-w-lg">
               <p>
-                Portolan Labs solves the infrastructure gap in high-stakes decision-making: fragmented systems, inconsistent evidence, opaque processes.
+                We solve the infrastructure gap: fragmented systems, inconsistent evidence, opaque processes.
               </p>
               <p>
-                We build for organizations that cannot afford to get it wrong: border agencies, defense, consular networks, and regulated enterprises.
+                Built for organizations that cannot afford failure: border agencies, defense, consular networks, regulated enterprises.
               </p>
             </div>
 

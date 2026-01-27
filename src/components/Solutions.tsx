@@ -12,30 +12,30 @@ const solutions: Solution[] = [
   {
     icon: Building2,
     title: 'Government & Consular',
-    problem: 'Fragmented systems and manual processes slow high-volume citizen services.',
-    solution: 'Unified evidence intake, automated verification, decision workflows with full audit trails.',
-    outcome: 'Reduce processing time by 60–80%',
+    problem: 'Fragmented systems delay high-volume citizen services.',
+    solution: 'Unified evidence intake, automated verification, decision workflows with audit trails.',
+    outcome: 'Processing time reduced 60-80%',
   },
   {
     icon: Network,
     title: 'Defense & Intelligence',
-    problem: 'Multi-agency operations lack visibility and secure information sharing.',
-    solution: 'Verified handoff protocols, compartmentalized access, real-time situational awareness.',
+    problem: 'Multi-agency operations lack visibility and secure handoffs.',
+    solution: 'Verified handoff protocols, compartmentalized access, real-time operational awareness.',
     outcome: 'Unified operational picture',
   },
   {
     icon: Briefcase,
     title: 'Enterprise Compliance',
     problem: 'Decentralized vendors and regulatory fragmentation create blind spots.',
-    solution: 'Centralized audit trails, policy enforcement, and evidence retention.',
+    solution: 'Centralized audit trails, policy enforcement, evidence retention.',
     outcome: 'Enterprise-wide compliance visibility',
   },
   {
     icon: ShieldAlert,
-    title: 'Fraud & Integrity Defense',
+    title: 'Fraud & Integrity',
     problem: 'Document fraud and network anomalies evade siloed systems.',
-    solution: 'Graph-based analysis surfaces coordinated patterns before they materialize.',
-    outcome: 'Proactive threat detection at scale',
+    solution: 'Graph-based analysis surfaces coordinated patterns before materialization.',
+    outcome: 'Proactive threat detection',
   },
 ];
 
@@ -50,7 +50,7 @@ export function Solutions() {
             Built for mission-critical operations.
           </h2>
           <p className="text-body">
-            For governments, defense, and enterprises where accuracy and audit compliance are non-negotiable.
+            For organizations where accuracy and audit compliance are non-negotiable.
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export function Solutions() {
 
                   {/* Solution */}
                   <div className="pl-4 border-l border-accent">
-                    <p className="text-label text-accent mb-1">What Portolan does</p>
+                    <p className="text-label text-accent mb-1">Portolan delivers</p>
                     <p className="text-sm text-muted-foreground">{solution.solution}</p>
                   </div>
 

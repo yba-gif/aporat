@@ -6,32 +6,32 @@ const securityFeatures = [
   {
     icon: Lock,
     title: 'Zero Trust Architecture',
-    description: 'Every request authenticated and authorized. No implicit trust, regardless of network location.',
+    description: 'Every request authenticated and authorized. No implicit trust.',
   },
   {
     icon: Users,
     title: 'Role-Based Access Control',
-    description: 'Granular RBAC with configurable permission sets, organizational hierarchies, and compartmentalization.',
+    description: 'Granular RBAC with organizational hierarchies and compartmentalization.',
   },
   {
     icon: FileText,
     title: 'Immutable Audit Logs',
-    description: 'Tamper-evident logging with cryptographic verification of all system events and decisions.',
+    description: 'Tamper-evident logging with cryptographic verification.',
   },
   {
     icon: Database,
     title: 'Sovereign Data Controls',
-    description: 'Configurable data residency, retention policies, and automated purge workflows.',
+    description: 'Configurable data residency and automated retention policies.',
   },
   {
     icon: Eye,
     title: 'Data Minimization',
-    description: 'Collect only what\'s required. Consent-based signals for optional data fields.',
+    description: 'Collect only required fields. Consent-based optional data.',
   },
   {
     icon: ShieldCheck,
     title: 'Selective Disclosure',
-    description: 'Redaction workflows and need-to-know access for classified or sensitive evidence.',
+    description: 'Redaction workflows and need-to-know access controls.',
   },
 ];
 
@@ -58,7 +58,7 @@ export function Security() {
             </h2>
             
             <p className="text-lg text-background/70 mb-8 leading-relaxed">
-              We provide infrastructure for evidence integrity and decision accountability. We do not make sovereign decisions.
+              Infrastructure for evidence integrity. We do not make sovereign decisions.
             </p>
 
             <Button

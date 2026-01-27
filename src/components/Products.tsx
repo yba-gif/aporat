@@ -16,38 +16,38 @@ const products: Product[] = [
   {
     id: 'maris',
     name: 'Portolan Maris',
-    tagline: 'Operational data fabric and evidence vault',
+    tagline: 'Evidence ingestion and chain-of-custody',
     icon: Database,
     capabilities: [
-      'Unified ingestion pipelines for documents, signals, and third-party data',
-      'Tamper-evident storage with cryptographic chain-of-custody',
-      'Schema normalization across legacy systems and modern APIs',
+      'Multi-format document parsing with provenance tracking',
+      'Tamper-evident storage with cryptographic verification',
+      'Schema normalization across legacy and modern systems',
     ],
-    artifacts: ['Evidence Vault', 'Normalized Schema', 'Provenance Logs'],
+    artifacts: ['Evidence Vault', 'Provenance Logs', 'Normalized Schema'],
   },
   {
     id: 'nautica',
     name: 'Portolan Nautica',
-    tagline: 'Case intelligence and decision workbench',
+    tagline: 'Entity resolution and integrity verification',
     icon: Compass,
     capabilities: [
-      'Entity resolution and relationship mapping across complex networks',
-      'Configurable integrity checks with explainable risk scoring',
-      'Collaborative workflows with role-based access and approval chains',
+      'Graph-based entity resolution across complex networks',
+      'Configurable integrity checks with explainable scoring',
+      'Role-based workflows with approval chains',
     ],
-    artifacts: ['Intelligence Graph', 'Case Timeline', 'Decision Audit'],
+    artifacts: ['Entity Graph', 'Integrity Reports', 'Decision Audit'],
   },
   {
     id: 'meridian',
     name: 'Portolan Meridian',
-    tagline: 'Policy deployment and operational governance',
+    tagline: 'Policy deployment and governance',
     icon: Cpu,
     capabilities: [
       'Declarative policy rulesets as deployable configurations',
-      'Version-controlled lifecycle management for compliance logic',
-      'Real-time monitoring, drift detection, and SLA enforcement',
+      'Version-controlled compliance logic with rollback',
+      'Real-time monitoring and SLA enforcement',
     ],
-    artifacts: ['Policy Registry', 'Operations Dashboard', 'Governance Logs'],
+    artifacts: ['Policy Registry', 'Governance Logs', 'Operations Dashboard'],
   },
 ];
 
@@ -69,12 +69,10 @@ export function Products() {
         <div className="max-w-2xl mb-16">
           <p className="text-label mb-4">Platform</p>
           <h2 className="text-headline mb-4">
-            Three platforms.
-            <br />
-            One operating system.
+            Three platforms. One workflow.
           </h2>
           <p className="text-body">
-            Infrastructure for governments and enterprises where evidence integrity defines mission success.
+            Infrastructure for organizations where evidence integrity determines mission success.
           </p>
         </div>
 

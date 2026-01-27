@@ -40,7 +40,7 @@ export function Hero() {
             </h1>
             
             <p className="text-subhead mb-8 animate-fade-up delay-100">
-              The operating system for high-stakes decisions. Unified evidence. Verified integrity. Audit-ready outcomes.
+              Unified evidence. Verified integrity. Audit-ready outcomes.
             </p>
 
             {/* CTAs */}
