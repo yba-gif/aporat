@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { analytics } from '@/lib/analytics';
 import { supabase } from '@/integrations/supabase/client';
-import { Mail, Calendar, Terminal, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Mail, Calendar, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function Contact() {
@@ -79,12 +79,8 @@ export function Contact() {
           </div>
           <h2 className="text-headline mb-4">Request received.</h2>
           <p className="text-body mb-6">
-            We'll be in touch within 48 hours.
+            Our team will respond within 48 hours.
           </p>
-          <div className="inline-flex items-center gap-2 text-xs font-mono text-muted-foreground">
-            <Terminal className="w-3 h-3" />
-            <span>submission_id: {crypto.randomUUID().slice(0, 8)}</span>
-          </div>
         </div>
       </section>
     );
@@ -123,28 +119,6 @@ export function Contact() {
                 <Calendar className="w-4 h-4" />
                 <span className="link-underline">Schedule a call</span>
               </a>
-            </div>
-
-            {/* Tech indicator */}
-            <div className="mt-12 p-4 border border-border/50 bg-background/50">
-              <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground mb-3">
-                <Terminal className="w-3 h-3 text-accent" />
-                <span>system.status</span>
-              </div>
-              <div className="space-y-2 text-xs font-mono">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">API</span>
-                  <span className="text-accent">operational</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Response time</span>
-                  <span className="text-foreground">&lt; 48h</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Location</span>
-                  <span className="text-foreground">İstanbul, Türkiye</span>
-                </div>
-              </div>
             </div>
           </div>
 
