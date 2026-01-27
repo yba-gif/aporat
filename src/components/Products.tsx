@@ -73,7 +73,7 @@ export function Products() {
             One operating system.
           </h2>
           <p className="text-body">
-            Purpose-built infrastructure for governments and enterprises where evidence integrity and decision accountability define mission success.
+            Infrastructure for governments and enterprises where evidence integrity defines mission success.
           </p>
         </div>
 

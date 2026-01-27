@@ -58,7 +58,7 @@ export function Security() {
             </h2>
             
             <p className="text-lg text-background/70 mb-8 leading-relaxed">
-              We do not make or influence sovereign decisions. We provide the infrastructure for evidence integrity and decision accountability.
+              We provide infrastructure for evidence integrity and decision accountability. We do not make sovereign decisions.
             </p>
 
             <Button

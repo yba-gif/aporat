@@ -70,7 +70,7 @@ export function Contact() {
             </h2>
             
             <p className="text-body mb-8 max-w-md">
-              Request access to our platform or schedule a technical briefing with our government and enterprise teams.
+              Request platform access or schedule a technical briefing.
             </p>
 
             {/* Alternative Contact */}

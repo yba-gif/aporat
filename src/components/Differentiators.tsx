@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 const differentiators = [
   {
     title: 'Explainable integrity checks',
-    description: 'Every risk score comes with a human-readable rationale and source attribution—ready for legal and regulatory scrutiny.',
+    description: 'Every risk score includes rationale and source attribution, ready for regulatory scrutiny.',
   },
   {
     title: 'Policy as deployable code',
@@ -11,7 +11,7 @@ const differentiators = [
   },
   {
     title: 'Audit-grade chain-of-custody',
-    description: 'Cryptographically-linked logs that satisfy the most demanding government and enterprise audit requirements.',
+    description: 'Cryptographically-linked logs for demanding government and enterprise audits.',
   },
   {
     title: 'Graph-based threat detection',
