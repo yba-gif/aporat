@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { analytics } from '@/lib/analytics';
-import logo from '@/assets/logo.png';
 
 const navLinks = [
   { label: 'Product', href: '#product' },
@@ -11,6 +10,38 @@ const navLinks = [
   { label: 'Company', href: '#company' },
   { label: 'Contact', href: '#contact' },
 ];
+
+function CompassLogo({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" className={className}>
+      {/* Outer circle with arrows */}
+      <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="1" />
+      
+      {/* Compass star - 8 points */}
+      {/* Cardinal directions (N, E, S, W) - longer */}
+      <path d="M50 5 L53 40 L50 45 L47 40 Z" fill="currentColor" /> {/* N */}
+      <path d="M95 50 L60 53 L55 50 L60 47 Z" fill="currentColor" /> {/* E */}
+      <path d="M50 95 L47 60 L50 55 L53 60 Z" fill="currentColor" /> {/* S */}
+      <path d="M5 50 L40 47 L45 50 L40 53 Z" fill="currentColor" /> {/* W */}
+      
+      {/* Ordinal directions (NE, SE, SW, NW) - shorter */}
+      <path d="M82 18 L58 42 L55 42 L58 38 Z" fill="currentColor" /> {/* NE */}
+      <path d="M82 82 L58 58 L58 55 L62 58 Z" fill="currentColor" /> {/* SE */}
+      <path d="M18 82 L42 58 L45 58 L42 62 Z" fill="currentColor" /> {/* SW */}
+      <path d="M18 18 L42 42 L42 45 L38 42 Z" fill="currentColor" /> {/* NW */}
+      
+      {/* Center circle */}
+      <circle cx="50" cy="50" r="8" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="50" cy="50" r="3" fill="currentColor" />
+      
+      {/* Outer arrows pointing inward */}
+      <path d="M50 8 L48 2 L52 2 Z" fill="currentColor" />
+      <path d="M92 50 L98 48 L98 52 Z" fill="currentColor" />
+      <path d="M50 92 L52 98 L48 98 Z" fill="currentColor" />
+      <path d="M8 50 L2 52 L2 48 Z" fill="currentColor" />
+    </svg>
+  );
+}
 
 export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -46,12 +77,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <img 
-              src={logo} 
-              alt="Portolan Labs" 
-              className="w-8 h-8 object-contain"
-              style={{ filter: 'drop-shadow(0 0 1px currentColor)' }}
-            />
+            <CompassLogo className="w-8 h-8 text-accent" />
             <span className="font-semibold text-lg tracking-tight">Portolan Labs</span>
           </a>
 
