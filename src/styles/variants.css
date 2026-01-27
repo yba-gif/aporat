@@ -15,6 +15,7 @@
 
 .style-brutalist .style-container {
   max-width: 100%;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 .style-brutalist .style-hero {
@@ -22,7 +23,7 @@
   display: flex;
   flex-direction: column;
   border-bottom: 4px solid rgb(var(--style-fg));
-  padding: 4rem 1rem 2rem;
+  padding: 1.5rem 1rem 2rem;
 }
 
 @media (min-width: 768px) {
@@ -54,6 +55,7 @@
   justify-content: center;
   padding: 1.5rem 0;
   border-top: 4px solid rgb(var(--style-fg));
+  height: 200px;
   max-height: 200px;
   overflow: hidden;
 }
@@ -457,6 +459,7 @@
 .style-editorial .style-container {
   max-width: 1200px;
   margin: 0 auto;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 .style-editorial .style-hero {
@@ -464,7 +467,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 4rem 1.25rem 2rem;
+  padding: 1.5rem 1.25rem 2rem;
   align-items: center;
   justify-content: flex-start;
 }
@@ -603,6 +606,8 @@
   width: 100%;
   max-width: 250px;
   max-height: 180px;
+  height: 180px;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -887,6 +892,7 @@
 .style-corporate .style-container {
   max-width: 1280px;
   margin: 0 auto;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 .style-corporate .style-hero {
@@ -894,7 +900,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 4rem 1rem 2rem;
+  padding: 1.5rem 1rem 2rem;
   align-items: center;
   justify-content: flex-start;
 }
@@ -1035,6 +1041,7 @@
   width: 100%;
   max-width: 280px;
   max-height: 120px;
+  height: 120px;
   overflow: hidden;
 }
 
@@ -1353,6 +1360,7 @@
 .style-darktech .style-container {
   max-width: 1400px;
   margin: 0 auto;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 .style-darktech .style-hero {
@@ -1360,7 +1368,7 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 4rem 1rem 2rem;
+  padding: 1.5rem 1rem 2rem;
   align-items: center;
   justify-content: flex-start;
   position: relative;
@@ -1524,6 +1532,8 @@
   width: 100%;
   max-width: 200px;
   max-height: 200px;
+  height: 200px;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
@@ -1838,6 +1848,7 @@
 .style-warm .style-container {
   max-width: 1100px;
   margin: 0 auto;
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
 }
 
 .style-warm .style-hero {
@@ -1845,7 +1856,7 @@
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  padding: 4rem 1.25rem 2rem;
+  padding: 1.5rem 1.25rem 2rem;
   text-align: center;
 }
 
@@ -1864,11 +1875,13 @@
 }
 
 .style-warm .style-hero-visual {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   color: rgb(var(--style-accent));
   display: flex;
   justify-content: center;
   max-height: 150px;
+  height: 150px;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
