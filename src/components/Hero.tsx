@@ -15,12 +15,6 @@ export function Hero() {
     document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleViewBrief = () => {
-    analytics.trackCTA('view_product_brief', 'hero');
-    analytics.trackDownload('product_brief');
-    // TODO: Open PDF or modal
-  };
-
   return (
     <section className="relative min-h-screen flex items-center pt-20 pb-12 md:pb-0">
       {/* Background grid */}
@@ -43,22 +37,14 @@ export function Hero() {
               Unified evidence. Verified integrity. Audit-ready outcomes.
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-6 md:mb-8 animate-fade-up delay-200">
+            {/* CTA */}
+            <div className="mb-6 md:mb-8 animate-fade-up delay-200">
               <Button
                 size="lg"
                 onClick={handleRequestAccess}
                 className="bg-foreground text-background hover:bg-foreground/90 px-6 w-full sm:w-auto"
               >
                 Request access
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleViewBrief}
-                className="px-6 border-line-strong hover:bg-secondary w-full sm:w-auto"
-              >
-                View product brief
               </Button>
             </div>
 
