@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { analytics } from '@/lib/analytics';
+import logo from '@/assets/logo.png';
 
 const navLinks = [
   { label: 'Product', href: '#product' },
@@ -45,16 +46,12 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 relative">
-              <svg viewBox="0 0 32 32" fill="none" className="w-full h-full">
-                <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
-                <circle cx="16" cy="16" r="6" stroke="currentColor" strokeWidth="1.5" className="text-accent" />
-                <line x1="16" y1="2" x2="16" y2="8" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
-                <line x1="16" y1="24" x2="16" y2="30" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
-                <line x1="2" y1="16" x2="8" y2="16" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
-                <line x1="24" y1="16" x2="30" y2="16" stroke="currentColor" strokeWidth="1.5" className="text-foreground" />
-              </svg>
-            </div>
+            <img 
+              src={logo} 
+              alt="Portolan Labs" 
+              className="w-8 h-8 object-contain"
+              style={{ filter: 'drop-shadow(0 0 1px currentColor)' }}
+            />
             <span className="font-semibold text-lg tracking-tight">Portolan Labs</span>
           </a>
 
