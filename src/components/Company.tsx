@@ -14,15 +14,15 @@ export function Company() {
           <div>
             <p className="text-label mb-4">Company</p>
             <h2 className="text-headline mb-6">
-              Building the compliance layer for global mobility.
+              Building decision infrastructure for the world's most critical operations.
             </h2>
             
             <div className="space-y-4 text-body max-w-lg">
               <p>
-                Portolan Labs was founded to solve the infrastructure gap in cross-border mobility—where fragmented systems, inconsistent evidence, and opaque decisions create friction for everyone involved.
+                Portolan Labs was founded to solve the infrastructure gap in high-stakes decision-making—where fragmented systems, inconsistent evidence, and opaque processes create risk for governments and enterprises alike.
               </p>
               <p>
-                We're building from Turkey, a geography that sits at the intersection of complex mobility flows and institutional rigor, making it an ideal proving ground for compliance infrastructure that works at scale.
+                We build software for organizations that cannot afford to get it wrong: border security agencies, defense departments, consular networks, and global enterprises navigating complex regulatory environments.
               </p>
             </div>
           </div>

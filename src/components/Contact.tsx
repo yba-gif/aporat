@@ -64,13 +64,13 @@ export function Contact() {
           <div>
             <p className="text-label mb-4">Contact</p>
             <h2 className="text-headline mb-6">
-              Ready to see Portolan
+              Ready to deploy
               <br />
-              in action?
+              decision infrastructure?
             </h2>
             
             <p className="text-body mb-8 max-w-md">
-              Request access to our pilot program or schedule a technical briefing with our team.
+              Request access to our platform or schedule a technical briefing with our government and enterprise teams.
             </p>
 
             {/* Alternative Contact */}
