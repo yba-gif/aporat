@@ -15,38 +15,38 @@ const products: Product[] = [
   {
     id: 'foundry',
     name: 'Portolan Foundry',
-    tagline: 'Mobility data fabric and evidence vault',
+    tagline: 'Operational data fabric and evidence vault',
     icon: Database,
     capabilities: [
-      'Unified ingestion pipelines for documents, biometrics, and metadata',
+      'Unified ingestion pipelines for documents, signals, and third-party data',
       'Tamper-evident storage with cryptographic chain-of-custody',
-      'Schema normalization across source systems and formats',
+      'Schema normalization across legacy systems and modern APIs',
     ],
-    artifacts: ['Evidence Vault', 'Normalized Schema', 'Ingestion Reports'],
+    artifacts: ['Evidence Vault', 'Normalized Schema', 'Provenance Logs'],
   },
   {
     id: 'gotham',
     name: 'Portolan Gotham',
-    tagline: 'Case intelligence & decision workbench',
+    tagline: 'Case intelligence and decision workbench',
     icon: Compass,
     capabilities: [
-      'Entity resolution and relationship mapping across dossiers',
-      'Configurable integrity checks with explainable scoring',
-      'Collaborative review workflows with role-based access',
+      'Entity resolution and relationship mapping across complex networks',
+      'Configurable integrity checks with explainable risk scoring',
+      'Collaborative workflows with role-based access and approval chains',
     ],
-    artifacts: ['Risk Graph', 'Dossier Timeline', 'Decision Audit'],
+    artifacts: ['Intelligence Graph', 'Case Timeline', 'Decision Audit'],
   },
   {
     id: 'apollo',
     name: 'Portolan Apollo',
-    tagline: 'Policy deployment & governance',
+    tagline: 'Policy deployment and operational governance',
     icon: Cpu,
     capabilities: [
       'Declarative policy rulesets as deployable configurations',
-      'Version-controlled policy lifecycle management',
-      'Real-time compliance monitoring and drift detection',
+      'Version-controlled lifecycle management for compliance logic',
+      'Real-time monitoring, drift detection, and SLA enforcement',
     ],
-    artifacts: ['Policy Registry', 'Compliance Dashboard', 'Governance Logs'],
+    artifacts: ['Policy Registry', 'Operations Dashboard', 'Governance Logs'],
   },
 ];
 
@@ -66,14 +66,14 @@ export function Products() {
       <div className="container-wide">
         {/* Header */}
         <div className="max-w-2xl mb-16">
-          <p className="text-label mb-4">Product</p>
+          <p className="text-label mb-4">Platform</p>
           <h2 className="text-headline mb-4">
             Three platforms.
             <br />
-            One integrated system.
+            One operating system.
           </h2>
           <p className="text-body">
-            Purpose-built infrastructure for mobility compliance—from evidence ingestion to policy enforcement.
+            Purpose-built infrastructure for governments and enterprises where evidence integrity and decision accountability define mission success.
           </p>
         </div>
 

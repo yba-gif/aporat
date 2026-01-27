@@ -5,33 +5,33 @@ import { Lock, FileText, Users, Database, Eye, ShieldCheck } from 'lucide-react'
 const securityFeatures = [
   {
     icon: Lock,
-    title: 'KVKK-First Design',
-    description: 'Privacy-by-design architecture aligned with Turkish data protection requirements.',
+    title: 'Zero Trust Architecture',
+    description: 'Every request authenticated and authorized. No implicit trust, regardless of network location.',
   },
   {
     icon: Users,
-    title: 'Role-Based Access',
-    description: 'Granular RBAC with configurable permission sets and organizational hierarchies.',
+    title: 'Role-Based Access Control',
+    description: 'Granular RBAC with configurable permission sets, organizational hierarchies, and compartmentalization.',
   },
   {
     icon: FileText,
     title: 'Immutable Audit Logs',
-    description: 'Tamper-evident logging with cryptographic verification of all system events.',
+    description: 'Tamper-evident logging with cryptographic verification of all system events and decisions.',
   },
   {
     icon: Database,
-    title: 'Data Retention Policies',
-    description: 'Configurable retention rules with automated purge and archival workflows.',
+    title: 'Sovereign Data Controls',
+    description: 'Configurable data residency, retention policies, and automated purge workflows.',
   },
   {
     icon: Eye,
     title: 'Data Minimization',
-    description: 'Collect only what\'s needed. Consent-based signals for optional data fields.',
+    description: 'Collect only what\'s required. Consent-based signals for optional data fields.',
   },
   {
     icon: ShieldCheck,
     title: 'Selective Disclosure',
-    description: 'Redaction workflows and need-to-know access for sensitive evidence.',
+    description: 'Redaction workflows and need-to-know access for classified or sensitive evidence.',
   },
 ];
 
@@ -52,13 +52,13 @@ export function Security() {
               Security & Compliance
             </p>
             <h2 className="text-headline text-background mb-6">
-              Compliance infrastructure,
+              Enterprise-grade security.
               <br />
-              not compliance theater.
+              Government-ready compliance.
             </h2>
             
             <p className="text-lg text-background/70 mb-8 leading-relaxed">
-              We do not make or influence sovereign decisions. We standardize evidence and integrity.
+              We do not make or influence sovereign decisions. We provide the infrastructure for evidence integrity and decision accountability.
             </p>
 
             <Button

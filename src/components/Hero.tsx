@@ -34,13 +34,13 @@ export function Hero() {
           {/* Left: Content */}
           <div className="max-w-xl">
             <h1 className="text-display mb-6 animate-fade-up">
-              Mobility compliance,
+              Decision infrastructure
               <br />
-              <span className="text-muted-foreground">engineered.</span>
+              <span className="text-muted-foreground">for critical operations.</span>
             </h1>
             
             <p className="text-subhead mb-8 animate-fade-up delay-100">
-              Portolan Labs standardizes evidence, detects integrity risks, and delivers audit-grade decision workflows for cross-border mobility.
+              Portolan Labs builds the operating system for high-stakes decision workflows—unifying evidence, detecting integrity risks, and delivering audit-grade outcomes for governments and enterprises.
             </p>
 
             {/* CTAs */}

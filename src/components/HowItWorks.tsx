@@ -12,7 +12,7 @@ const steps: Step[] = [
   {
     id: 'ingest',
     label: 'Ingest',
-    input: 'Raw documents, forms, biometrics',
+    input: 'Documents, signals, external data',
     process: 'Multi-format parsing',
     output: 'Structured evidence objects',
   },
@@ -28,7 +28,7 @@ const steps: Step[] = [
     label: 'Verify',
     input: 'Canonical records',
     process: 'Integrity checks',
-    output: 'Validated + scored',
+    output: 'Validated + risk-scored',
   },
   {
     id: 'decide',
@@ -42,7 +42,7 @@ const steps: Step[] = [
     label: 'Audit',
     input: 'Decision events',
     process: 'Immutable logging',
-    output: 'Compliance record',
+    output: 'Compliance archive',
   },
 ];
 
@@ -85,10 +85,10 @@ export function HowItWorks() {
         <div className="max-w-2xl mb-16">
           <p className="text-label mb-4">How it works</p>
           <h2 className="text-headline mb-4">
-            From evidence to audit.
+            From evidence to audit-ready decision.
           </h2>
           <p className="text-body">
-            A continuous pipeline that standardizes, verifies, and records every mobility decision.
+            A continuous pipeline that ingests, verifies, and records every high-stakes decision with full provenance.
           </p>
         </div>
 

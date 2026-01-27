@@ -11,31 +11,31 @@ interface Solution {
 const solutions: Solution[] = [
   {
     icon: Building2,
-    title: 'Consular Operations',
-    problem: 'Inconsistent evidence formats and manual verification drain resources.',
-    solution: 'Portolan standardizes evidence packs with configurable intake templates and automated completeness checks.',
-    outcome: 'Reduce back-and-forth by 30–50%',
+    title: 'Government & Consular',
+    problem: 'Fragmented systems and manual processes create bottlenecks in high-volume citizen services.',
+    solution: 'Portolan unifies evidence intake, automates verification, and delivers decision workflows with full audit trails.',
+    outcome: 'Reduce processing time by 60–80%',
   },
   {
     icon: Network,
-    title: 'Agency Networks',
-    problem: 'Multi-party workflows lack visibility and accountability.',
-    solution: 'Portolan provides verified handoff protocols with SLA tracking and role-based dashboards.',
-    outcome: 'Cut time-to-ready by 20–40%',
+    title: 'Defense & Intelligence',
+    problem: 'Multi-agency operations lack visibility, accountability, and secure information sharing.',
+    solution: 'Portolan provides verified handoff protocols, compartmentalized access, and real-time situational awareness.',
+    outcome: 'Unified operational picture',
   },
   {
     icon: Briefcase,
-    title: 'Corporate Mobility',
-    problem: 'Decentralized vendor management creates compliance blind spots.',
-    solution: 'Portolan consolidates risk posture with centralized audit trails and evidence retention.',
-    outcome: 'Unified compliance visibility',
+    title: 'Enterprise Compliance',
+    problem: 'Decentralized vendor management and regulatory fragmentation create compliance blind spots.',
+    solution: 'Portolan consolidates risk posture with centralized audit trails, policy enforcement, and evidence retention.',
+    outcome: 'Enterprise-wide compliance visibility',
   },
   {
     icon: ShieldAlert,
-    title: 'Integrity & Fraud Defense',
-    problem: 'Document fraud and network anomalies slip through siloed checks.',
-    solution: 'Portolan applies graph-based analysis to surface patterns and flag risks before decisions.',
-    outcome: 'Early risk detection at scale',
+    title: 'Fraud & Integrity Defense',
+    problem: 'Document fraud and network anomalies evade siloed detection systems.',
+    solution: 'Portolan applies graph-based analysis to surface coordinated patterns and flag risks before they materialize.',
+    outcome: 'Proactive threat detection at scale',
   },
 ];
 
@@ -47,10 +47,10 @@ export function Solutions() {
         <div className="max-w-2xl mb-16">
           <p className="text-label mb-4">Solutions</p>
           <h2 className="text-headline mb-4">
-            Built for high-stakes workflows.
+            Built for mission-critical operations.
           </h2>
           <p className="text-body">
-            Purpose-built for organizations where accuracy, accountability, and audit matter.
+            Deployed across governments, defense organizations, and global enterprises where accuracy, accountability, and audit compliance are non-negotiable.
           </p>
         </div>
 
