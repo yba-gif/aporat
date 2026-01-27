@@ -1,11 +1,29 @@
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Cpu, Zap, MapPin } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
-const openPositions = [
-  { title: 'Senior Backend Engineer', location: 'Remote / EU' },
-  { title: 'Product Designer', location: 'Remote / EU' },
-];
+interface OpenPosition {
+  id: string;
+  title: string;
+  location: string;
+  department: string | null;
+}
 
 export function Company() {
+  const { data: positions = [], isLoading } = useQuery({
+    queryKey: ['open-positions'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('open_positions')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as OpenPosition[];
+    },
+  });
+
   return (
     <section id="company" className="section-padding bg-surface-elevated/50 border-y border-border">
       <div className="container-wide">
@@ -25,26 +43,85 @@ export function Company() {
                 We build for organizations that cannot afford to get it wrong: border agencies, defense, consular networks, and regulated enterprises.
               </p>
             </div>
+
+            {/* Tech Stack Indicators */}
+            <div className="mt-8 flex items-center gap-6">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+                <Cpu className="w-3 h-3 text-accent" />
+                <span>High-performance systems</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
+                <Zap className="w-3 h-3 text-accent" />
+                <span>Real-time processing</span>
+              </div>
+            </div>
           </div>
 
           {/* Right: Open Positions */}
           <div className="space-y-12">
             <div>
-              <h3 className="font-semibold mb-6">Open Positions</h3>
-              <div className="space-y-3">
-                {openPositions.map((position, index) => (
-                  <a
-                    key={index}
-                    href="#contact"
-                    className="flex items-center justify-between gap-4 p-4 border border-border bg-background hover:bg-secondary/50 transition-colors group"
-                  >
-                    <div>
-                      <p className="font-medium">{position.title}</p>
-                      <p className="text-sm text-muted-foreground">{position.location}</p>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-foreground group-hover:translate-x-1 transition-all" />
-                  </a>
-                ))}
+              <div className="flex items-center gap-3 mb-6">
+                <h3 className="font-semibold">Open Positions</h3>
+                <div className="h-px flex-1 bg-gradient-to-r from-accent/50 to-transparent" />
+                <span className="text-xs font-mono text-accent">
+                  {positions.length} roles
+                </span>
+              </div>
+
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-20 bg-background border border-border animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {positions.map((position, index) => (
+                    <a
+                      key={position.id}
+                      href="#contact"
+                      className="group relative flex items-center justify-between gap-4 p-4 border border-border bg-background hover:bg-secondary/50 transition-all duration-300 overflow-hidden"
+                    >
+                      {/* Animated border effect */}
+                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
+                        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+                      </div>
+
+                      {/* Index number */}
+                      <div className="absolute top-2 right-2 text-[10px] font-mono text-muted-foreground/50">
+                        {String(index + 1).padStart(2, '0')}
+                      </div>
+
+                      <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-1">
+                          {position.department && (
+                            <span className="text-[10px] font-mono text-accent uppercase tracking-wider">
+                              {position.department}
+                            </span>
+                          )}
+                        </div>
+                        <p className="font-medium group-hover:text-accent transition-colors">
+                          {position.title}
+                        </p>
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <MapPin className="w-3 h-3 text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground font-mono">
+                            {position.location}
+                          </p>
+                        </div>
+                      </div>
+
+                      <ArrowRight className="relative z-10 w-4 h-4 text-muted-foreground group-hover:text-accent group-hover:translate-x-1 transition-all" />
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              {/* Status indicator */}
+              <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+                <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+                <span className="font-mono">Actively hiring</span>
               </div>
             </div>
           </div>
