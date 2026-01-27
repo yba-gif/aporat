@@ -26,20 +26,20 @@ export default function TestStyles() {
 
   return (
     <div className={`min-h-screen ${styleClasses[activeStyle]}`}>
-      {/* Style Switcher - Mobile Dropdown */}
-      <div className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-sm border-b border-black/10">
-        <div className="px-4 py-3">
+      {/* Style Switcher - Always visible */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white backdrop-blur-sm border-b-2 border-black/20 safe-area-top">
+        <div className="px-3 py-2 sm:px-4 sm:py-3">
           {/* Mobile: Dropdown */}
-          <div className="md:hidden">
+          <div className="md:hidden relative">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="w-full flex items-center justify-between px-3 py-2 border border-black/20 text-sm font-medium"
+              className="w-full flex items-center justify-between px-3 py-2.5 border-2 border-black text-sm font-bold bg-white"
             >
-              <span>{styles.find(s => s.id === activeStyle)?.name}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+              <span className="truncate">{styles.find(s => s.id === activeStyle)?.name}</span>
+              <ChevronDown className={`w-5 h-5 flex-shrink-0 ml-2 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             {isOpen && (
-              <div className="absolute left-4 right-4 mt-1 bg-white border border-black/20 shadow-lg">
+              <div className="absolute left-0 right-0 mt-1 bg-white border-2 border-black shadow-lg max-h-[60vh] overflow-y-auto">
                 {styles.map((style) => (
                   <button
                     key={style.id}
@@ -47,12 +47,12 @@ export default function TestStyles() {
                       setActiveStyle(style.id);
                       setIsOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 text-sm ${
-                      activeStyle === style.id ? 'bg-black text-white' : 'hover:bg-black/5'
+                    className={`w-full text-left px-3 py-3 text-sm border-b border-black/10 last:border-b-0 ${
+                      activeStyle === style.id ? 'bg-black text-white' : 'hover:bg-black/5 active:bg-black/10'
                     }`}
                   >
-                    <span className="font-medium">{style.name}</span>
-                    <span className="text-xs opacity-60 ml-2">{style.description}</span>
+                    <span className="font-bold block">{style.name}</span>
+                    <span className="text-xs opacity-70 block mt-0.5">{style.description}</span>
                   </button>
                 ))}
               </div>
@@ -61,15 +61,15 @@ export default function TestStyles() {
           
           {/* Desktop: Buttons */}
           <div className="hidden md:flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium mr-2">Style:</span>
+            <span className="text-sm font-bold mr-2">Style:</span>
             {styles.map((style) => (
               <button
                 key={style.id}
                 onClick={() => setActiveStyle(style.id)}
-                className={`px-3 py-1.5 text-sm border transition-all ${
+                className={`px-3 py-1.5 text-sm border-2 transition-all font-medium ${
                   activeStyle === style.id
                     ? 'bg-black text-white border-black'
-                    : 'bg-transparent border-black/20 hover:border-black'
+                    : 'bg-white border-black/30 hover:border-black'
                 }`}
               >
                 {style.name}
@@ -79,8 +79,8 @@ export default function TestStyles() {
         </div>
       </div>
 
-      {/* Content */}
-      <main className="pt-24">
+      {/* Content - proper spacing for fixed header */}
+      <main className="pt-16 sm:pt-20">
         <StyleDemo variant={activeStyle} />
       </main>
     </div>
