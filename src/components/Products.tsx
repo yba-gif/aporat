@@ -14,39 +14,39 @@ interface Product {
 const products: Product[] = [
   {
     id: 'maris',
-    name: 'Portolan Maris',
-    tagline: 'Operational data fabric and evidence vault',
+    name: 'Maris',
+    tagline: 'Collect and store evidence',
     icon: Database,
     capabilities: [
-      'Unified ingestion pipelines for documents, signals, and third-party data',
-      'Tamper-evident storage with cryptographic chain-of-custody',
-      'Schema normalization across legacy systems and modern APIs',
+      'Ingest documents, records, and external data',
+      'Store with tamper-proof chain-of-custody',
+      'Normalize across different formats and sources',
     ],
-    artifacts: ['Evidence Vault', 'Normalized Schema', 'Provenance Logs'],
+    artifacts: ['Evidence Vault', 'Data Schema', 'Audit Logs'],
   },
   {
     id: 'nautica',
-    name: 'Portolan Nautica',
-    tagline: 'Case intelligence and decision workbench',
+    name: 'Nautica',
+    tagline: 'Analyze and decide',
     icon: Compass,
     capabilities: [
-      'Entity resolution and relationship mapping across complex networks',
-      'Configurable integrity checks with explainable risk scoring',
-      'Collaborative workflows with role-based access and approval chains',
+      'Map entities and relationships',
+      'Score risk with explainable checks',
+      'Route decisions through approval workflows',
     ],
-    artifacts: ['Intelligence Graph', 'Case Timeline', 'Decision Audit'],
+    artifacts: ['Risk Graph', 'Case Timeline', 'Decision Record'],
   },
   {
     id: 'meridian',
-    name: 'Portolan Meridian',
-    tagline: 'Policy deployment and operational governance',
+    name: 'Meridian',
+    tagline: 'Enforce and govern',
     icon: Cpu,
     capabilities: [
-      'Declarative policy rulesets as deployable configurations',
-      'Version-controlled lifecycle management for compliance logic',
-      'Real-time monitoring, drift detection, and SLA enforcement',
+      'Define compliance rules as code',
+      'Deploy policies with version control',
+      'Monitor and alert on violations',
     ],
-    artifacts: ['Policy Registry', 'Operations Dashboard', 'Governance Logs'],
+    artifacts: ['Policy Registry', 'Compliance Dashboard', 'Governance Logs'],
   },
 ];
 
@@ -66,14 +66,12 @@ export function Products() {
       <div className="container-wide">
         {/* Header */}
         <div className="max-w-2xl mb-16">
-          <p className="text-label mb-4">Platform</p>
+          <p className="text-label mb-4">Products</p>
           <h2 className="text-headline mb-4">
-            Three platforms.
-            <br />
-            One operating system.
+            Three products. One platform.
           </h2>
           <p className="text-body">
-            Infrastructure for governments and enterprises where evidence integrity defines mission success.
+            Collect evidence. Make decisions. Enforce policy.
           </p>
         </div>
 

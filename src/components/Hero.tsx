@@ -36,11 +36,11 @@ export function Hero() {
             <h1 className="text-display mb-6 animate-fade-up">
               Decision infrastructure
               <br />
-              <span className="text-muted-foreground">for critical operations.</span>
+              <span className="text-muted-foreground">for governments and enterprises.</span>
             </h1>
             
             <p className="text-subhead mb-8 animate-fade-up delay-100">
-              The operating system for high-stakes decisions. Unified evidence. Verified integrity. Audit-ready outcomes.
+              Portolan Labs helps organizations verify evidence, assess risk, and make auditable decisions at scale.
             </p>
 
             {/* CTAs */}
