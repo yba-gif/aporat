@@ -77,7 +77,7 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
-            <CompassLogo className="w-8 h-8 text-accent" />
+            <CompassLogo className="w-8 h-8 text-foreground" />
             <span className="font-semibold text-lg tracking-tight">Portolan Labs</span>
           </a>
 
