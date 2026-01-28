@@ -83,29 +83,22 @@ function PlatformSidebar({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <SidebarMenuButton 
-                        className={`w-full justify-start gap-3 px-2 py-2 cursor-pointer rounded-lg transition-all duration-200 ${
+                        className={`w-full justify-start px-3 py-2.5 cursor-pointer rounded-lg transition-all duration-200 ${
                           isActive 
                             ? 'bg-accent text-accent-foreground' 
                             : 'hover:bg-sidebar-accent'
                         }`}
                         onClick={() => setActiveModule(item.id)}
                       >
-                        <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 transition-colors ${
-                          isActive 
-                            ? 'bg-accent-foreground/20' 
-                            : 'bg-secondary'
-                        }`}>
-                          <item.icon className="w-4 h-4" />
-                        </div>
-                        {!collapsed && (
-                          <span className="text-sm font-medium">{item.label}</span>
-                        )}
+                        <span className="text-sm font-medium">{item.label}</span>
                       </SidebarMenuButton>
                     </TooltipTrigger>
-                    <TooltipContent side="right" className="flex flex-col">
-                      <span className="font-medium">{item.label}</span>
-                      <span className="text-xs text-muted-foreground">{item.sublabel}</span>
-                    </TooltipContent>
+                    {collapsed && (
+                      <TooltipContent side="right" className="flex flex-col">
+                        <span className="font-medium">{item.label}</span>
+                        <span className="text-xs text-muted-foreground">{item.sublabel}</span>
+                      </TooltipContent>
+                    )}
                   </Tooltip>
                 </SidebarMenuItem>
               );
