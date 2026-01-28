@@ -9,10 +9,15 @@ import {
   Eye,
   FileSearch,
   Fingerprint,
-  Link2
+  Link2,
+  Database,
+  AlertTriangle,
+  Layers
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { DocumentVault, VaultDocument } from './maris/DocumentVault';
+import { TamperDetection } from './maris/TamperDetection';
 
 interface DocumentStage {
   id: string;
@@ -32,66 +37,12 @@ interface ProcessedDocument {
   flags: string[];
 }
 
-const DEMO_DOCUMENTS: ProcessedDocument[] = [
-  {
-    id: 'doc-001',
-    name: 'passport_ahmad_rezaee.pdf',
-    type: 'Passport',
-    hash: 'sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069',
-    timestamp: '2026-01-28T14:32:00Z',
-    extractedData: {
-      'Full Name': 'Ahmad Rezaee',
-      'Passport Number': 'K12847593',
-      'Date of Birth': '1985-03-12',
-      'Nationality': 'Iranian',
-      'Expiry Date': '2028-06-15',
-      'Issuing Authority': 'Ministry of Foreign Affairs'
-    },
-    confidence: 94.2,
-    flags: ['Name variant detected in other documents']
-  },
-  {
-    id: 'doc-002',
-    name: 'bank_statement_global_finance.pdf',
-    type: 'Financial Document',
-    hash: 'sha256:4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce',
-    timestamp: '2026-01-28T14:33:00Z',
-    extractedData: {
-      'Account Holder': 'Global Finance Consultants Ltd',
-      'Account Number': '****4829',
-      'Bank': 'Turkiye Is Bankasi',
-      'Period': 'Dec 2025 - Jan 2026',
-      'Average Balance': '$847,293.00',
-      'Transaction Count': '1,247'
-    },
-    confidence: 97.8,
-    flags: []
-  },
-  {
-    id: 'doc-003',
-    name: 'employment_letter_suspicious.pdf',
-    type: 'Employment Verification',
-    hash: 'sha256:ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d',
-    timestamp: '2026-01-28T14:34:00Z',
-    extractedData: {
-      'Employee': 'Dmitri Volkov',
-      'Employer': 'TechServe Solutions GmbH',
-      'Position': 'Senior Software Engineer',
-      'Salary': '€95,000/year',
-      'Start Date': '2023-01-15',
-      'Signatory': 'Hans Mueller, HR Director'
-    },
-    confidence: 72.1,
-    flags: ['Low confidence OCR', 'Signature anomaly detected', 'Metadata timestamp mismatch']
-  }
-];
-
 export function MarisPanel() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [processingStages, setProcessingStages] = useState<DocumentStage[]>([]);
-  const [selectedDoc, setSelectedDoc] = useState<ProcessedDocument | null>(null);
-  const [documents, setDocuments] = useState<ProcessedDocument[]>(DEMO_DOCUMENTS);
+  const [selectedDoc, setSelectedDoc] = useState<VaultDocument | null>(null);
+  const [activeView, setActiveView] = useState<'ingest' | 'vault' | 'integrity'>('vault');
 
   const simulateUpload = () => {
     setIsUploading(true);
@@ -104,7 +55,6 @@ export function MarisPanel() {
       { id: 'validate', name: 'Integrity Validation', status: 'pending' },
     ]);
 
-    // Simulate upload progress
     const uploadInterval = setInterval(() => {
       setUploadProgress(prev => {
         if (prev >= 100) {
@@ -115,7 +65,6 @@ export function MarisPanel() {
       });
     }, 150);
 
-    // Simulate processing stages
     setTimeout(() => {
       setProcessingStages(prev => prev.map(s => 
         s.id === 'ingest' ? { ...s, status: 'processing' } : s
@@ -160,212 +109,244 @@ export function MarisPanel() {
 
   return (
     <div className="flex-1 flex">
-      {/* Left: Upload & Processing */}
-      <div className="w-96 border-r border-border p-6 flex flex-col gap-6">
-        {/* Upload Zone */}
-        <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-accent/50 transition-colors cursor-pointer"
-          onClick={() => !isUploading && simulateUpload()}
-        >
-          <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-          <p className="text-sm font-medium mb-1">Drop evidence files here</p>
-          <p className="text-xs text-muted-foreground">PDF, JPEG, PNG, DOCX supported</p>
-          {isUploading && (
-            <div className="mt-4">
-              <Progress value={uploadProgress} className="h-1" />
-              <p className="text-xs text-accent mt-2">Uploading... {uploadProgress}%</p>
-            </div>
-          )}
+      {/* Left Navigation */}
+      <div className="w-56 border-r border-border flex flex-col">
+        <div className="p-4 border-b border-border">
+          <p className="text-label mb-1">Evidence Management</p>
+          <p className="text-xs text-muted-foreground">Document lifecycle</p>
         </div>
 
-        {/* Processing Pipeline */}
-        {processingStages.length > 0 && (
-          <div className="space-y-3">
-            <p className="text-label">Processing Pipeline</p>
-            {processingStages.map((stage) => (
-              <div key={stage.id} className="flex items-start gap-3 p-3 bg-secondary/30 rounded">
-                {stage.status === 'pending' && (
-                  <Clock className="w-4 h-4 text-muted-foreground mt-0.5" />
-                )}
-                {stage.status === 'processing' && (
-                  <div className="w-4 h-4 border-2 border-accent border-t-transparent rounded-full animate-spin mt-0.5" />
-                )}
-                {stage.status === 'complete' && (
-                  <CheckCircle2 className="w-4 h-4 text-accent mt-0.5" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className={`text-sm font-medium ${stage.status === 'complete' ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {stage.name}
-                  </p>
-                  {stage.details && (
-                    <p className="text-xs text-muted-foreground truncate">{stage.details}</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="p-2 space-y-1">
+          <button
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${
+              activeView === 'ingest' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'
+            }`}
+            onClick={() => setActiveView('ingest')}
+          >
+            <Upload className="w-4 h-4" />
+            <div>
+              <p className="text-sm font-medium">Ingest</p>
+              <p className="text-[10px] text-muted-foreground">Upload & process</p>
+            </div>
+          </button>
 
-        {/* Evidence Vault Stats */}
-        <div className="mt-auto p-4 bg-secondary/30 rounded-lg space-y-3">
-          <p className="text-label">Evidence Vault</p>
-          <div className="grid grid-cols-2 gap-4">
+          <button
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${
+              activeView === 'vault' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'
+            }`}
+            onClick={() => setActiveView('vault')}
+          >
+            <Database className="w-4 h-4" />
             <div>
-              <p className="text-2xl font-bold text-accent">847</p>
-              <p className="text-xs text-muted-foreground">Documents ingested</p>
+              <p className="text-sm font-medium">Evidence Vault</p>
+              <p className="text-[10px] text-muted-foreground">847 documents</p>
             </div>
+          </button>
+
+          <button
+            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${
+              activeView === 'integrity' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'
+            }`}
+            onClick={() => setActiveView('integrity')}
+          >
+            <Shield className="w-4 h-4" />
             <div>
-              <p className="text-2xl font-bold text-foreground">12.4 GB</p>
-              <p className="text-xs text-muted-foreground">Total storage</p>
+              <p className="text-sm font-medium">Integrity</p>
+              <p className="text-[10px] text-destructive">4 alerts</p>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground">99.7%</p>
-              <p className="text-xs text-muted-foreground">OCR accuracy</p>
+          </button>
+        </div>
+
+        {/* Stats */}
+        <div className="mt-auto p-4 border-t border-border space-y-3">
+          <p className="text-label">Vault Statistics</p>
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Documents</span>
+              <span className="font-mono text-accent">847</span>
             </div>
-            <div>
-              <p className="text-2xl font-bold text-destructive">23</p>
-              <p className="text-xs text-muted-foreground">Integrity alerts</p>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Storage</span>
+              <span className="font-mono">12.4 GB</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">OCR Accuracy</span>
+              <span className="font-mono text-accent">99.7%</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Integrity Alerts</span>
+              <span className="font-mono text-destructive">23</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Center: Document List */}
-      <div className="flex-1 flex flex-col">
-        <div className="p-4 border-b border-border flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <FileSearch className="w-4 h-4 text-accent" />
-            <span className="text-sm font-medium">Recent Documents</span>
-          </div>
-          <span className="text-xs text-muted-foreground">{documents.length} documents</span>
-        </div>
-        
-        <div className="flex-1 overflow-auto">
-          {documents.map((doc) => (
+      {/* Main Content */}
+      {activeView === 'ingest' && (
+        <div className="flex-1 p-6 overflow-auto">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Document Ingestion</h3>
+              <p className="text-sm text-muted-foreground">
+                Upload evidence files for automated processing, OCR extraction, and chain-of-custody sealing.
+              </p>
+            </div>
+
+            {/* Upload Zone */}
             <div 
-              key={doc.id}
-              className={`p-4 border-b border-border cursor-pointer transition-colors ${
-                selectedDoc?.id === doc.id ? 'bg-accent/10' : 'hover:bg-secondary/30'
-              }`}
-              onClick={() => setSelectedDoc(doc)}
+              className="border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-accent/50 transition-colors cursor-pointer"
+              onClick={() => !isUploading && simulateUpload()}
             >
-              <div className="flex items-start gap-3">
-                <div className={`p-2 rounded ${doc.flags.length > 0 ? 'bg-destructive/20' : 'bg-secondary'}`}>
-                  <FileText className={`w-4 h-4 ${doc.flags.length > 0 ? 'text-destructive' : 'text-muted-foreground'}`} />
+              <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <p className="text-sm font-medium mb-1">Drop evidence files here</p>
+              <p className="text-xs text-muted-foreground">PDF, JPEG, PNG, DOCX supported • Max 50MB per file</p>
+              {isUploading && (
+                <div className="mt-6 max-w-xs mx-auto">
+                  <Progress value={uploadProgress} className="h-2" />
+                  <p className="text-xs text-accent mt-2">Uploading... {uploadProgress}%</p>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{doc.name}</p>
-                  <p className="text-xs text-muted-foreground">{doc.type}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-[10px] font-mono text-muted-foreground truncate max-w-[200px]">
-                      {doc.hash.slice(0, 30)}...
-                    </span>
-                    {doc.flags.length > 0 && (
-                      <span className="text-[10px] px-1.5 py-0.5 bg-destructive/20 text-destructive rounded">
-                        {doc.flags.length} flag{doc.flags.length > 1 ? 's' : ''}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className={`text-sm font-mono ${doc.confidence > 90 ? 'text-accent' : doc.confidence > 80 ? 'text-yellow-500' : 'text-destructive'}`}>
-                    {doc.confidence}%
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">confidence</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Right: Document Detail */}
-      {selectedDoc && (
-        <div className="w-96 border-l border-border flex flex-col">
-          <div className="p-4 border-b border-border">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">{selectedDoc.name}</p>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Eye className="w-4 h-4" />
-              </Button>
-            </div>
-            <p className="text-xs text-muted-foreground">{selectedDoc.type}</p>
-          </div>
-
-          <div className="flex-1 overflow-auto p-4 space-y-6">
-            {/* Hash & Provenance */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Hash className="w-4 h-4 text-accent" />
-                <p className="text-label">Cryptographic Hash</p>
-              </div>
-              <div className="p-3 bg-secondary/30 rounded font-mono text-xs break-all">
-                {selectedDoc.hash}
-              </div>
+              )}
             </div>
 
-            {/* Chain of Custody */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Link2 className="w-4 h-4 text-accent" />
-                <p className="text-label">Chain of Custody</p>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-xs">
-                  <div className="w-2 h-2 rounded-full bg-accent" />
-                  <span className="text-muted-foreground">Ingested</span>
-                  <span className="ml-auto font-mono">{new Date(selectedDoc.timestamp).toLocaleString()}</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <div className="w-2 h-2 rounded-full bg-accent" />
-                  <span className="text-muted-foreground">OCR Processed</span>
-                  <span className="ml-auto font-mono">+2.3s</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <div className="w-2 h-2 rounded-full bg-accent" />
-                  <span className="text-muted-foreground">Normalized</span>
-                  <span className="ml-auto font-mono">+3.1s</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <div className="w-2 h-2 rounded-full bg-accent" />
-                  <span className="text-muted-foreground">Vault Sealed</span>
-                  <span className="ml-auto font-mono">+3.4s</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Extracted Data */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Fingerprint className="w-4 h-4 text-accent" />
-                <p className="text-label">Extracted Data</p>
-              </div>
-              <div className="space-y-2">
-                {Object.entries(selectedDoc.extractedData).map(([key, value]) => (
-                  <div key={key} className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">{key}</span>
-                    <span className="font-mono text-foreground">{value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Flags */}
-            {selectedDoc.flags.length > 0 && (
+            {/* Processing Pipeline */}
+            {processingStages.length > 0 && (
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-destructive" />
-                  <p className="text-label text-destructive">Integrity Flags</p>
-                </div>
-                <div className="space-y-2">
-                  {selectedDoc.flags.map((flag, idx) => (
-                    <div key={idx} className="p-2 bg-destructive/10 border border-destructive/20 rounded text-xs text-destructive">
-                      {flag}
+                <p className="text-label">Processing Pipeline</p>
+                <div className="grid grid-cols-5 gap-2">
+                  {processingStages.map((stage, idx) => (
+                    <div key={stage.id} className="relative">
+                      {idx < processingStages.length - 1 && (
+                        <div className={`absolute top-4 left-1/2 w-full h-0.5 ${
+                          stage.status === 'complete' ? 'bg-accent' : 'bg-border'
+                        }`} />
+                      )}
+                      <div className={`relative z-10 p-3 rounded-lg text-center ${
+                        stage.status === 'complete' ? 'bg-accent/10' :
+                        stage.status === 'processing' ? 'bg-yellow-500/10' :
+                        'bg-secondary/30'
+                      }`}>
+                        <div className="flex justify-center mb-2">
+                          {stage.status === 'pending' && (
+                            <Clock className="w-5 h-5 text-muted-foreground" />
+                          )}
+                          {stage.status === 'processing' && (
+                            <div className="w-5 h-5 border-2 border-yellow-500 border-t-transparent rounded-full animate-spin" />
+                          )}
+                          {stage.status === 'complete' && (
+                            <CheckCircle2 className="w-5 h-5 text-accent" />
+                          )}
+                        </div>
+                        <p className="text-[10px] font-medium">{stage.name}</p>
+                        {stage.details && (
+                          <p className="text-[9px] text-muted-foreground mt-1 truncate">{stage.details}</p>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
+
+            {/* Supported Formats */}
+            <div className="grid grid-cols-4 gap-4">
+              {['Passports', 'Bank Statements', 'Employment Letters', 'Travel Documents'].map((type) => (
+                <div key={type} className="p-4 bg-secondary/30 rounded-lg text-center">
+                  <FileText className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
+                  <p className="text-xs font-medium">{type}</p>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
+      )}
+
+      {activeView === 'vault' && (
+        <>
+          <div className="w-96 border-r border-border">
+            <DocumentVault
+              onDocumentSelect={(doc) => setSelectedDoc(doc)}
+              selectedDocId={selectedDoc?.id || null}
+            />
+          </div>
+          
+          {/* Document Detail */}
+          {selectedDoc && (
+            <div className="flex-1 overflow-auto p-6">
+              <div className="max-w-2xl space-y-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold">{selectedDoc.name}</h3>
+                    <p className="text-sm text-muted-foreground">{selectedDoc.type} • {selectedDoc.size}</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Eye className="w-4 h-4" />
+                    View Original
+                  </Button>
+                </div>
+
+                {/* Hash */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Hash className="w-4 h-4 text-accent" />
+                    <p className="text-label">Cryptographic Hash</p>
+                  </div>
+                  <div className="p-3 bg-secondary/30 rounded font-mono text-xs break-all">
+                    sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069
+                  </div>
+                </div>
+
+                {/* Chain of Custody */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Link2 className="w-4 h-4 text-accent" />
+                    <p className="text-label">Chain of Custody</p>
+                  </div>
+                  <div className="space-y-0 relative">
+                    <div className="absolute left-[7px] top-2 bottom-2 w-px bg-accent" />
+                    {[
+                      { event: 'Ingested from API Upload', time: '2026-01-28 14:32:00', actor: 'System' },
+                      { event: 'OCR Processed', time: '2026-01-28 14:32:02', actor: 'Maris Engine v2.4' },
+                      { event: 'Hash Computed & Sealed', time: '2026-01-28 14:32:03', actor: 'Cryptography Module' },
+                      { event: 'Schema Normalized', time: '2026-01-28 14:32:04', actor: 'Passport Schema v2.1' },
+                      { event: 'Vault Entry Created', time: '2026-01-28 14:32:05', actor: 'Evidence Vault' },
+                      { event: 'Linked to Case', time: '2026-01-28 14:35:00', actor: 'Officer Yilmaz' },
+                    ].map((entry, idx) => (
+                      <div key={idx} className="flex items-start gap-3 py-2 relative">
+                        <div className="w-4 h-4 rounded-full border-2 border-accent bg-background z-10" />
+                        <div className="flex-1">
+                          <p className="text-xs font-medium">{entry.event}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {entry.time} • {entry.actor}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Linked Entities */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-accent" />
+                    <p className="text-label">Linked Entities</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedDoc.linkedEntities.map((entity, idx) => (
+                      <span key={idx} className="px-3 py-1.5 bg-secondary rounded text-xs cursor-pointer hover:bg-accent/20">
+                        {entity}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {activeView === 'integrity' && (
+        <div className="flex-1 overflow-auto p-6">
+          <TamperDetection />
         </div>
       )}
     </div>
