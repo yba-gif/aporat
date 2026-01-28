@@ -172,6 +172,57 @@ export type Database = {
         }
         Relationships: []
       }
+      vault_documents: {
+        Row: {
+          created_at: string
+          extracted_text: string | null
+          file_path: string
+          file_size: number
+          filename: string
+          flagged: boolean | null
+          id: string
+          metadata: Json | null
+          mime_type: string
+          ocr_confidence: number | null
+          ocr_status: string | null
+          risk_score: number | null
+          sha256_hash: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          extracted_text?: string | null
+          file_path: string
+          file_size: number
+          filename: string
+          flagged?: boolean | null
+          id?: string
+          metadata?: Json | null
+          mime_type: string
+          ocr_confidence?: number | null
+          ocr_status?: string | null
+          risk_score?: number | null
+          sha256_hash: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          extracted_text?: string | null
+          file_path?: string
+          file_size?: number
+          filename?: string
+          flagged?: boolean | null
+          id?: string
+          metadata?: Json | null
+          mime_type?: string
+          ocr_confidence?: number | null
+          ocr_status?: string | null
+          risk_score?: number | null
+          sha256_hash?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
