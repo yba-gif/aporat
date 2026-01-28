@@ -157,9 +157,9 @@ export function EntityDossier({ entityId, graphData }: EntityDossierProps) {
             </div>
             <div className="space-y-2 p-3 bg-secondary/20 rounded-lg">
               {Object.entries(node.metadata as Record<string, unknown>).map(([key, value]) => (
-                <div key={key} className="flex justify-between text-xs">
-                  <span className="text-muted-foreground capitalize">{key.replace(/_/g, ' ')}</span>
-                  <span className="font-mono text-foreground">{String(value)}</span>
+                <div key={key} className="grid grid-cols-[100px_1fr] gap-2 text-xs">
+                  <span className="text-muted-foreground capitalize shrink-0">{key.replace(/_/g, ' ')}</span>
+                  <span className="font-mono text-foreground break-words text-right">{String(value)}</span>
                 </div>
               ))}
             </div>
