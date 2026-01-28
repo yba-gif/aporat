@@ -6,33 +6,33 @@ import { Shield, FileCheck, Network, Clock, Globe, Lock } from 'lucide-react';
 const capabilities = [
   {
     icon: FileCheck,
-    title: 'Evidence Ingestion',
-    description: 'Unified intake for passports, bank statements, employment letters, and supporting documents. OCR extraction with metadata validation.',
+    title: 'The Truth Layer',
+    description: 'Maris provides unified document intake with Digital Notary certificates. Every artifact is cryptographically verified and legally defensible.',
   },
   {
     icon: Network,
-    title: 'Fraud Detection',
-    description: 'Graph-based analysis surfaces coordinated fraud rings. Detect duplicate documents across applications and consulates.',
+    title: 'The Intelligence Nexus',
+    description: 'Nautica unmasks fraud networks with graph-based analysis. Pre-Submission Risk signals detect fraud before it reaches your consulates.',
   },
   {
     icon: Shield,
-    title: 'Policy Enforcement',
-    description: 'Configure visa categories, eligibility rules, and risk thresholds. Propagate changes to all posts instantly.',
+    title: 'The Command Center',
+    description: 'Meridian propagates policy changes to 250+ consulates in under 60 seconds. Case Management Workspace for officer review.',
   },
   {
     icon: Clock,
     title: 'Decision Workflows',
-    description: 'Structured review queues with escalation paths. Every decision linked to underlying evidence.',
+    description: 'Structured review queues with explainable Reason Codes. Every decision linked to underlying evidence for legal defensibility.',
   },
   {
     icon: Globe,
-    title: 'Global Coordination',
-    description: 'Cross-consulate visibility into application patterns. Real-time operational awareness across 250+ posts.',
+    title: 'Cross-Border Intelligence',
+    description: 'When a fraudster is rejected in Berlin and applies in Ankara, Nautica knows. Intelligence that no single consulate can achieve alone.',
   },
   {
     icon: Lock,
     title: 'Sovereign Control',
-    description: 'On-premise or sovereign cloud deployment. Data never leaves your jurisdiction. Full audit trails.',
+    description: 'On-premise or sovereign cloud deployment. Offline/On-Prem capability for unstable connections. Data never leaves your jurisdiction.',
   },
 ];
 
