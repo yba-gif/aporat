@@ -1,123 +1,122 @@
+# Turkish Foreign Ministry Meeting Preparation
 
-# 5 Alternative Hero Sections (Similar to Current)
-
-Creating five new hero variants that maintain the **two-column layout with left copy and right visualization** but with fresh, award-winning visual treatments.
-
----
-
-## Current Hero Analysis
-- **Left side**: Headline, subhead, CTA button, proof chips
-- **Right side**: Interactive graph with nodes, connection lines, and audit trail
-- **Style**: Grid background, subtle animations, data pipeline visualization
+**Meeting Date:** 2 weeks from January 28, 2026  
+**Objective:** Demonstrate Portolan Labs mobility compliance infrastructure for consular/visa operations
 
 ---
 
-## 5 New Variants
+## Phase 1: Research & Core Materials (Days 1–4)
 
-### Variant 1: Signal Flow
-**Concept**: Horizontal signal bars pulsing through verification stages
+### Day 1: Turkey Visa Research ✅ COMPLETE
+- [x] Map Turkey's visa landscape (e-Visa vs sticker)
+- [x] Identify high-fraud origin countries
+- [x] Research consular pain points
+- **Deliverable:** `.lovable/turkey-country-brief.md`
 
-**Left Column**:
-- Same headline structure
-- Minimal proof chips (inline text, no icons)
+### Day 2: Pitch Deck Skeleton
+- [ ] Create 12-slide deck structure
+- [ ] Focus: Problem, Solution, Case Studies, Security Architecture
+- [ ] No stock photos, technical diagrams only
+- **Deliverable:** Pitch deck skeleton
 
-**Right Column**:
-- Stacked horizontal bars representing data signals
-- Each bar pulses left-to-right showing data flow
-- Monochrome with accent highlights on active segments
-- Labels: Ingest → Verify → Resolve
+### Day 3: Government Landing Page ✅ COMPLETE
+- [x] Finalize dedicated "Government & Consular" landing page
+- [x] Sovereign data messaging
+- [x] Capabilities, metrics, data sovereignty sections
+- **Deliverable:** `/government` page live
 
----
-
-### Variant 2: Document Stack
-**Concept**: Abstract document layers being verified and sealed
-
-**Left Column**:
-- Headline with tighter line height
-- Single-line subhead
-- CTA with secondary text link
-
-**Right Column**:
-- Overlapping rectangular layers (documents)
-- Top layer shows verification checkmarks appearing
-- Subtle depth with border offsets
-- Hash signatures appearing at bottom
+### Day 4: Policy Engine Configuration
+- [ ] Seed Meridian demo with Turkish visa categories
+- [ ] Configure: Work, Student, Touristic, Family, Transit
+- [ ] Add eligibility rules and risk thresholds
+- **Deliverable:** Configured policy engine
 
 ---
 
-### Variant 3: Timeline Spine
-**Concept**: Vertical timeline with decision checkpoints
+## Phase 2: Demo Environment Build (Days 5–8)
 
-**Left Column**:
-- Centered within its column
-- Larger display text
-- Proof chips as a horizontal rule
+### Day 5: Maris Integration Workflow
+- [ ] Demo: Ingest 1,000+ passport scans with OCR verification
+- [ ] Show metadata extraction and normalization
+- **Key Feature:** Automated document hash generation
 
-**Right Column**:
-- Central vertical line (the "spine")
-- Alternating left/right checkpoint cards
-- Timestamps and status indicators
-- Final node at bottom: "Decision Rendered"
+### Day 6: Nautica Intelligence Workflow
+- [ ] Visualize "Visa Mill" fraud scenario
+- [ ] Show relationship graph linking applicants to fraudulent source
+- **Key Feature:** Cross-consulate pattern detection
 
----
+### Day 7: Meridian Governance Workflow
+- [ ] Simulate policy change propagation
+- [ ] Show instant update across 250+ consulates
+- **Key Feature:** <200ms propagation latency
 
-### Variant 4: Grid Matrix
-**Concept**: Data points populating a verification grid
-
-**Left Column**:
-- Headlines with monospace accent text
-- Minimal, no proof chips
-
-**Right Column**:
-- 6x4 grid of cells
-- Cells progressively fill with verification states
-- Color coding: empty → processing → verified
-- Row/column headers like a spreadsheet
+### Day 8: Security Documentation
+- [ ] 1-page Security Primer
+- [ ] Encryption standards, GDPR/KVKK compliance, sovereign residency
+- **Deliverable:** Security Primer document
 
 ---
 
-### Variant 5: Terminal Feed
-**Concept**: Live operations console aesthetic
+## Phase 3: Refinement & Rehearsal (Days 9–12)
 
-**Left Column**:
-- Headline styled more technical
-- Subhead with inline code-style formatting
+### Day 9: Partner/Credential Validation
+- [ ] Prepare PoC templates
+- [ ] Highlight NATO-aligned, EU-compliant work
+- **Deliverable:** 1-page Implementation Roadmap
 
-**Right Column**:
-- Terminal-style container with header bar
-- Scrolling log entries appearing line by line
-- Syntax-highlighted output (timestamps, actions, hashes)
-- Blinking cursor at bottom
+### Day 10: Pitch Deck Finalization
+- [ ] Tighten narrative
+- [ ] Focus on high-risk vs. legitimate travelers
+- **Deliverable:** Final deck
+
+### Day 11: Demo Dry Run
+- [ ] Full walkthrough
+- [ ] Test offline mode for ministry Wi-Fi failures
+- **Deliverable:** Tested, working demo
+
+### Day 12: Physical Materials
+- [ ] Print 5 high-quality briefing booklets
+- [ ] Executive summary document
+- **Deliverable:** Physical materials ready
 
 ---
 
-## Technical Implementation
+## Phase 4: Pre-Departure (Days 13–14)
 
-### Files to Create
-```text
-src/components/heroes/
-├── HeroVariantOne.tsx   (Signal Flow)
-├── HeroVariantTwo.tsx   (Document Stack)
-├── HeroVariantThree.tsx (Timeline Spine)
-├── HeroVariantFour.tsx  (Grid Matrix)
-├── HeroVariantFive.tsx  (Terminal Feed)
-└── index.ts             (exports)
-```
+### Day 13: Protocol Review
+- [ ] Review Turkish Ministry protocol (hierarchy, titles)
+- [ ] Finalize talking points
+- **Deliverable:** Talking Points card
 
-### Files to Update
-- `src/pages/Demo.tsx` - Update variant metadata
+### Day 14: Follow-up Package
+- [ ] Draft follow-up email
+- [ ] Create password-protected VDR for post-meeting sharing
+- **Deliverable:** Follow-up package ready
 
-### Shared Elements Across All Variants
-- Two-column responsive grid (stacks on mobile)
-- Same headline/subhead content structure
-- "Request demo" CTA button
-- Proof chips or equivalent credibility markers
-- Subtle animations (fade-up, fade-in with delays)
-- No playful gradients or colors beyond the teal accent
+---
 
-### Animation Approach
-- CSS-only where possible (no cheap JS intervals)
-- Staggered fade-in for visual hierarchy
-- Subtle pulse for active/live indicators
-- No bouncing, no springy physics
+## Key Talking Points
 
+1. **Sovereignty:** "Your data never leaves your jurisdiction. We provide the fabric; you provide the policy."
+
+2. **Integrity over Efficiency:** "We aren't just making the process faster; we are making it harder to spoof."
+
+3. **Flexibility:** "Migration patterns change in days. Meridian allows you to change your global visa stance in seconds."
+
+---
+
+## Demo Scenario
+
+**Narrative:** An organized crime ring is using forged bank statements from a specific region to secure work visas.
+
+1. **Maris** flags duplicate document hash IDs across different applications
+2. **Nautica** visualizes graph linking 20 "unrelated" applicants to single fraudulent source
+3. **Meridian** propagates policy update to all 250+ consulates in <60 seconds
+
+---
+
+## Follow-up Materials (Prepare in Advance)
+
+1. Implementation Timeline (Gantt chart: Discovery to Go-Live in 12 weeks)
+2. API Documentation for IT department
+3. Draft SOW for 90-day Pilot Program
