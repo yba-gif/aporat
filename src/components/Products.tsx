@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ChevronDown, Database, Compass, Cpu } from 'lucide-react';
+import { ChevronDown, Database, Compass, Cpu, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { analytics } from '@/lib/analytics';
 import { ArchitectureDiagram } from './ArchitectureDiagram';
 
@@ -10,6 +11,7 @@ interface Product {
   icon: typeof Database;
   capabilities: string[];
   artifacts: string[];
+  demoLink?: string;
 }
 
 const products: Product[] = [
@@ -36,6 +38,7 @@ const products: Product[] = [
       'Role-based workflows with approval chains',
     ],
     artifacts: ['Entity Graph', 'Integrity Reports', 'Decision Audit'],
+    demoLink: '/platform',
   },
   {
     id: 'meridian',
@@ -148,6 +151,17 @@ export function Products() {
                         ))}
                       </div>
                     </div>
+
+                    {/* Demo Link */}
+                    {product.demoLink && (
+                      <Link
+                        to={product.demoLink}
+                        className="inline-flex items-center gap-2 text-sm font-medium text-accent hover:underline"
+                      >
+                        View Demo
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>
