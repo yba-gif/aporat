@@ -2,24 +2,28 @@ import { Check } from 'lucide-react';
 
 const differentiators = [
   {
-    title: 'Explainable integrity checks',
-    description: 'Every score includes rationale and source attribution. Audit-ready.',
+    title: 'Digital Notary certificates',
+    description: 'Every document gets a Certificate of Authenticity. Legally defensible in administrative court.',
   },
   {
-    title: 'Policy as deployable code',
-    description: 'Define compliance logic once. Deploy with version control and rollback.',
+    title: 'Pre-Submission Risk detection',
+    description: 'Vizesepetim signals identify fraud before it reaches government systems. A unique moat.',
   },
   {
-    title: 'Audit-grade chain-of-custody',
-    description: 'Cryptographically-linked logs for government and enterprise audits.',
+    title: 'Explainable Reason Codes',
+    description: 'Every risk score includes legally valid justification. Not "AI says so" but evidence chains.',
   },
   {
-    title: 'Graph-based threat detection',
-    description: 'Network analysis surfaces coordinated patterns siloed systems miss.',
+    title: 'Cross-border intelligence',
+    description: 'When a fraudster is rejected in Berlin and applies in Ankara, we know.',
   },
   {
-    title: 'Sovereign deployment',
-    description: 'On-premise, air-gapped, or cloud. Data stays where policy demands.',
+    title: 'Sovereignty Engine',
+    description: 'On-premise, air-gapped, or sovereign cloud. Offline-capable for unstable connections.',
+  },
+  {
+    title: 'Case Management Workspace',
+    description: 'Purpose-built UI for consular officers. Not dashboards - workspaces for decisions.',
   },
 ];
 

@@ -3,27 +3,27 @@ import { Cpu, Network, Shield, Zap } from 'lucide-react';
 const techFeatures = [
   {
     icon: Cpu,
-    title: 'SHA-256 Document Hashing',
-    description: 'Cryptographic fingerprinting detects when identical forged documents appear across multiple consulates.',
-    tags: ['Cryptography', 'Tamper Detection'],
+    title: 'Digital Notary Certificates',
+    description: 'Every parsed document receives a Certificate of Authenticity. Legally defensible in administrative court if a visa decision is challenged.',
+    tags: ['Cryptography', 'Legal Defense'],
   },
   {
     icon: Network,
-    title: 'Graph-Based Entity Resolution',
-    description: 'Relationship analysis surfaces visa mills, shared addresses, and coordinated submission patterns.',
-    tags: ['Graph Algorithms', 'Pattern Matching'],
+    title: 'Pre-Submission Risk Detection',
+    description: 'Vizesepetim marketplace signals identify fraud before it reaches government systems. A unique advantage no competitor can match.',
+    tags: ['Early Warning', 'Private Signal'],
   },
   {
     icon: Shield,
-    title: 'Policy-as-Code Engine',
-    description: 'Compliance rules defined once, deployed globally with version control and instant rollback.',
-    tags: ['GitOps', 'Real-time Sync'],
+    title: 'Explainable Reason Codes',
+    description: 'Every risk score includes legally valid justification. Governments cannot reject visas based on "AI says so" - we provide the evidence chain.',
+    tags: ['Compliance', 'Audit-Ready'],
   },
   {
     icon: Zap,
-    title: 'Real-time Processing Pipeline',
-    description: 'Documents ingested, analyzed, and scored in under 3 seconds. No batch delays.',
-    tags: ['Stream Processing', 'Low Latency'],
+    title: 'Sovereignty Engine',
+    description: 'Respond to geopolitical shifts instantly. When migration patterns change overnight, update your global posture in 60 seconds.',
+    tags: ['Real-time', 'Offline-Ready'],
   },
 ];
 

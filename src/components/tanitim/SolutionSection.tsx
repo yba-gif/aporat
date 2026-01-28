@@ -2,20 +2,20 @@ import { Check, ArrowRight } from 'lucide-react';
 
 const solutions = [
   {
-    title: 'Cross-network intelligence',
-    description: 'Detects patterns no single consulate can see. Same document hash flagged across all posts.',
+    title: 'The Truth Layer (Maris)',
+    description: 'Every document gets a Digital Notary certificate. Cryptographic proof of the evidence chain for legal defensibility.',
   },
   {
-    title: 'Real-time policy propagation',
-    description: 'Policy updates reach all 250+ consulates in under 60 seconds. Not weeks.',
+    title: 'The Intelligence Nexus (Nautica)',
+    description: 'When a fraudster is rejected in Berlin and applies in Ankara, Nautica knows. Cross-border intelligence no single consulate can achieve.',
   },
   {
-    title: 'Audit-grade chain-of-custody',
-    description: 'Cryptographically-linked logs for every decision. Full traceability for audits.',
+    title: 'The Command Center (Meridian)',
+    description: 'Policy updates reach all 250+ consulates in under 60 seconds. Case Management Workspace for officer review.',
   },
   {
-    title: 'Graph-based fraud detection',
-    description: 'Network analysis surfaces coordinated patterns that siloed systems miss.',
+    title: 'Pre-Submission Risk',
+    description: 'Vizesepetim signals detect fraud before it reaches government systems. A unique moat no competitor can match.',
   },
 ];
 
