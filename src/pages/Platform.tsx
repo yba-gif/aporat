@@ -22,12 +22,17 @@ import {
   FileSearch, 
   Settings2, 
   Bell,
-  Cylinder,
-  CircleCheckBig,
-  LayoutGrid,
+  Database,
+  Scale,
   Globe,
   ChevronDown
 } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -39,9 +44,9 @@ type ActiveModule = 'maris' | 'nautica' | 'meridian';
 type NauticaView = 'graph' | 'social';
 
 const navItems = [
-  { id: 'maris' as const, label: 'Maris', sublabel: 'Evidence', icon: Cylinder },
-  { id: 'nautica' as const, label: 'Nautica', sublabel: 'Intelligence', icon: CircleCheckBig },
-  { id: 'meridian' as const, label: 'Meridian', sublabel: 'Governance', icon: LayoutGrid },
+  { id: 'maris' as const, label: 'Maris', sublabel: 'Evidence', icon: Database },
+  { id: 'nautica' as const, label: 'Nautica', sublabel: 'Intelligence', icon: Network },
+  { id: 'meridian' as const, label: 'Meridian', sublabel: 'Governance', icon: Scale },
 ];
 
 function PlatformSidebar({ 
@@ -68,29 +73,45 @@ function PlatformSidebar({
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="p-2">
-        <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.id}>
-              <SidebarMenuButton 
-                className={`w-full justify-start gap-3 px-3 py-2.5 cursor-pointer ${
-                  activeModule === item.id 
-                    ? 'bg-accent/10 text-accent border-l-2 border-accent' 
-                    : 'hover:bg-sidebar-accent'
-                }`}
-                onClick={() => setActiveModule(item.id)}
-              >
-                <item.icon className="w-4 h-4 shrink-0" />
-                {!collapsed && (
-                  <div className="text-left">
-                    <p className="text-sm font-medium">{item.label}</p>
-                    <p className="text-[10px] text-muted-foreground">{item.sublabel}</p>
-                  </div>
-                )}
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+      <SidebarContent className="p-3">
+        <TooltipProvider delayDuration={0}>
+          <SidebarMenu className="space-y-1">
+            {navItems.map((item) => {
+              const isActive = activeModule === item.id;
+              return (
+                <SidebarMenuItem key={item.id}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <SidebarMenuButton 
+                        className={`w-full justify-start gap-3 px-2 py-2 cursor-pointer rounded-lg transition-all duration-200 ${
+                          isActive 
+                            ? 'bg-accent text-accent-foreground' 
+                            : 'hover:bg-sidebar-accent'
+                        }`}
+                        onClick={() => setActiveModule(item.id)}
+                      >
+                        <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 transition-colors ${
+                          isActive 
+                            ? 'bg-accent-foreground/20' 
+                            : 'bg-secondary'
+                        }`}>
+                          <item.icon className="w-4 h-4" />
+                        </div>
+                        {!collapsed && (
+                          <span className="text-sm font-medium">{item.label}</span>
+                        )}
+                      </SidebarMenuButton>
+                    </TooltipTrigger>
+                    <TooltipContent side="right" className="flex flex-col">
+                      <span className="font-medium">{item.label}</span>
+                      <span className="text-xs text-muted-foreground">{item.sublabel}</span>
+                    </TooltipContent>
+                  </Tooltip>
+                </SidebarMenuItem>
+              );
+            })}
+          </SidebarMenu>
+        </TooltipProvider>
       </SidebarContent>
     </Sidebar>
   );
@@ -123,9 +144,9 @@ export default function Platform() {
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <div className="flex items-center gap-2">
-                  {activeModule === 'maris' && <Cylinder className="w-4 h-4 text-accent" />}
-                  {activeModule === 'nautica' && <CircleCheckBig className="w-4 h-4 text-accent" />}
-                  {activeModule === 'meridian' && <LayoutGrid className="w-4 h-4 text-accent" />}
+                  {activeModule === 'maris' && <Database className="w-4 h-4 text-accent" />}
+                  {activeModule === 'nautica' && <Network className="w-4 h-4 text-accent" />}
+                  {activeModule === 'meridian' && <Scale className="w-4 h-4 text-accent" />}
                   <span className="text-sm font-medium">{moduleInfo.title}</span>
                   <span className="text-xs font-mono text-muted-foreground px-2 py-0.5 bg-secondary rounded">
                     DEMO
