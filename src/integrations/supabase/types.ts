@@ -50,6 +50,63 @@ export type Database = {
         }
         Relationships: []
       }
+      demo_fraud_edges: {
+        Row: {
+          created_at: string
+          edge_type: string
+          id: string
+          source_node_id: string
+          target_node_id: string
+        }
+        Insert: {
+          created_at?: string
+          edge_type: string
+          id?: string
+          source_node_id: string
+          target_node_id: string
+        }
+        Update: {
+          created_at?: string
+          edge_type?: string
+          id?: string
+          source_node_id?: string
+          target_node_id?: string
+        }
+        Relationships: []
+      }
+      demo_fraud_nodes: {
+        Row: {
+          created_at: string
+          flagged: boolean | null
+          id: string
+          label: string
+          metadata: Json | null
+          node_id: string
+          node_type: string
+          risk_score: number | null
+        }
+        Insert: {
+          created_at?: string
+          flagged?: boolean | null
+          id?: string
+          label: string
+          metadata?: Json | null
+          node_id: string
+          node_type: string
+          risk_score?: number | null
+        }
+        Update: {
+          created_at?: string
+          flagged?: boolean | null
+          id?: string
+          label?: string
+          metadata?: Json | null
+          node_id?: string
+          node_type?: string
+          risk_score?: number | null
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           created_at: string
