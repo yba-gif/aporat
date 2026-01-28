@@ -107,7 +107,7 @@ export function DeploymentSection() {
         {/* Contrast callout */}
         <div className="mt-12 p-6 bg-accent/5 border border-accent/20 text-center">
           <p className="text-sm">
-            <strong>Contrast with current state:</strong> VFS Global and iDATA route data through foreign infrastructure. Portolan keeps Turkish data in Turkey.
+            <strong>Current state:</strong> VFS and iDATA route data through foreign infrastructure. Portolan keeps Turkish data in Turkey.
           </p>
         </div>
       </div>

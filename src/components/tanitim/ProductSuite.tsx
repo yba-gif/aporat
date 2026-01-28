@@ -45,12 +45,12 @@ export function ProductSuite() {
       <div className="container-wide">
         {/* Section header */}
         <div className="text-center mb-16">
-          <p className="text-label mb-4">Product Suite</p>
+          <p className="text-label mb-4">Operational Architecture</p>
           <h2 className="text-headline max-w-2xl mx-auto mb-4">
-            Three integrated modules. One unified workflow.
+            Three modules. One chain of custody.
           </h2>
           <p className="text-body max-w-xl mx-auto">
-            Evidence flows through Maris, analyzed by Nautica, governed by Meridian. Complete chain-of-custody from intake to decision.
+            Evidence enters Maris. Nautica flags risk. Meridian enforces policy. Every step auditable.
           </p>
         </div>
 

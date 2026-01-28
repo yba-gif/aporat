@@ -15,25 +15,25 @@ export function SubsidiarySection() {
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Building2 className="w-5 h-5 text-accent" />
-              <p className="text-label text-accent">Proof of Concept</p>
+              <p className="text-label text-accent">Operational Intelligence</p>
             </div>
             
             <h2 className="text-headline mb-6">
-              Vizesepetim: Our living laboratory
+              Vizesepetim: Live fraud laboratory
             </h2>
 
             <p className="text-body mb-6 max-w-lg">
-              <strong className="text-foreground">Vizesepetim.com</strong> is a wholly-owned subsidiary of Portolan Labs operating as a visa services marketplace in Turkey.
+              <strong className="text-foreground">Vizesepetim.com</strong> is a wholly-owned subsidiary operating as a visa services marketplace in Turkey.
             </p>
 
             <p className="text-body mb-8 max-w-lg">
-              Unlike competitors who sell theory, we generate authentic fraud pattern data from real Turkish visa traffic. Every detection algorithm is validated against live applications.
+              We do not sell theory. We generate authentic fraud pattern data from real Turkish visa traffic. Every detection algorithm is validated against live applications.
             </p>
 
             {/* Corporate structure note */}
             <div className="p-4 bg-secondary border border-border">
               <p className="text-sm">
-                <strong>Corporate structure:</strong> Vizesepetim is a wholly-owned subsidiary, not an acquisition. This ensures unified technology stack, consistent data governance, and direct operational control.
+                <strong>Structure:</strong> Wholly-owned subsidiary. Unified technology. Consistent data governance. Direct operational control.
               </p>
             </div>
           </div>
