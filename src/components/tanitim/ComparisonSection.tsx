@@ -17,9 +17,9 @@ export function ComparisonSection() {
       <div className="container-wide">
         {/* Section header */}
         <div className="text-center mb-12">
-          <p className="text-label mb-4">Comparison</p>
+          <p className="text-label mb-4">Capability Gap</p>
           <h2 className="text-headline max-w-2xl mx-auto">
-            Generic booking systems vs. verification infrastructure
+            Logistics systems vs. verification infrastructure
           </h2>
         </div>
 
@@ -73,7 +73,7 @@ export function ComparisonSection() {
           {/* Summary callout */}
           <div className="mt-8 p-6 bg-accent/5 border border-accent/20 text-center">
             <p className="text-sm">
-              <strong>Key distinction:</strong> VFS Global and iDATA handle logistics. Portolan handles verification. They are complementary, not competitive.
+              <strong>Key distinction:</strong> VFS and iDATA handle logistics. Portolan handles verification. Complementary, not competitive.
             </p>
           </div>
         </div>

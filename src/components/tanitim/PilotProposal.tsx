@@ -23,12 +23,12 @@ export function PilotProposal() {
       <div className="container-wide">
         {/* Section header */}
         <div className="text-center mb-16">
-          <p className="text-label mb-4">Pilot Proposal</p>
+          <p className="text-label mb-4">Proposed Engagement</p>
           <h2 className="text-headline max-w-2xl mx-auto mb-4">
-            90-day proof of value
+            90-day operational proof
           </h2>
           <p className="text-body max-w-xl mx-auto">
-            Deploy at one high-volume consulate. Measure results. Scale on success.
+            Single consulate deployment. Parallel processing. Measurable results before commitment.
           </p>
         </div>
 
@@ -111,11 +111,11 @@ export function PilotProposal() {
         {/* CTA */}
         <div className="mt-12 text-center">
           <Button size="lg" className="gap-2">
-            <span>Schedule Technical Briefing</span>
+            <span>Request Technical Briefing</span>
             <ArrowRight className="w-4 h-4" />
           </Button>
           <p className="text-sm text-muted-foreground mt-4">
-            Investment details and pricing available upon request
+            Deployment terms available upon request
           </p>
         </div>
       </div>

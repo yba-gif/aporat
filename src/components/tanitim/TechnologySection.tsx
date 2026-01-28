@@ -4,33 +4,33 @@ const techFeatures = [
   {
     icon: Cpu,
     title: 'Digital Notary Certificates',
-    description: 'Every parsed document receives a Certificate of Authenticity. Legally defensible in administrative court if a visa decision is challenged.',
-    tags: ['Cryptography', 'Legal Defense'],
+    description: 'Every document receives cryptographic proof of authenticity. Legally defensible if a visa decision is challenged in court.',
+    tags: ['Cryptographic', 'Court-Ready'],
   },
   {
     icon: Network,
     title: 'Pre-Submission Risk Detection',
-    description: 'Vizesepetim marketplace signals identify fraud before it reaches government systems. A unique advantage no competitor can match.',
-    tags: ['Early Warning', 'Private Signal'],
+    description: 'Vizesepetim signals identify fraud before it reaches government systems. Private intelligence channel unavailable to competitors.',
+    tags: ['Early Warning', 'Exclusive'],
   },
   {
     icon: Shield,
     title: 'Explainable Reason Codes',
-    description: 'Every risk score includes legally valid justification. Governments cannot reject visas based on "AI says so" - we provide the evidence chain.',
-    tags: ['Compliance', 'Audit-Ready'],
+    description: 'Every risk score includes legally valid justification. No black-box decisions. Full evidence chain for every flag.',
+    tags: ['Auditable', 'Defensible'],
   },
   {
     icon: Zap,
     title: 'Sovereignty Engine',
-    description: 'Respond to geopolitical shifts instantly. When migration patterns change overnight, update your global posture in 60 seconds.',
-    tags: ['Real-time', 'Offline-Ready'],
+    description: 'When migration patterns shift overnight, update your global posture in 60 seconds. Air-gapped deployment available.',
+    tags: ['Real-time', 'Air-Gapped'],
   },
 ];
 
 const metrics = [
-  { value: '<3s', label: 'Document Processing', description: 'End-to-end ingestion to score' },
-  { value: '60s', label: 'Global Propagation', description: 'Policy updates to all consulates' },
-  { value: '99.9%', label: 'Uptime SLA', description: 'Enterprise availability guarantee' },
+  { value: '<3s', label: 'Document Processing', description: 'Ingestion to risk score' },
+  { value: '60s', label: 'Global Propagation', description: 'Policy to all 250+ posts' },
+  { value: '100%', label: 'Turkish Hosted', description: 'Zero foreign data routing' },
   { value: '50+', label: 'Document Types', description: 'Passports, statements, letters' },
 ];
 
@@ -40,9 +40,9 @@ export function TechnologySection() {
       <div className="container-wide">
         {/* Section header */}
         <div className="text-center mb-16">
-          <p className="text-label text-accent mb-4">Deep Tech</p>
+          <p className="text-label text-accent mb-4">Technical Capabilities</p>
           <h2 className="text-headline text-background max-w-2xl mx-auto">
-            Infrastructure built for government-grade operations
+            Built for national security operations
           </h2>
         </div>
 

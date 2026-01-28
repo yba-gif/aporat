@@ -2,20 +2,20 @@ import { Check, ArrowRight } from 'lucide-react';
 
 const solutions = [
   {
-    title: 'The Truth Layer (Maris)',
-    description: 'Every document gets a Digital Notary certificate. Cryptographic proof of the evidence chain for legal defensibility.',
+    title: 'Maris: The Truth Layer',
+    description: 'Every document receives cryptographic proof of authenticity. Defensible in administrative court.',
   },
   {
-    title: 'The Intelligence Nexus (Nautica)',
-    description: 'When a fraudster is rejected in Berlin and applies in Ankara, Nautica knows. Cross-border intelligence no single consulate can achieve.',
+    title: 'Nautica: The Intelligence Nexus',
+    description: 'Rejected in Berlin, applies in Ankara. Nautica knows. Cross-border intelligence no single consulate can achieve alone.',
   },
   {
-    title: 'The Command Center (Meridian)',
-    description: 'Policy updates reach all 250+ consulates in under 60 seconds. Case Management Workspace for officer review.',
+    title: 'Meridian: The Command Center',
+    description: 'Policy updates reach 250+ consulates in under 60 seconds. Full case management for officer review.',
   },
   {
     title: 'Pre-Submission Risk',
-    description: 'Vizesepetim signals detect fraud before it reaches government systems. A unique moat no competitor can match.',
+    description: 'Vizesepetim signals detect fraud before it reaches government systems. Private intelligence channel.',
   },
 ];
 
@@ -28,10 +28,10 @@ export function SolutionSection() {
           <div>
             <p className="text-label text-accent mb-4">Solution</p>
             <h2 className="text-headline mb-6">
-              Sovereign verification layer for Turkish consulates
+              Sovereign verification infrastructure
             </h2>
             <p className="text-body mb-8 max-w-lg">
-              Portolan provides the verification infrastructure that sits between agencies and consulates. The Ministry maintains full control. We provide the fabric.
+              Portolan sits between agencies and consulates. The Ministry owns the system. We provide the technology.
             </p>
 
             <div className="space-y-4">

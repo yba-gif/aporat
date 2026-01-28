@@ -39,7 +39,7 @@ export function MarketOpportunity() {
       <div className="container-wide">
         {/* Section header */}
         <div className="text-center mb-16">
-          <p className="text-label mb-4">Market Opportunity</p>
+          <p className="text-label mb-4">Strategic Context</p>
           <h2 className="text-headline max-w-2xl mx-auto">
             Turkey operates one of the world's most complex visa regimes
           </h2>
