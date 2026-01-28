@@ -1,18 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   FileText, 
   Search, 
-  Filter, 
-  Calendar,
-  Download,
-  Eye,
+  Hash,
+  Upload,
+  Loader2,
   AlertTriangle,
   CheckCircle2,
   Clock,
-  Hash
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface VaultDocument {
   id: string;
@@ -25,9 +26,11 @@ interface VaultDocument {
   status: 'verified' | 'pending' | 'flagged';
   linkedEntities: string[];
   caseId?: string;
+  fileUrl?: string;
 }
 
-const VAULT_DOCUMENTS: VaultDocument[] = [
+// Seed documents for demo (shown alongside uploaded docs)
+const SEED_DOCUMENTS: VaultDocument[] = [
   {
     id: 'vd-001',
     name: 'passport_ahmad_rezaee.pdf',
@@ -63,30 +66,6 @@ const VAULT_DOCUMENTS: VaultDocument[] = [
     status: 'flagged',
     linkedEntities: ['Dmitri Volkov', 'TechServe Solutions GmbH'],
     caseId: 'CASE-2026-4831'
-  },
-  {
-    id: 'vd-004',
-    name: 'visa_photo_sokolova.jpg',
-    type: 'Biometric',
-    hash: 'sha256:a3c1e87...b2d4',
-    timestamp: '2026-01-28T10:15:00Z',
-    size: '245 KB',
-    confidence: 99.1,
-    status: 'verified',
-    linkedEntities: ['Elena Sokolova'],
-    caseId: 'CASE-2026-4827'
-  },
-  {
-    id: 'vd-005',
-    name: 'hotel_reservation_santos.pdf',
-    type: 'Travel',
-    hash: 'sha256:9b4f2e1...c8a7',
-    timestamp: '2026-01-27T16:45:00Z',
-    size: '156 KB',
-    confidence: 98.5,
-    status: 'verified',
-    linkedEntities: ['Maria Santos'],
-    caseId: 'CASE-2026-4825'
   }
 ];
 
@@ -95,11 +74,162 @@ interface DocumentVaultProps {
   selectedDocId: string | null;
 }
 
+// Simple hash function for demo (not cryptographically secure)
+async function computeHash(file: File): Promise<string> {
+  const buffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return `sha256:${hashHex.substring(0, 8)}...${hashHex.substring(hashHex.length - 4)}`;
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function getDocumentType(mimeType: string): string {
+  if (mimeType.includes('pdf')) return 'Document';
+  if (mimeType.includes('image')) return 'Biometric';
+  if (mimeType.includes('word')) return 'Document';
+  return 'Other';
+}
+
 export function DocumentVault({ onDocumentSelect, selectedDocId }: DocumentVaultProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'verified' | 'pending' | 'flagged'>('all');
+  const [uploadedDocs, setUploadedDocs] = useState<VaultDocument[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const filteredDocs = VAULT_DOCUMENTS.filter(doc => {
+  // Fetch documents from Supabase on mount
+  useEffect(() => {
+    fetchDocuments();
+  }, []);
+
+  const fetchDocuments = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('vault_documents')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const docs: VaultDocument[] = (data || []).map((doc: any) => ({
+        id: doc.id,
+        name: doc.filename,
+        type: getDocumentType(doc.mime_type),
+        hash: `sha256:${doc.sha256_hash.substring(0, 8)}...${doc.sha256_hash.substring(doc.sha256_hash.length - 4)}`,
+        timestamp: doc.created_at,
+        size: formatFileSize(doc.file_size),
+        confidence: doc.ocr_confidence || Math.random() * 30 + 70, // Simulated OCR
+        status: doc.flagged ? 'flagged' : doc.ocr_status === 'completed' ? 'verified' : 'pending',
+        linkedEntities: (doc.metadata?.linkedEntities as string[]) || [],
+        caseId: doc.metadata?.caseId as string,
+        fileUrl: doc.file_path
+      }));
+
+      setUploadedDocs(docs);
+    } catch (err) {
+      console.error('Error fetching documents:', err);
+      toast.error('Failed to fetch documents');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFileUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+    const uploadPromises = Array.from(files).map(async (file) => {
+      try {
+        // Compute hash
+        const hashBuffer = await file.arrayBuffer();
+        const hashArray = await crypto.subtle.digest('SHA-256', hashBuffer);
+        const hashHex = Array.from(new Uint8Array(hashArray))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+
+        // Upload to storage
+        const filePath = `${Date.now()}_${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('document-vault')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: urlData } = supabase.storage
+          .from('document-vault')
+          .getPublicUrl(filePath);
+
+        // Simulate OCR processing (random confidence for demo)
+        const ocrConfidence = Math.random() * 25 + 75;
+        const isFlagged = ocrConfidence < 80;
+
+        // Insert metadata record
+        const { error: dbError } = await supabase
+          .from('vault_documents')
+          .insert({
+            filename: file.name,
+            file_path: filePath,
+            file_size: file.size,
+            mime_type: file.type,
+            sha256_hash: hashHex,
+            ocr_status: 'completed',
+            ocr_confidence: ocrConfidence,
+            flagged: isFlagged,
+            risk_score: isFlagged ? Math.floor(Math.random() * 30 + 60) : Math.floor(Math.random() * 20),
+            metadata: {
+              linkedEntities: [],
+              uploadedVia: 'Maris Document Vault',
+              originalName: file.name
+            }
+          });
+
+        if (dbError) throw dbError;
+
+        toast.success(`Uploaded: ${file.name}`);
+        return true;
+      } catch (err) {
+        console.error('Upload error:', err);
+        toast.error(`Failed to upload: ${file.name}`);
+        return false;
+      }
+    });
+
+    await Promise.all(uploadPromises);
+    await fetchDocuments();
+    setIsUploading(false);
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    handleFileUpload(e.dataTransfer.files);
+  };
+
+  // Combine seed documents with uploaded documents
+  const allDocs = [...uploadedDocs, ...SEED_DOCUMENTS];
+
+  const filteredDocs = allDocs.filter(doc => {
     const matchesSearch = doc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       doc.linkedEntities.some(e => e.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesFilter = filterStatus === 'all' || doc.status === filterStatus;
@@ -115,17 +245,60 @@ export function DocumentVault({ onDocumentSelect, selectedDocId }: DocumentVault
   };
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Search & Filter */}
+    <div 
+      className="flex flex-col h-full"
+      onDragEnter={handleDrag}
+    >
+      {/* Upload Drop Zone Overlay */}
+      {dragActive && (
+        <div 
+          className="absolute inset-0 z-50 bg-accent/20 border-2 border-dashed border-accent flex items-center justify-center"
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          <div className="text-center">
+            <Upload className="w-12 h-12 text-accent mx-auto mb-2" />
+            <p className="text-lg font-medium">Drop files to upload</p>
+            <p className="text-sm text-muted-foreground">PDF, Images, Word documents</p>
+          </div>
+        </div>
+      )}
+
+      {/* Search, Filter & Upload */}
       <div className="p-4 border-b border-border space-y-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search documents, entities, cases..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-secondary/30"
+        <div className="flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search documents, entities..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-secondary/30"
+            />
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+            className="hidden"
+            onChange={(e) => handleFileUpload(e.target.files)}
           />
+          <Button
+            size="sm"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+            className="gap-2"
+          >
+            {isUploading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Upload className="w-4 h-4" />
+            )}
+            Upload
+          </Button>
         </div>
         <div className="flex gap-2">
           {(['all', 'verified', 'flagged', 'pending'] as const).map((status) => (
@@ -146,65 +319,81 @@ export function DocumentVault({ onDocumentSelect, selectedDocId }: DocumentVault
 
       {/* Document List */}
       <div className="flex-1 overflow-auto">
-        {filteredDocs.map((doc) => (
-          <div
-            key={doc.id}
-            className={`p-4 border-b border-border cursor-pointer transition-colors ${
-              selectedDocId === doc.id ? 'bg-accent/10' : 'hover:bg-secondary/30'
-            }`}
-            onClick={() => onDocumentSelect(doc)}
-          >
-            <div className="flex items-start gap-3">
-              <div className={`p-2 rounded ${
-                doc.status === 'flagged' ? 'bg-destructive/20' : 'bg-secondary'
-              }`}>
-                <FileText className={`w-4 h-4 ${
-                  doc.status === 'flagged' ? 'text-destructive' : 'text-muted-foreground'
-                }`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium truncate">{doc.name}</p>
-                  {getStatusIcon(doc.status)}
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : filteredDocs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+            <FileText className="w-8 h-8 mb-2" />
+            <p className="text-sm">No documents found</p>
+            <p className="text-xs">Upload or adjust filters</p>
+          </div>
+        ) : (
+          filteredDocs.map((doc) => (
+            <div
+              key={doc.id}
+              className={`p-4 border-b border-border cursor-pointer transition-colors ${
+                selectedDocId === doc.id ? 'bg-accent/10' : 'hover:bg-secondary/30'
+              }`}
+              onClick={() => onDocumentSelect(doc)}
+            >
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded ${
+                  doc.status === 'flagged' ? 'bg-destructive/20' : 'bg-secondary'
+                }`}>
+                  <FileText className={`w-4 h-4 ${
+                    doc.status === 'flagged' ? 'text-destructive' : 'text-muted-foreground'
+                  }`} />
                 </div>
-                <p className="text-xs text-muted-foreground">{doc.type} • {doc.size}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Hash className="w-3 h-3 text-muted-foreground" />
-                  <span className="text-[10px] font-mono text-muted-foreground truncate">
-                    {doc.hash}
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {doc.linkedEntities.slice(0, 2).map((entity, idx) => (
-                    <span key={idx} className="text-[10px] px-1.5 py-0.5 bg-secondary rounded">
-                      {entity}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium truncate">{doc.name}</p>
+                    {getStatusIcon(doc.status)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">{doc.type} • {doc.size}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Hash className="w-3 h-3 text-muted-foreground" />
+                    <span className="text-[10px] font-mono text-muted-foreground truncate">
+                      {doc.hash}
                     </span>
-                  ))}
-                  {doc.linkedEntities.length > 2 && (
-                    <span className="text-[10px] px-1.5 py-0.5 bg-secondary rounded text-muted-foreground">
-                      +{doc.linkedEntities.length - 2}
-                    </span>
+                  </div>
+                  {doc.linkedEntities.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {doc.linkedEntities.slice(0, 2).map((entity, idx) => (
+                        <span key={idx} className="text-[10px] px-1.5 py-0.5 bg-secondary rounded">
+                          {entity}
+                        </span>
+                      ))}
+                      {doc.linkedEntities.length > 2 && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-secondary rounded text-muted-foreground">
+                          +{doc.linkedEntities.length - 2}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
-              </div>
-              <div className="text-right">
-                <p className={`text-sm font-mono ${
-                  doc.confidence > 90 ? 'text-accent' : 
-                  doc.confidence > 80 ? 'text-yellow-500' : 'text-destructive'
-                }`}>
-                  {doc.confidence}%
-                </p>
-                <p className="text-[10px] text-muted-foreground">OCR</p>
+                <div className="text-right">
+                  <p className={`text-sm font-mono ${
+                    doc.confidence > 90 ? 'text-accent' : 
+                    doc.confidence > 80 ? 'text-yellow-500' : 'text-destructive'
+                  }`}>
+                    {doc.confidence.toFixed(1)}%
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">OCR</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Stats Footer */}
       <div className="p-3 border-t border-border bg-secondary/20">
         <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">{filteredDocs.length} documents</span>
+          <span className="text-muted-foreground">
+            {filteredDocs.length} documents ({uploadedDocs.length} uploaded)
+          </span>
           <span className="text-muted-foreground">
             {filteredDocs.filter(d => d.status === 'flagged').length} flagged
           </span>
