@@ -22,9 +22,9 @@ import {
   FileSearch, 
   Settings2, 
   Bell,
-  Database,
-  Compass,
-  Cpu,
+  Cylinder,
+  CircleCheckBig,
+  LayoutGrid,
   Globe,
   ChevronDown
 } from 'lucide-react';
@@ -39,9 +39,9 @@ type ActiveModule = 'maris' | 'nautica' | 'meridian';
 type NauticaView = 'graph' | 'social';
 
 const navItems = [
-  { id: 'maris' as const, label: 'Maris', sublabel: 'Evidence', icon: Database },
-  { id: 'nautica' as const, label: 'Nautica', sublabel: 'Intelligence', icon: Compass },
-  { id: 'meridian' as const, label: 'Meridian', sublabel: 'Governance', icon: Cpu },
+  { id: 'maris' as const, label: 'Maris', sublabel: 'Evidence', icon: Cylinder },
+  { id: 'nautica' as const, label: 'Nautica', sublabel: 'Intelligence', icon: CircleCheckBig },
+  { id: 'meridian' as const, label: 'Meridian', sublabel: 'Governance', icon: LayoutGrid },
 ];
 
 function PlatformSidebar({ 
@@ -123,9 +123,9 @@ export default function Platform() {
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <div className="flex items-center gap-2">
-                  {activeModule === 'maris' && <Database className="w-4 h-4 text-accent" />}
-                  {activeModule === 'nautica' && <Compass className="w-4 h-4 text-accent" />}
-                  {activeModule === 'meridian' && <Cpu className="w-4 h-4 text-accent" />}
+                  {activeModule === 'maris' && <Cylinder className="w-4 h-4 text-accent" />}
+                  {activeModule === 'nautica' && <CircleCheckBig className="w-4 h-4 text-accent" />}
+                  {activeModule === 'meridian' && <LayoutGrid className="w-4 h-4 text-accent" />}
                   <span className="text-sm font-medium">{moduleInfo.title}</span>
                   <span className="text-xs font-mono text-muted-foreground px-2 py-0.5 bg-secondary rounded">
                     DEMO
