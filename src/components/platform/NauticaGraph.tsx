@@ -158,10 +158,10 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
 
   const getNodeSize = useCallback((node: GraphNode) => {
     switch (node.nodeType) {
-      case 'agent': return 16;
-      case 'document': return 14;
-      case 'address': return 10;
-      default: return 8;
+      case 'agent': return 8;
+      case 'document': return 6;
+      case 'address': return 5;
+      default: return 4;
     }
   }, []);
 
@@ -203,15 +203,15 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     // Glow effect for flagged nodes
     if (node.flagged) {
       ctx.beginPath();
-      ctx.arc(x, y, size + 4, 0, 2 * Math.PI);
-      ctx.fillStyle = `${FLAGGED_COLOR}33`;
+      ctx.arc(x, y, size + 2, 0, 2 * Math.PI);
+      ctx.fillStyle = `${FLAGGED_COLOR}22`;
       ctx.fill();
     }
 
     // Selection ring
     if (isSelected) {
       ctx.beginPath();
-      ctx.arc(x, y, size + 3, 0, 2 * Math.PI);
+      ctx.arc(x, y, size + 2, 0, 2 * Math.PI);
       ctx.strokeStyle = '#0d9488';
       ctx.lineWidth = 2;
       ctx.stroke();
@@ -220,7 +220,7 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     // Hover ring
     if (isHovered && !isSelected) {
       ctx.beginPath();
-      ctx.arc(x, y, size + 2, 0, 2 * Math.PI);
+      ctx.arc(x, y, size + 1.5, 0, 2 * Math.PI);
       ctx.strokeStyle = '#ffffff44';
       ctx.lineWidth = 1;
       ctx.stroke();
@@ -232,20 +232,32 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     ctx.fillStyle = color;
     ctx.fill();
 
-    // Node label (only when zoomed in enough)
-    if (globalScale > 0.8 || isSelected || isHovered) {
+    // Node label - only show on hover/select or when very zoomed in
+    if (isSelected || isHovered || globalScale > 2) {
       const label = node.label;
-      const fontSize = Math.max(10 / globalScale, 3);
+      const fontSize = Math.max(9 / globalScale, 2.5);
       ctx.font = `${fontSize}px JetBrains Mono, monospace`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'top';
-      ctx.fillStyle = '#9ca3af';
+      
+      // Background for label
+      const metrics = ctx.measureText(label);
+      const padding = 2 / globalScale;
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.fillRect(
+        x - metrics.width / 2 - padding,
+        y + size + 2,
+        metrics.width + padding * 2,
+        fontSize + padding
+      );
+      
+      ctx.fillStyle = '#e5e7eb';
       ctx.fillText(label, x, y + size + 3);
     }
 
-    // Type badge for non-applicants
-    if (node.nodeType !== 'applicant' && globalScale > 0.6) {
-      const badgeSize = Math.max(8 / globalScale, 3);
+    // Type badge only on hover/select
+    if ((isSelected || isHovered) && node.nodeType !== 'applicant') {
+      const badgeSize = Math.max(7 / globalScale, 2);
       ctx.font = `${badgeSize}px JetBrains Mono, monospace`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'bottom';
@@ -404,16 +416,17 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
             ctx.fillStyle = color;
             ctx.fill();
           }}
-          cooldownTicks={100}
-          d3AlphaDecay={0.02}
-          d3VelocityDecay={0.3}
-          linkDirectionalParticles={2}
-          linkDirectionalParticleWidth={1.5}
-          linkDirectionalParticleSpeed={0.004}
-          linkDirectionalParticleColor={() => '#0d948866'}
+          cooldownTicks={200}
+          d3AlphaDecay={0.015}
+          d3VelocityDecay={0.4}
+          linkDirectionalParticles={1}
+          linkDirectionalParticleWidth={1}
+          linkDirectionalParticleSpeed={0.003}
+          linkDirectionalParticleColor={() => '#0d948844'}
           enableNodeDrag={true}
           enableZoomInteraction={true}
           enablePanInteraction={true}
+          onEngineStop={() => graphRef.current?.zoomToFit(400, 80)}
         />
       ) : (
         <NauticaGraph3D
