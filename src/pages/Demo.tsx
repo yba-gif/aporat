@@ -10,11 +10,11 @@ import {
 } from '@/components/heroes';
 
 const variants = [
-  { id: 1, name: 'Statement', description: 'Pure typography with accent line' },
-  { id: 2, name: 'Cascade', description: 'Centered word hierarchy' },
-  { id: 3, name: 'Split', description: 'Two-column stark contrast' },
-  { id: 4, name: 'Editorial', description: 'Headline with side metrics' },
-  { id: 5, name: 'Bleed', description: 'Right-aligned with background type' },
+  { id: 1, name: 'Signal Flow', description: 'Horizontal signal bars showing verification stages' },
+  { id: 2, name: 'Document Stack', description: 'Abstract document layers being verified' },
+  { id: 3, name: 'Timeline Spine', description: 'Vertical timeline with decision checkpoints' },
+  { id: 4, name: 'Grid Matrix', description: 'Data points populating a verification grid' },
+  { id: 5, name: 'Terminal Feed', description: 'Live operations console aesthetic' },
 ];
 
 const heroComponents = [
