@@ -10,11 +10,11 @@ import {
 } from '@/components/heroes';
 
 const variants = [
-  { id: 1, name: 'Convergence Grid', description: 'Data points converging to decision' },
-  { id: 2, name: 'Evidence Chain', description: 'Horizontal verification pipeline' },
-  { id: 3, name: 'Policy Matrix', description: 'Geometric enforcement gates' },
-  { id: 4, name: 'Audit Cascade', description: 'Terminal-style event waterfall' },
-  { id: 5, name: 'Intelligence Mesh', description: 'Dynamic network topology' },
+  { id: 1, name: 'Statement', description: 'Pure typography with accent line' },
+  { id: 2, name: 'Cascade', description: 'Centered word hierarchy' },
+  { id: 3, name: 'Split', description: 'Two-column stark contrast' },
+  { id: 4, name: 'Editorial', description: 'Headline with side metrics' },
+  { id: 5, name: 'Bleed', description: 'Right-aligned with background type' },
 ];
 
 const heroComponents = [
