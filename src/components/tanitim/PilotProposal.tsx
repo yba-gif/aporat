@@ -1,6 +1,4 @@
 import { Target, Clock, BarChart3, FileCheck } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
 
 const successMetrics = [
   { metric: 'Fraud patterns detected', target: '10+ distinct typologies' },
@@ -108,16 +106,6 @@ export function PilotProposal() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="mt-12 text-center">
-          <Button size="lg" className="gap-2">
-            <span>Request Technical Briefing</span>
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-          <p className="text-sm text-muted-foreground mt-4">
-            Deployment terms available upon request
-          </p>
-        </div>
       </div>
     </section>
   );
