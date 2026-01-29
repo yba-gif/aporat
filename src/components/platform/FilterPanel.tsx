@@ -22,10 +22,10 @@ interface FilterPanelProps {
 }
 
 const NODE_TYPES = [
-  { id: 'applicant', label: 'Applicants', color: '#6b7280' },
+  { id: 'applicant', label: 'Applicants', color: '#8b5cf6' },
   { id: 'agent', label: 'Agencies', color: '#0d9488' },
   { id: 'company', label: 'Companies', color: '#3b82f6' },
-  { id: 'address', label: 'Addresses', color: '#eab308' },
+  { id: 'address', label: 'Addresses', color: '#f59e0b' },
 ];
 
 export function FilterPanel({ filters, onChange, networks }: FilterPanelProps) {
