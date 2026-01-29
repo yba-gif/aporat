@@ -1,5 +1,4 @@
-import { ArrowRight, Shield, Building2, Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Shield, Building2, Lock } from 'lucide-react';
 
 export function TanitimHero() {
   return (
@@ -19,13 +18,12 @@ export function TanitimHero() {
 
         {/* Main headline */}
         <h1 className="text-display max-w-4xl mx-auto mb-6">
-          Turkey needs sovereign{' '}
-          <span className="text-accent">visa infrastructure</span>
+          Sovereign verification infrastructure for Turkish consular operations
         </h1>
 
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
           Fraud networks are coordinated. Your detection should be too.
-          We built the verification layer that VFS and iDATA cannot provide.
+          The verification layer that VFS and iDATA cannot provide.
         </p>
 
         {/* Key metrics */}
@@ -45,12 +43,6 @@ export function TanitimHero() {
             <p className="text-sm text-muted-foreground">Foreign data routing</p>
           </div>
         </div>
-
-        {/* CTA */}
-        <Button size="lg" className="gap-2">
-          <span>Schedule Technical Briefing</span>
-          <ArrowRight className="w-4 h-4" />
-        </Button>
 
         {/* Trust indicators */}
         <div className="flex items-center justify-center gap-8 mt-16 text-muted-foreground">
