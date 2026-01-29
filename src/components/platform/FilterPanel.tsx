@@ -23,8 +23,8 @@ interface FilterPanelProps {
 
 const NODE_TYPES = [
   { id: 'applicant', label: 'Applicants', color: '#6b7280' },
-  { id: 'agent', label: 'Agents', color: '#0d9488' },
-  { id: 'document', label: 'Documents', color: '#3b82f6' },
+  { id: 'agent', label: 'Agencies', color: '#0d9488' },
+  { id: 'company', label: 'Companies', color: '#3b82f6' },
   { id: 'address', label: 'Addresses', color: '#eab308' },
 ];
 

@@ -5,7 +5,7 @@ import * as THREE from 'three';
 interface GraphNode {
   id: string;
   label: string;
-  nodeType: 'applicant' | 'agent' | 'document' | 'address';
+  nodeType: 'applicant' | 'agent' | 'company' | 'address';
   flagged: boolean;
   riskScore: number;
   x?: number;
@@ -34,7 +34,7 @@ interface NauticaGraph3DProps {
 const NODE_COLORS: Record<string, number> = {
   applicant: 0x6b7280,
   agent: 0x0d9488,
-  document: 0x3b82f6,
+  company: 0x3b82f6,
   address: 0xeab308,
 };
 
@@ -56,7 +56,7 @@ export function NauticaGraph3D({
   const getNodeSize = useCallback((node: GraphNode) => {
     switch (node.nodeType) {
       case 'agent': return 8;
-      case 'document': return 6;
+      case 'company': return 6;
       case 'address': return 5;
       default: return 4;
     }
