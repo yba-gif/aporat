@@ -521,14 +521,9 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
             ctx.fillStyle = color;
             ctx.fill();
           }}
-          onZoom={(transform) => setZoomLevel(transform.k)}
           cooldownTicks={200}
           d3AlphaDecay={0.02}
           d3VelocityDecay={0.3}
-          linkDirectionalParticles={1}
-          linkDirectionalParticleWidth={1.5}
-          linkDirectionalParticleSpeed={0.004}
-          linkDirectionalParticleColor={() => '#0d948866'}
           enableNodeDrag={true}
           enableZoomInteraction={true}
           enablePanInteraction={true}
