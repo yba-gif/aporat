@@ -72,7 +72,7 @@ export function EntityDossier({ entityId, graphData }: EntityDossierProps) {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'agent': return <Building2 className="w-4 h-4" />;
-      case 'document': return <FileText className="w-4 h-4" />;
+      case 'company': return <Building2 className="w-4 h-4" />;
       case 'address': return <MapPin className="w-4 h-4" />;
       default: return <User className="w-4 h-4" />;
     }
@@ -140,7 +140,7 @@ export function EntityDossier({ entityId, graphData }: EntityDossierProps) {
           </div>
           <div className="p-3 bg-secondary/30 rounded text-center">
             <p className="text-lg font-bold">{node.nodeType === 'agent' ? '47' : '3'}</p>
-            <p className="text-[10px] text-muted-foreground">Documents</p>
+            <p className="text-[10px] text-muted-foreground">Applicants</p>
           </div>
           <div className="p-3 bg-secondary/30 rounded text-center">
             <p className="text-lg font-bold">{riskFactors.length}</p>

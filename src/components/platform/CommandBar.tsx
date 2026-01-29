@@ -12,7 +12,7 @@ import { Search, User, FileText, MapPin, Building2 } from 'lucide-react';
 interface GraphNode {
   id: string;
   label: string;
-  nodeType: 'applicant' | 'agent' | 'document' | 'address';
+  nodeType: 'applicant' | 'agent' | 'company' | 'address';
   flagged: boolean;
   riskScore: number;
 }
@@ -25,7 +25,7 @@ interface CommandBarProps {
 const NODE_ICONS: Record<string, typeof User> = {
   applicant: User,
   agent: Building2,
-  document: FileText,
+  company: Building2,
   address: MapPin,
 };
 
@@ -69,7 +69,7 @@ export function CommandBar({ nodes, onSelect }: CommandBarProps) {
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search applicants, documents, agents..." />
+        <CommandInput placeholder="Search applicants, companies, agencies..." />
         <CommandList>
           <CommandEmpty>No entities found.</CommandEmpty>
           

@@ -11,7 +11,7 @@ import { NauticaGraph3D } from './NauticaGraph3D';
 export interface GraphNode extends NodeObject {
   id: string;
   label: string;
-  nodeType: 'applicant' | 'agent' | 'document' | 'address';
+  nodeType: 'applicant' | 'agent' | 'company' | 'address';
   flagged: boolean;
   riskScore: number;
   metadata: Record<string, unknown>;
@@ -37,7 +37,7 @@ interface NauticaGraphProps {
 const NODE_COLORS: Record<string, string> = {
   applicant: '#6b7280',
   agent: '#0d9488',
-  document: '#3b82f6',
+  company: '#3b82f6',
   address: '#eab308',
 };
 
@@ -61,7 +61,7 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
   const [viewportBounds, setViewportBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   
   const [filters, setFilters] = useState<FilterState>({
-    nodeTypes: ['applicant', 'agent', 'document', 'address'],
+    nodeTypes: ['applicant', 'agent', 'company', 'address'],
     riskRange: [0, 100],
     flaggedOnly: false,
     networkFilter: null,
@@ -159,7 +159,7 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
   const getNodeSize = useCallback((node: GraphNode) => {
     switch (node.nodeType) {
       case 'agent': return 8;
-      case 'document': return 6;
+      case 'company': return 6;
       case 'address': return 5;
       default: return 4;
     }
