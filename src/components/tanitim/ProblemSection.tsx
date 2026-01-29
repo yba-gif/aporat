@@ -23,7 +23,7 @@ const problems = [
   },
   {
     title: 'Data sovereignty concerns',
-    description: 'Current systems route Turkish citizen data through foreign infrastructure and jurisdictions.',
+    description: 'Current systems route citizen data through foreign infrastructure and jurisdictions.',
   },
 ];
 

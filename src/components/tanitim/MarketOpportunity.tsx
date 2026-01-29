@@ -3,14 +3,14 @@ import { TrendingUp, Users, Building, Globe } from 'lucide-react';
 const stats = [
   {
     value: '4.5M+',
-    label: 'Foreigners in Turkey',
+    label: 'Foreign Nationals',
     source: 'PMM 2024',
     icon: Users,
   },
   {
     value: '250+',
     label: 'Consulates Worldwide',
-    source: 'Turkish MFA',
+    source: 'MFA',
     icon: Building,
   },
   {
@@ -41,7 +41,7 @@ export function MarketOpportunity() {
         <div className="text-center mb-16">
           <p className="text-label mb-4">Strategic Context</p>
           <h2 className="text-headline max-w-2xl mx-auto">
-            Turkey operates one of the world's most complex visa regimes
+            One of the world's most complex visa regimes
           </h2>
         </div>
 
@@ -77,7 +77,7 @@ export function MarketOpportunity() {
             ))}
           </div>
           <p className="text-xs text-center text-muted-foreground mt-6">
-            Sources: IOM Displacement Tracking Matrix, Turkish PMM, OECD Migration Outlook 2024
+            Sources: IOM Displacement Tracking Matrix, PMM, OECD Migration Outlook 2024
           </p>
         </div>
       </div>
