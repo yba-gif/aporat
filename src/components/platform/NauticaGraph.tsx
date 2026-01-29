@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import ForceGraph2D, { ForceGraphMethods, NodeObject, LinkObject } from 'react-force-graph-2d';
-import { ZoomIn, ZoomOut, Maximize2, Loader2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Loader2, RotateCcw, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { CommandBar } from './CommandBar';
 import { FilterPanel, FilterState } from './FilterPanel';
 import { GraphMinimap } from './GraphMinimap';
 import { ViewToggle } from './ViewToggle';
 import { NauticaGraph3D } from './NauticaGraph3D';
+import { Slider } from '@/components/ui/slider';
 
 export interface GraphNode extends NodeObject {
   id: string;
@@ -34,14 +35,16 @@ interface NauticaGraphProps {
   selectedNode: string | null;
 }
 
+// More vibrant, distinct colors for each node type
 const NODE_COLORS: Record<string, string> = {
-  applicant: '#6b7280',
-  agent: '#0d9488',
-  company: '#3b82f6',
-  address: '#eab308',
+  applicant: '#8b5cf6',  // Purple for people
+  agent: '#0d9488',      // Teal for agencies
+  company: '#3b82f6',    // Blue for companies
+  address: '#f59e0b',    // Amber for locations
 };
 
-const FLAGGED_COLOR = '#ef4444';
+const FLAGGED_RING_COLOR = '#ef4444';
+const SELECTED_COLOR = '#22d3ee';
 
 const NETWORK_PATTERNS: Record<string, string[]> = {
   'Visa Mill': ['agent-1', 'app-1', 'app-2', 'app-3', 'app-4', 'app-5', 'app-6', 'app-7', 'app-8', 'doc-1', 'addr-1'],
@@ -59,6 +62,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
   const [viewportBounds, setViewportBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const [isEngineRunning, setIsEngineRunning] = useState(true);
   
   const [filters, setFilters] = useState<FilterState>({
     nodeTypes: ['applicant', 'agent', 'company', 'address'],
@@ -151,8 +156,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     return { nodes, links };
   }, [graphData, filters]);
 
+  // Always use node type color - flagged status shown via ring
   const getNodeColor = useCallback((node: GraphNode) => {
-    if (node.flagged) return FLAGGED_COLOR;
     return NODE_COLORS[node.nodeType] || '#6b7280';
   }, []);
 
@@ -187,9 +192,45 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     graphRef.current?.centerAt(x, y, 500);
   }, []);
 
-  const handleZoomIn = () => graphRef.current?.zoom(graphRef.current.zoom() * 1.3, 300);
-  const handleZoomOut = () => graphRef.current?.zoom(graphRef.current.zoom() / 1.3, 300);
-  const handleReset = () => graphRef.current?.zoomToFit(400, 50);
+  // Improved zoom handlers with smoother transitions
+  const handleZoomIn = useCallback(() => {
+    const newZoom = Math.min(zoomLevel * 1.5, 10);
+    graphRef.current?.zoom(newZoom, 400);
+    setZoomLevel(newZoom);
+  }, [zoomLevel]);
+  
+  const handleZoomOut = useCallback(() => {
+    const newZoom = Math.max(zoomLevel / 1.5, 0.1);
+    graphRef.current?.zoom(newZoom, 400);
+    setZoomLevel(newZoom);
+  }, [zoomLevel]);
+  
+  const handleZoomSlider = useCallback((value: number[]) => {
+    const newZoom = value[0];
+    graphRef.current?.zoom(newZoom, 200);
+    setZoomLevel(newZoom);
+  }, []);
+  
+  const handleReset = useCallback(() => {
+    graphRef.current?.zoomToFit(400, 80);
+    setZoomLevel(1);
+  }, []);
+
+  const handleCenterSelected = useCallback(() => {
+    if (selectedNode) {
+      const node = graphData.nodes.find(n => n.id === selectedNode);
+      if (node?.x !== undefined && node?.y !== undefined) {
+        graphRef.current?.centerAt(node.x, node.y, 500);
+        graphRef.current?.zoom(2.5, 500);
+        setZoomLevel(2.5);
+      }
+    }
+  }, [selectedNode, graphData.nodes]);
+
+  const handleRefreshLayout = useCallback(() => {
+    setIsEngineRunning(true);
+    graphRef.current?.d3ReheatSimulation();
+  }, []);
 
   // Custom node rendering
   const paintNode = useCallback((node: GraphNode, ctx: CanvasRenderingContext2D, globalScale: number) => {
@@ -200,20 +241,29 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     const x = node.x || 0;
     const y = node.y || 0;
 
-    // Glow effect for flagged nodes
+    // Flagged indicator - pulsing outer ring
     if (node.flagged) {
       ctx.beginPath();
+      ctx.arc(x, y, size + 4, 0, 2 * Math.PI);
+      ctx.strokeStyle = FLAGGED_RING_COLOR;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([3, 2]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Inner glow
+      ctx.beginPath();
       ctx.arc(x, y, size + 2, 0, 2 * Math.PI);
-      ctx.fillStyle = `${FLAGGED_COLOR}22`;
+      ctx.fillStyle = `${FLAGGED_RING_COLOR}33`;
       ctx.fill();
     }
 
-    // Selection ring
+    // Selection ring - cyan for visibility
     if (isSelected) {
       ctx.beginPath();
-      ctx.arc(x, y, size + 2, 0, 2 * Math.PI);
-      ctx.strokeStyle = '#0d9488';
-      ctx.lineWidth = 2;
+      ctx.arc(x, y, size + 3, 0, 2 * Math.PI);
+      ctx.strokeStyle = SELECTED_COLOR;
+      ctx.lineWidth = 2.5;
       ctx.stroke();
     }
 
@@ -312,30 +362,74 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
         <ViewToggle view={viewMode} onChange={setViewMode} />
       </div>
 
-      {/* Graph controls */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-1 bg-surface-elevated border border-border rounded p-1">
-        <button 
-          onClick={handleZoomIn}
-          className="p-2 hover:bg-secondary rounded transition-colors"
-          title="Zoom in"
-        >
-          <ZoomIn className="w-4 h-4" />
-        </button>
-        <button 
-          onClick={handleZoomOut}
-          className="p-2 hover:bg-secondary rounded transition-colors"
-          title="Zoom out"
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
-        <div className="w-full h-px bg-border" />
-        <button 
-          onClick={handleReset}
-          className="p-2 hover:bg-secondary rounded transition-colors"
-          title="Fit to view"
-        >
-          <Maximize2 className="w-4 h-4" />
-        </button>
+      {/* Enhanced Graph controls */}
+      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+        <div className="flex flex-col gap-1 bg-surface-elevated border border-border rounded p-1.5">
+          <button 
+            onClick={handleZoomIn}
+            className="p-2 hover:bg-secondary rounded transition-colors"
+            title="Zoom in (scroll up)"
+          >
+            <ZoomIn className="w-4 h-4" />
+          </button>
+          
+          {/* Zoom slider */}
+          <div className="px-2 py-3">
+            <Slider
+              orientation="vertical"
+              value={[zoomLevel]}
+              onValueChange={handleZoomSlider}
+              min={0.1}
+              max={5}
+              step={0.1}
+              className="h-24"
+            />
+          </div>
+          
+          <button 
+            onClick={handleZoomOut}
+            className="p-2 hover:bg-secondary rounded transition-colors"
+            title="Zoom out (scroll down)"
+          >
+            <ZoomOut className="w-4 h-4" />
+          </button>
+          
+          <div className="w-full h-px bg-border my-1" />
+          
+          <button 
+            onClick={handleReset}
+            className="p-2 hover:bg-secondary rounded transition-colors"
+            title="Fit all nodes"
+          >
+            <Maximize2 className="w-4 h-4" />
+          </button>
+          
+          <button 
+            onClick={handleCenterSelected}
+            disabled={!selectedNode}
+            className={`p-2 rounded transition-colors ${
+              selectedNode ? 'hover:bg-secondary' : 'opacity-30 cursor-not-allowed'
+            }`}
+            title="Center on selected"
+          >
+            <Target className="w-4 h-4" />
+          </button>
+          
+          <button 
+            onClick={handleRefreshLayout}
+            className="p-2 hover:bg-secondary rounded transition-colors"
+            title="Refresh layout"
+          >
+            <RotateCcw className="w-4 h-4" />
+          </button>
+        </div>
+        
+        {/* Zoom percentage */}
+        <div className="bg-surface-elevated border border-border rounded px-2 py-1 text-center">
+          <span className="text-[10px] font-mono text-muted-foreground">
+            {Math.round(zoomLevel * 100)}%
+          </span>
+        </div>
       </div>
 
       {/* Filter panel */}
@@ -361,9 +455,9 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
         </div>
       </div>
 
-      {/* Legend */}
+      {/* Legend with node types */}
       <div className="absolute bottom-4 right-32 z-10 bg-surface-elevated border border-border rounded p-3">
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Legend</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Entity Types</p>
         <div className="flex flex-col gap-1.5">
           {Object.entries(NODE_COLORS).map(([type, color]) => (
             <div key={type} className="flex items-center gap-2">
@@ -372,19 +466,30 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
                 style={{ backgroundColor: color }}
               />
               <span className="text-[10px] font-mono text-muted-foreground capitalize">
-                {type}
+                {type === 'agent' ? 'agency' : type}
               </span>
             </div>
           ))}
-          <div className="flex items-center gap-2">
-            <span 
-              className="w-3 h-3 rounded-full" 
-              style={{ backgroundColor: FLAGGED_COLOR }}
-            />
-            <span className="text-[10px] font-mono text-destructive">
-              flagged
-            </span>
-          </div>
+        </div>
+        <div className="w-full h-px bg-border my-2" />
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Status</p>
+        <div className="flex items-center gap-2">
+          <span 
+            className="w-3 h-3 rounded-full border-2 border-dashed" 
+            style={{ borderColor: FLAGGED_RING_COLOR }}
+          />
+          <span className="text-[10px] font-mono text-destructive">
+            flagged
+          </span>
+        </div>
+        <div className="flex items-center gap-2 mt-1.5">
+          <span 
+            className="w-3 h-3 rounded-full border-2" 
+            style={{ borderColor: SELECTED_COLOR }}
+          />
+          <span className="text-[10px] font-mono text-cyan-400">
+            selected
+          </span>
         </div>
       </div>
 
@@ -416,17 +521,23 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
             ctx.fillStyle = color;
             ctx.fill();
           }}
+          onZoom={(transform) => setZoomLevel(transform.k)}
           cooldownTicks={200}
-          d3AlphaDecay={0.015}
-          d3VelocityDecay={0.4}
+          d3AlphaDecay={0.02}
+          d3VelocityDecay={0.3}
           linkDirectionalParticles={1}
-          linkDirectionalParticleWidth={1}
-          linkDirectionalParticleSpeed={0.003}
-          linkDirectionalParticleColor={() => '#0d948844'}
+          linkDirectionalParticleWidth={1.5}
+          linkDirectionalParticleSpeed={0.004}
+          linkDirectionalParticleColor={() => '#0d948866'}
           enableNodeDrag={true}
           enableZoomInteraction={true}
           enablePanInteraction={true}
-          onEngineStop={() => graphRef.current?.zoomToFit(400, 80)}
+          minZoom={0.1}
+          maxZoom={10}
+          onEngineStop={() => {
+            setIsEngineRunning(false);
+            graphRef.current?.zoomToFit(400, 80);
+          }}
         />
       ) : (
         <NauticaGraph3D

@@ -31,14 +31,15 @@ interface NauticaGraph3DProps {
   dimensions: { width: number; height: number };
 }
 
+// More vibrant, distinct colors matching 2D graph
 const NODE_COLORS: Record<string, number> = {
-  applicant: 0x6b7280,
-  agent: 0x0d9488,
-  company: 0x3b82f6,
-  address: 0xeab308,
+  applicant: 0x8b5cf6,  // Purple for people
+  agent: 0x0d9488,      // Teal for agencies
+  company: 0x3b82f6,    // Blue for companies
+  address: 0xf59e0b,    // Amber for locations
 };
 
-const FLAGGED_COLOR = 0xef4444;
+const FLAGGED_RING_COLOR = 0xef4444;
 
 export function NauticaGraph3D({
   graphData,
@@ -48,8 +49,8 @@ export function NauticaGraph3D({
 }: NauticaGraph3DProps) {
   const graphRef = useRef<ForceGraphMethods<GraphNode, GraphLink>>();
 
+  // Always use node type color
   const getNodeColor = useCallback((node: GraphNode) => {
-    if (node.flagged) return FLAGGED_COLOR;
     return NODE_COLORS[node.nodeType] || 0x6b7280;
   }, []);
 
@@ -97,16 +98,17 @@ export function NauticaGraph3D({
       const sphere = new THREE.Mesh(geometry, material);
       group.add(sphere);
 
-      // Glow for flagged nodes
+      // Flagged indicator ring
       if (node.flagged) {
-        const glowGeometry = new THREE.SphereGeometry(size * 1.4, 16, 16);
-        const glowMaterial = new THREE.MeshBasicMaterial({
-          color: FLAGGED_COLOR,
+        const ringGeometry = new THREE.RingGeometry(size * 1.5, size * 1.7, 32);
+        const ringMaterial = new THREE.MeshBasicMaterial({
+          color: FLAGGED_RING_COLOR,
+          side: THREE.DoubleSide,
           transparent: true,
-          opacity: 0.2,
+          opacity: 0.8,
         });
-        const glow = new THREE.Mesh(glowGeometry, glowMaterial);
-        group.add(glow);
+        const flagRing = new THREE.Mesh(ringGeometry, ringMaterial);
+        group.add(flagRing);
       }
 
       // Selection ring
