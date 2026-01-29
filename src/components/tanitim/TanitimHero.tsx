@@ -18,7 +18,7 @@ export function TanitimHero() {
 
         {/* Main headline */}
         <h1 className="text-display max-w-4xl mx-auto mb-6">
-          Sovereign verification infrastructure for Turkish consular operations
+          Sovereign verification infrastructure for consular operations
         </h1>
 
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-12">
@@ -56,7 +56,7 @@ export function TanitimHero() {
           </div>
           <div className="flex items-center gap-2 text-sm">
             <Lock className="w-4 h-4" />
-            <span>Turkish data sovereignty</span>
+            <span>Full data sovereignty</span>
           </div>
         </div>
       </div>
