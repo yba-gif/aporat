@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { 
   SidebarProvider, 
   Sidebar, 
@@ -11,10 +11,12 @@ import {
   useSidebar
 } from '@/components/ui/sidebar';
 import { CompassLogo } from '@/components/CompassLogo';
+import { NauticaGraph } from '@/components/platform/NauticaGraph';
+import { ApplicantPanel } from '@/components/platform/ApplicantPanel';
+import { AlertPanel } from '@/components/platform/AlertPanel';
 import { MarisPanel } from '@/components/platform/MarisPanel';
 import { MeridianPanel } from '@/components/platform/MeridianPanel';
 import { SocialIntelligencePanel } from '@/components/platform/SocialIntelligencePanel';
-import { CommandCenterView } from '@/components/platform/CommandCenterView';
 import { 
   Network, 
   FileSearch, 
@@ -22,7 +24,7 @@ import {
   Bell,
   Database,
   Scale,
-  LayoutDashboard,
+  Globe,
   ChevronDown
 } from 'lucide-react';
 import {
@@ -38,10 +40,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-type ActiveModule = 'command' | 'maris' | 'nautica' | 'meridian';
+type ActiveModule = 'maris' | 'nautica' | 'meridian';
+type NauticaView = 'graph' | 'social';
 
 const navItems = [
-  { id: 'command' as const, label: 'Command', sublabel: 'Overview', icon: LayoutDashboard },
   { id: 'maris' as const, label: 'Maris', sublabel: 'Evidence', icon: Database },
   { id: 'nautica' as const, label: 'Nautica', sublabel: 'Intelligence', icon: Network },
   { id: 'meridian' as const, label: 'Meridian', sublabel: 'Governance', icon: Scale },
@@ -88,8 +90,7 @@ function PlatformSidebar({
                         }`}
                         onClick={() => setActiveModule(item.id)}
                       >
-                        <item.icon className={`w-4 h-4 mr-2 ${collapsed ? 'mr-0' : ''}`} />
-                        {!collapsed && <span className="text-sm font-medium">{item.label}</span>}
+                        <span className="text-sm font-medium">{item.label}</span>
                       </SidebarMenuButton>
                     </TooltipTrigger>
                     {collapsed && (
@@ -110,14 +111,14 @@ function PlatformSidebar({
 }
 
 export default function Platform() {
-  const [activeModule, setActiveModule] = useState<ActiveModule>('command');
-  const [alertCount, setAlertCount] = useState(3);
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+  const [activeModule, setActiveModule] = useState<ActiveModule>('nautica');
+  const [nauticaView, setNauticaView] = useState<NauticaView>('graph');
 
   const getModuleTitle = () => {
     switch (activeModule) {
-      case 'command': return { title: 'Command Center', subtitle: 'Real-time operations overview' };
       case 'maris': return { title: 'Evidence Ingestion', subtitle: 'Document processing & chain-of-custody' };
-      case 'nautica': return { title: 'Social Intelligence', subtitle: 'OSINT & social network analysis' };
+      case 'nautica': return { title: 'Fraud Network Analysis', subtitle: nauticaView === 'graph' ? 'Entity resolution & integrity verification' : 'OSINT & social intelligence' };
       case 'meridian': return { title: 'Policy Governance', subtitle: 'Compliance & decision workflows' };
     }
   };
@@ -136,7 +137,6 @@ export default function Platform() {
               <div className="flex items-center gap-4">
                 <SidebarTrigger />
                 <div className="flex items-center gap-2">
-                  {activeModule === 'command' && <LayoutDashboard className="w-4 h-4 text-accent" />}
                   {activeModule === 'maris' && <Database className="w-4 h-4 text-accent" />}
                   {activeModule === 'nautica' && <Network className="w-4 h-4 text-accent" />}
                   {activeModule === 'meridian' && <Scale className="w-4 h-4 text-accent" />}
@@ -145,6 +145,26 @@ export default function Platform() {
                     DEMO
                   </span>
                 </div>
+
+                {/* Nautica sub-view toggle */}
+                {activeModule === 'nautica' && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                      {nauticaView === 'graph' ? 'Network Graph' : 'Social Intel'}
+                      <ChevronDown className="w-3 h-3" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start">
+                      <DropdownMenuItem onClick={() => setNauticaView('graph')}>
+                        <Network className="w-4 h-4 mr-2" />
+                        Network Graph
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => setNauticaView('social')}>
+                        <Globe className="w-4 h-4 mr-2" />
+                        Social Intelligence
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
               
               <div className="flex items-center gap-3">
@@ -153,9 +173,7 @@ export default function Platform() {
                 </button>
                 <button className="p-2 hover:bg-secondary rounded transition-colors relative">
                   <Bell className="w-4 h-4 text-muted-foreground" />
-                  {alertCount > 0 && (
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
-                  )}
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
                 </button>
                 <button className="p-2 hover:bg-secondary rounded transition-colors">
                   <Settings2 className="w-4 h-4 text-muted-foreground" />
@@ -165,14 +183,32 @@ export default function Platform() {
 
             {/* Main content area */}
             <div className="flex-1 flex overflow-hidden">
-              {activeModule === 'command' && (
-                <CommandCenterView onNavigate={setActiveModule} />
-              )}
-              
+              {/* Maris Module */}
               {activeModule === 'maris' && <MarisPanel />}
 
-              {activeModule === 'nautica' && <SocialIntelligencePanel />}
+              {/* Nautica Module */}
+              {activeModule === 'nautica' && (
+                <>
+                  {nauticaView === 'graph' ? (
+                    <>
+                      <div className="flex-1 relative">
+                        <NauticaGraph 
+                          onNodeSelect={setSelectedNode} 
+                          selectedNode={selectedNode}
+                        />
+                      </div>
+                      <div className="w-80 border-l border-border bg-surface-elevated flex flex-col">
+                        <AlertPanel />
+                        <ApplicantPanel selectedNode={selectedNode} />
+                      </div>
+                    </>
+                  ) : (
+                    <SocialIntelligencePanel />
+                  )}
+                </>
+              )}
 
+              {/* Meridian Module */}
               {activeModule === 'meridian' && <MeridianPanel />}
             </div>
           </div>

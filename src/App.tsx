@@ -10,7 +10,6 @@ import PositionDetail from "./pages/PositionDetail";
 import Government from "./pages/Government";
 import Platform from "./pages/Platform";
 import Tanitim from "./pages/Tanitim";
-import Alternatives from "./pages/Alternatives";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,7 +26,6 @@ const App = () => (
           <Route path="/government" element={<Government />} />
           <Route path="/platform" element={<Platform />} />
           <Route path="/tanitim" element={<Tanitim />} />
-          <Route path="/altern" element={<Alternatives />} />
           <Route path="/positions" element={<Positions />} />
           <Route path="/positions/:id" element={<PositionDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
