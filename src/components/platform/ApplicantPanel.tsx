@@ -6,7 +6,7 @@ interface NodeData {
   id: string;
   nodeId: string;
   label: string;
-  nodeType: 'applicant' | 'agent' | 'document' | 'address';
+  nodeType: 'applicant' | 'agent' | 'company' | 'address';
   flagged: boolean;
   riskScore: number;
   metadata: Record<string, unknown>;
@@ -265,10 +265,13 @@ function getFlags(nodeType: string, riskScore: number): string[] {
     flags.push('Multiple linked applicants with identical documents');
     flags.push('Submission pattern anomaly');
     flags.push('Under investigation');
-  } else if (nodeType === 'document') {
-    flags.push('Used across multiple applications');
-    flags.push('Hash collision detected');
-    flags.push('Suspected forgery');
+  } else if (nodeType === 'company') {
+    flags.push('Shell company indicators detected');
+    flags.push('Linked to multiple flagged agencies');
+    flags.push('Financial irregularities flagged');
+  } else if (nodeType === 'address') {
+    flags.push('Address used across multiple unrelated applications');
+    flags.push('Known fraud hotspot location');
   }
   
   return flags;

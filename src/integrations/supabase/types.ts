@@ -76,6 +76,7 @@ export type Database = {
       }
       demo_fraud_nodes: {
         Row: {
+          case_id: string | null
           created_at: string
           flagged: boolean | null
           id: string
@@ -86,6 +87,7 @@ export type Database = {
           risk_score: number | null
         }
         Insert: {
+          case_id?: string | null
           created_at?: string
           flagged?: boolean | null
           id?: string
@@ -96,6 +98,7 @@ export type Database = {
           risk_score?: number | null
         }
         Update: {
+          case_id?: string | null
           created_at?: string
           flagged?: boolean | null
           id?: string
@@ -174,7 +177,9 @@ export type Database = {
       }
       vault_documents: {
         Row: {
+          case_id: string | null
           created_at: string
+          entity_id: string | null
           extracted_text: string | null
           file_path: string
           file_size: number
@@ -190,7 +195,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          case_id?: string | null
           created_at?: string
+          entity_id?: string | null
           extracted_text?: string | null
           file_path: string
           file_size: number
@@ -206,7 +213,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          case_id?: string | null
           created_at?: string
+          entity_id?: string | null
           extracted_text?: string | null
           file_path?: string
           file_size?: number
