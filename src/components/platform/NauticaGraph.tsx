@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import ForceGraph2D, { ForceGraphMethods, NodeObject, LinkObject } from 'react-force-graph-2d';
 import { ZoomIn, ZoomOut, Maximize2, Loader2, RotateCcw, Target } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { CommandBar } from './CommandBar';
 import { FilterPanel, FilterState } from './FilterPanel';
 import { GraphMinimap } from './GraphMinimap';
 import { ViewToggle } from './ViewToggle';
@@ -356,9 +355,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
 
   return (
     <div ref={containerRef} className="w-full h-full relative bg-background">
-      {/* Top toolbar */}
+      {/* Top toolbar - ViewToggle only, CommandBar moved to unified palette in header */}
       <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-        <CommandBar nodes={graphData.nodes} onSelect={handleCommandSelect} />
         <ViewToggle view={viewMode} onChange={setViewMode} />
       </div>
 
