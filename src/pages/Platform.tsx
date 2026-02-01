@@ -18,7 +18,9 @@ import { SocialIntelligencePanel } from '@/components/platform/SocialIntelligenc
 import { EntityDossier } from '@/components/platform/nautica/EntityDossier';
 import { UnifiedCommandPalette } from '@/components/platform/UnifiedCommandPalette';
 import { KeyboardShortcutHints } from '@/components/platform/KeyboardShortcutHints';
+import { TourOverlay, TourLauncher } from '@/components/platform/tour';
 import { PlatformProvider, usePlatform } from '@/contexts/PlatformContext';
+import { TourProvider } from '@/contexts/TourContext';
 import { useRealtimeAlerts } from '@/hooks/useRealtimeAlerts';
 import { usePlatformKeyboard } from '@/hooks/usePlatformKeyboard';
 import { 
@@ -205,6 +207,9 @@ function PlatformContent() {
         </div>
         
         <div className="flex items-center gap-2">
+          {/* Guided Tour Launcher */}
+          <TourLauncher />
+          
           {/* Unified Command Palette */}
           <UnifiedCommandPalette />
           
@@ -256,21 +261,23 @@ function PlatformContent() {
           <>
             {nauticaView === 'graph' ? (
               <>
-                <div className="flex-1 relative">
+                <div className="flex-1 relative" data-tour="graph-container">
                   <NauticaGraph 
                     onNodeSelect={(nodeId) => selectEntity(nodeId)} 
                     selectedNode={selectedEntityId}
                   />
                 </div>
                 {showEntityPanel && (
-                  <div className="w-96 border-l border-border bg-surface-elevated flex flex-col">
-                    <AlertPanel />
+                  <div className="w-96 border-l border-border bg-surface-elevated flex flex-col" data-tour="entity-dossier">
+                    <AlertPanel data-tour="flagged-entities" />
                     <EntityDossier />
                   </div>
                 )}
               </>
             ) : (
-              <SocialIntelligencePanel />
+              <div data-tour="social-panel" className="flex-1">
+                <SocialIntelligencePanel />
+              </div>
             )}
           </>
         )}
@@ -282,16 +289,31 @@ function PlatformContent() {
   );
 }
 
+function PlatformWithTour() {
+  const { setActiveModule, selectEntity, selectCase } = usePlatform();
+  
+  return (
+    <TourProvider
+      onModuleChange={setActiveModule}
+      onEntitySelect={selectEntity}
+      onCaseSelect={selectCase}
+    >
+      <SidebarProvider defaultOpen={true}>
+        <div className="min-h-screen flex w-full bg-background text-foreground">
+          <PlatformSidebar />
+          <PlatformContent />
+        </div>
+      </SidebarProvider>
+      <TourOverlay />
+    </TourProvider>
+  );
+}
+
 export default function Platform() {
   return (
     <div className="dark">
       <PlatformProvider defaultModule="nautica">
-        <SidebarProvider defaultOpen={true}>
-          <div className="min-h-screen flex w-full bg-background text-foreground">
-            <PlatformSidebar />
-            <PlatformContent />
-          </div>
-        </SidebarProvider>
+        <PlatformWithTour />
       </PlatformProvider>
     </div>
   );

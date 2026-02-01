@@ -80,10 +80,10 @@ export function MeridianPanel() {
       {/* Main Content */}
       {selectedTab === 'cases' && (
         <>
-          <div className="w-96 border-r border-border">
+          <div className="w-96 border-r border-border" data-tour="case-management">
             <CaseManagement onCaseSelect={setSelectedCaseId} selectedCaseId={selectedCaseId} />
           </div>
-          <div className="flex-1">
+          <div className="flex-1" data-tour="decision-workflow">
             <DecisionWorkflow caseId={selectedCaseId} />
           </div>
         </>
