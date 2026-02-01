@@ -19,8 +19,10 @@ import { EntityDossier } from '@/components/platform/nautica/EntityDossier';
 import { UnifiedCommandPalette } from '@/components/platform/UnifiedCommandPalette';
 import { KeyboardShortcutHints } from '@/components/platform/KeyboardShortcutHints';
 import { TourOverlay, TourLauncher } from '@/components/platform/tour';
+import { PresentationOverlay, PresentationLauncher } from '@/components/platform/presentation';
 import { PlatformProvider, usePlatform } from '@/contexts/PlatformContext';
 import { TourProvider } from '@/contexts/TourContext';
+import { PresentationProvider, usePresentation } from '@/contexts/PresentationContext';
 import { useRealtimeAlerts } from '@/hooks/useRealtimeAlerts';
 import { usePlatformKeyboard } from '@/hooks/usePlatformKeyboard';
 import { 
@@ -207,6 +209,9 @@ function PlatformContent() {
         </div>
         
         <div className="flex items-center gap-2">
+          {/* Presentation Mode Launcher */}
+          <PresentationLauncher />
+          
           {/* Guided Tour Launcher */}
           <TourLauncher />
           
@@ -289,7 +294,7 @@ function PlatformContent() {
   );
 }
 
-function PlatformWithTour() {
+function PlatformWithProviders() {
   const { setActiveModule, selectEntity, selectCase } = usePlatform();
   
   return (
@@ -298,14 +303,29 @@ function PlatformWithTour() {
       onEntitySelect={selectEntity}
       onCaseSelect={selectCase}
     >
-      <SidebarProvider defaultOpen={true}>
-        <div className="min-h-screen flex w-full bg-background text-foreground">
-          <PlatformSidebar />
-          <PlatformContent />
-        </div>
-      </SidebarProvider>
-      <TourOverlay />
+      <PresentationProvider
+        onModuleChange={setActiveModule}
+        onEntitySelect={selectEntity}
+        onCaseSelect={selectCase}
+      >
+        <PresentationModeWrapper />
+        <TourOverlay />
+        <PresentationOverlay />
+      </PresentationProvider>
     </TourProvider>
+  );
+}
+
+function PresentationModeWrapper() {
+  const { isPresenting } = usePresentation();
+  
+  return (
+    <SidebarProvider defaultOpen={!isPresenting}>
+      <div className={`min-h-screen flex w-full bg-background text-foreground ${isPresenting ? 'presentation-mode' : ''}`}>
+        {!isPresenting && <PlatformSidebar />}
+        <PlatformContent />
+      </div>
+    </SidebarProvider>
   );
 }
 
@@ -313,7 +333,7 @@ export default function Platform() {
   return (
     <div className="dark">
       <PlatformProvider defaultModule="nautica">
-        <PlatformWithTour />
+        <PlatformWithProviders />
       </PlatformProvider>
     </div>
   );
