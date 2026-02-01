@@ -262,7 +262,7 @@ export function MarisPanel() {
 
       {activeView === 'vault' && (
         <>
-          <div className="w-96 border-r border-border">
+          <div className="w-96 border-r border-border" data-tour="document-vault">
             <DocumentVault
               onDocumentSelect={(doc) => setSelectedDoc(doc)}
               selectedDocId={selectedDoc?.id || null}
@@ -345,7 +345,7 @@ export function MarisPanel() {
       )}
 
       {activeView === 'integrity' && (
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 overflow-auto p-6" data-tour="tamper-detection">
           <TamperDetection />
         </div>
       )}
