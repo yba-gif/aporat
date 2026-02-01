@@ -6,6 +6,7 @@ import { FilterPanel, FilterState } from './FilterPanel';
 import { GraphMinimap } from './GraphMinimap';
 import { ViewToggle } from './ViewToggle';
 import { NauticaGraph3D } from './NauticaGraph3D';
+import { GraphContextMenu } from './nautica/GraphContextMenu';
 import { Slider } from '@/components/ui/slider';
 
 export interface GraphNode extends NodeObject {
@@ -14,6 +15,7 @@ export interface GraphNode extends NodeObject {
   nodeType: 'applicant' | 'agent' | 'company' | 'address';
   flagged: boolean;
   riskScore: number;
+  caseId?: string | null;
   metadata: Record<string, unknown>;
   cluster?: string;
 }
@@ -32,6 +34,13 @@ interface GraphData {
 interface NauticaGraphProps {
   onNodeSelect: (nodeId: string | null) => void;
   selectedNode: string | null;
+}
+
+interface ContextMenuState {
+  visible: boolean;
+  x: number;
+  y: number;
+  node: GraphNode | null;
 }
 
 // More vibrant, distinct colors for each node type
@@ -63,6 +72,12 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
   const [viewportBounds, setViewportBounds] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [isEngineRunning, setIsEngineRunning] = useState(true);
+  const [contextMenu, setContextMenu] = useState<ContextMenuState>({
+    visible: false,
+    x: 0,
+    y: 0,
+    node: null
+  });
   
   const [filters, setFilters] = useState<FilterState>({
     nodeTypes: ['applicant', 'agent', 'company', 'address'],
@@ -98,6 +113,7 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
             nodeType: n.node_type as GraphNode['nodeType'],
             flagged: n.flagged || false,
             riskScore: n.risk_score || 0,
+            caseId: n.case_id || null,
             metadata: (n.metadata as Record<string, unknown>) || {},
             cluster,
           };
@@ -170,6 +186,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
   }, []);
 
   const handleNodeClick = useCallback((node: GraphNode) => {
+    // Close context menu on any click
+    setContextMenu(prev => ({ ...prev, visible: false }));
     onNodeSelect(selectedNode === node.id ? null : node.id);
     
     if (graphRef.current && node.x !== undefined && node.y !== undefined) {
@@ -177,6 +195,20 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
       graphRef.current.zoom(2, 500);
     }
   }, [onNodeSelect, selectedNode]);
+
+  const handleNodeRightClick = useCallback((node: GraphNode, event: MouseEvent) => {
+    event.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      node: node
+    });
+  }, []);
+
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  }, []);
 
   const handleCommandSelect = useCallback((nodeId: string) => {
     onNodeSelect(nodeId);
@@ -500,6 +532,20 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
         />
       )}
 
+      {/* Context Menu */}
+      {contextMenu.visible && contextMenu.node && (
+        <GraphContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          nodeId={contextMenu.node.id}
+          nodeLabel={contextMenu.node.label}
+          nodeType={contextMenu.node.nodeType}
+          flagged={contextMenu.node.flagged}
+          caseId={contextMenu.node.caseId || null}
+          onClose={closeContextMenu}
+        />
+      )}
+
       {/* Graph Visualization */}
       {viewMode === '2d' ? (
         <ForceGraph2D
@@ -511,6 +557,7 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
           nodeCanvasObject={paintNode}
           linkCanvasObject={paintLink}
           onNodeClick={handleNodeClick}
+          onNodeRightClick={handleNodeRightClick}
           onNodeHover={(node) => setHoveredNode(node ? (node as GraphNode).id : null)}
           nodePointerAreaPaint={(node, color, ctx) => {
             const size = getNodeSize(node as GraphNode) + 4;

@@ -22,9 +22,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
 import { usePlatform } from '@/contexts/PlatformContext';
+import { DossierTabs, NotesTabContent } from './DossierTabs';
 
 interface EntityDetails {
   id: string;
@@ -76,13 +76,6 @@ export function EntityDossier() {
   const [documents, setDocuments] = useState<LinkedDocument[]>([]);
   const [connections, setConnections] = useState<ConnectedEntity[]>([]);
   const [loading, setLoading] = useState(false);
-  const [expandedSections, setExpandedSections] = useState({
-    metadata: true,
-    risk: true,
-    timeline: true,
-    documents: true,
-    connections: true,
-  });
 
   const fetchEntityData = useCallback(async () => {
     if (!selectedEntityId) {
@@ -209,10 +202,6 @@ export function EntityDossier() {
     fetchEntityData();
   }, [fetchEntityData]);
 
-  const toggleSection = (section: keyof typeof expandedSections) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
-  };
-
   if (!selectedEntityId) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-6">
@@ -253,12 +242,6 @@ export function EntityDossier() {
     if (score >= 80) return 'text-destructive';
     if (score >= 50) return 'text-yellow-500';
     return 'text-accent';
-  };
-
-  const getRiskBg = (score: number) => {
-    if (score >= 80) return 'bg-destructive/10';
-    if (score >= 50) return 'bg-yellow-500/10';
-    return 'bg-accent/10';
   };
 
   // Generate timeline from entity metadata and documents
@@ -340,6 +323,202 @@ export function EntityDossier() {
   const timeline = generateTimeline();
   const riskFactors = generateRiskFactors();
 
+  // Overview Tab Content
+  const OverviewContent = () => (
+    <ScrollArea className="flex-1">
+      <div className="p-4 space-y-4">
+        {/* Quick Stats */}
+        <div className="grid grid-cols-3 gap-2">
+          <div className="p-3 bg-secondary/30 rounded text-center">
+            <p className="text-lg font-bold">{connections.length}</p>
+            <p className="text-[10px] text-muted-foreground">Connections</p>
+          </div>
+          <div className="p-3 bg-secondary/30 rounded text-center">
+            <p className="text-lg font-bold">{documents.length}</p>
+            <p className="text-[10px] text-muted-foreground">Documents</p>
+          </div>
+          <div className="p-3 bg-secondary/30 rounded text-center">
+            <p className="text-lg font-bold">{riskFactors.length}</p>
+            <p className="text-[10px] text-muted-foreground">Risk Factors</p>
+          </div>
+        </div>
+
+        <Separator />
+
+        {/* Metadata Section */}
+        {Object.keys(entity.metadata).length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Fingerprint className="w-4 h-4 text-accent" />
+              <span className="text-sm font-medium">Entity Data</span>
+            </div>
+            <div className="space-y-2 p-3 bg-secondary/20 rounded-lg">
+              {Object.entries(entity.metadata)
+                .filter(([key]) => key !== 'suspiciousIndicators')
+                .map(([key, value]) => (
+                <div key={key} className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground capitalize">
+                    {key.replace(/([A-Z])/g, ' $1').trim()}
+                  </span>
+                  <span className="font-mono text-foreground">
+                    {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Risk Factors Section */}
+        {riskFactors.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-destructive" />
+              <span className="text-sm font-medium">Risk Factors</span>
+            </div>
+            <div className="space-y-2">
+              {riskFactors.map((factor, idx) => (
+                <div key={idx} className="flex items-center justify-between p-2 bg-destructive/10 rounded">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-destructive" />
+                    <span className="text-xs">{factor.factor}</span>
+                  </div>
+                  <span className="text-xs font-mono text-destructive">+{factor.weight}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Connected Entities Preview */}
+        {connections.length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Link2 className="w-4 h-4 text-accent" />
+              <span className="text-sm font-medium">Connected Entities</span>
+              <Badge variant="secondary" className="text-[10px]">{connections.length}</Badge>
+            </div>
+            <div className="space-y-2">
+              {connections.slice(0, 3).map((conn, idx) => (
+                <div 
+                  key={`${conn.nodeId}-${idx}`}
+                  onClick={() => navigateToEntity(conn.nodeId)}
+                  className="flex items-center justify-between p-2 bg-secondary/30 rounded hover:bg-secondary/50 cursor-pointer transition-colors"
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className={`w-2 h-2 rounded-full shrink-0 ${
+                      conn.flagged ? 'bg-destructive' : 'bg-accent'
+                    }`} />
+                    <div className="min-w-0">
+                      <p className="text-xs truncate">{conn.label}</p>
+                      <p className="text-[10px] text-muted-foreground capitalize">{conn.nodeType}</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                </div>
+              ))}
+              {connections.length > 3 && (
+                <p className="text-[10px] text-muted-foreground text-center">
+                  +{connections.length - 3} more connections
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </ScrollArea>
+  );
+
+  // Documents Tab Content
+  const DocumentsContent = () => (
+    <ScrollArea className="flex-1">
+      <div className="p-4 space-y-2">
+        {documents.length > 0 ? (
+          documents.map(doc => (
+            <div 
+              key={doc.id}
+              onClick={() => navigateToDocument(doc.id)}
+              className="flex items-center justify-between p-3 bg-secondary/30 rounded hover:bg-secondary/50 cursor-pointer transition-colors"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                {doc.flagged ? (
+                  <FileWarning className="w-5 h-5 text-destructive shrink-0" />
+                ) : (
+                  <FileCheck className="w-5 h-5 text-accent shrink-0" />
+                )}
+                <div className="min-w-0">
+                  <p className="text-sm truncate">{doc.filename}</p>
+                  <p className="text-xs text-muted-foreground">{doc.documentType}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground mt-1 truncate">
+                    {doc.sha256_hash.substring(0, 16)}...
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                {doc.flagged && (
+                  <Badge variant="destructive" className="text-[9px]">FLAGGED</Badge>
+                )}
+                {doc.ocrConfidence && (
+                  <span className={`text-xs font-mono ${
+                    doc.ocrConfidence > 90 ? 'text-accent' :
+                    doc.ocrConfidence > 80 ? 'text-yellow-500' : 'text-destructive'
+                  }`}>
+                    {doc.ocrConfidence.toFixed(0)}%
+                  </span>
+                )}
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <FileText className="w-10 h-10 mb-3 opacity-30" />
+            <p className="text-sm">No linked documents</p>
+            <p className="text-xs mt-1">Documents will appear here when linked</p>
+          </div>
+        )}
+      </div>
+    </ScrollArea>
+  );
+
+  // Timeline Tab Content
+  const TimelineContent = () => (
+    <ScrollArea className="flex-1">
+      <div className="p-4 space-y-0 relative">
+        {timeline.length > 0 ? (
+          <>
+            <div className="absolute left-[23px] top-6 bottom-6 w-px bg-border" />
+            {timeline.map((event, idx) => (
+              <div key={idx} className="flex items-start gap-3 py-3 relative">
+                <div className={`w-4 h-4 rounded-full border-2 bg-background z-10 shrink-0 ${
+                  event.type === 'flag' ? 'border-destructive' :
+                  event.type === 'connection' ? 'border-yellow-500' :
+                  event.type === 'document' ? 'border-blue-500' :
+                  'border-accent'
+                }`} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm">{event.event}</p>
+                  {event.details && (
+                    <p className="text-xs text-muted-foreground">{event.details}</p>
+                  )}
+                  <p className="text-[10px] text-muted-foreground mt-1">
+                    <Clock className="w-3 h-3 inline mr-1" />
+                    {event.date}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+            <Activity className="w-10 h-10 mb-3 opacity-30" />
+            <p className="text-sm">No activity recorded</p>
+          </div>
+        )}
+      </div>
+    </ScrollArea>
+  );
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -377,210 +556,18 @@ export function EntityDossier() {
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-4 space-y-4">
-          {/* Quick Stats */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="p-3 bg-secondary/30 rounded text-center">
-              <p className="text-lg font-bold">{connections.length}</p>
-              <p className="text-[10px] text-muted-foreground">Connections</p>
-            </div>
-            <div className="p-3 bg-secondary/30 rounded text-center">
-              <p className="text-lg font-bold">{documents.length}</p>
-              <p className="text-[10px] text-muted-foreground">Documents</p>
-            </div>
-            <div className="p-3 bg-secondary/30 rounded text-center">
-              <p className="text-lg font-bold">{riskFactors.length}</p>
-              <p className="text-[10px] text-muted-foreground">Risk Factors</p>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Metadata Section */}
-          {Object.keys(entity.metadata).length > 0 && (
-            <Collapsible open={expandedSections.metadata} onOpenChange={() => toggleSection('metadata')}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full group">
-                <div className="flex items-center gap-2">
-                  <Fingerprint className="w-4 h-4 text-accent" />
-                  <span className="text-sm font-medium">Entity Data</span>
-                </div>
-                <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.metadata ? 'rotate-90' : ''}`} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <div className="space-y-2 p-3 bg-secondary/20 rounded-lg">
-                  {Object.entries(entity.metadata)
-                    .filter(([key]) => key !== 'suspiciousIndicators')
-                    .map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between text-xs">
-                      <span className="text-muted-foreground capitalize">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
-                      </span>
-                      <span className="font-mono text-foreground">
-                        {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {/* Risk Factors Section */}
-          {riskFactors.length > 0 && (
-            <Collapsible open={expandedSections.risk} onOpenChange={() => toggleSection('risk')}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-destructive" />
-                  <span className="text-sm font-medium">Risk Factors</span>
-                </div>
-                <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.risk ? 'rotate-90' : ''}`} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <div className="space-y-2">
-                  {riskFactors.map((factor, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-2 bg-destructive/10 rounded">
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-destructive" />
-                        <span className="text-xs">{factor.factor}</span>
-                      </div>
-                      <span className="text-xs font-mono text-destructive">+{factor.weight}</span>
-                    </div>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {/* Timeline Section */}
-          {timeline.length > 0 && (
-            <Collapsible open={expandedSections.timeline} onOpenChange={() => toggleSection('timeline')}>
-              <CollapsibleTrigger className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-accent" />
-                  <span className="text-sm font-medium">Activity Timeline</span>
-                </div>
-                <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.timeline ? 'rotate-90' : ''}`} />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pt-3">
-                <div className="space-y-0 relative">
-                  <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
-                  {timeline.map((event, idx) => (
-                    <div key={idx} className="flex items-start gap-3 py-2 relative">
-                      <div className={`w-4 h-4 rounded-full border-2 bg-background z-10 shrink-0 ${
-                        event.type === 'flag' ? 'border-destructive' :
-                        event.type === 'connection' ? 'border-yellow-500' :
-                        event.type === 'document' ? 'border-blue-500' :
-                        'border-accent'
-                      }`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs">{event.event}</p>
-                        {event.details && (
-                          <p className="text-[10px] text-muted-foreground truncate">{event.details}</p>
-                        )}
-                        <p className="text-[10px] text-muted-foreground">
-                          {event.date}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
-
-          {/* Documents Section */}
-          <Collapsible open={expandedSections.documents} onOpenChange={() => toggleSection('documents')}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium">Linked Documents</span>
-                <Badge variant="secondary" className="text-[10px]">{documents.length}</Badge>
-              </div>
-              <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.documents ? 'rotate-90' : ''}`} />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-3">
-              {documents.length > 0 ? (
-                <div className="space-y-2">
-                  {documents.map(doc => (
-                    <div 
-                      key={doc.id}
-                      onClick={() => navigateToDocument(doc.id)}
-                      className="flex items-center justify-between p-2 bg-secondary/30 rounded hover:bg-secondary/50 cursor-pointer transition-colors"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        {doc.flagged ? (
-                          <FileWarning className="w-4 h-4 text-destructive shrink-0" />
-                        ) : (
-                          <FileCheck className="w-4 h-4 text-accent shrink-0" />
-                        )}
-                        <div className="min-w-0">
-                          <p className="text-xs truncate">{doc.filename}</p>
-                          <p className="text-[10px] text-muted-foreground">{doc.documentType}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        {doc.flagged && (
-                          <Badge variant="destructive" className="text-[9px]">FLAGGED</Badge>
-                        )}
-                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center py-4">No linked documents</p>
-              )}
-            </CollapsibleContent>
-          </Collapsible>
-
-          {/* Connections Section */}
-          <Collapsible open={expandedSections.connections} onOpenChange={() => toggleSection('connections')}>
-            <CollapsibleTrigger className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
-                <Link2 className="w-4 h-4 text-accent" />
-                <span className="text-sm font-medium">Connected Entities</span>
-                <Badge variant="secondary" className="text-[10px]">{connections.length}</Badge>
-              </div>
-              <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.connections ? 'rotate-90' : ''}`} />
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-3">
-              {connections.length > 0 ? (
-                <div className="space-y-2">
-                  {connections.map((conn, idx) => (
-                    <div 
-                      key={`${conn.nodeId}-${idx}`}
-                      onClick={() => navigateToEntity(conn.nodeId)}
-                      className="flex items-center justify-between p-2 bg-secondary/30 rounded hover:bg-secondary/50 cursor-pointer transition-colors"
-                    >
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${
-                          conn.flagged ? 'bg-destructive' : 'bg-accent'
-                        }`} />
-                        <div className="min-w-0">
-                          <p className="text-xs truncate">{conn.label}</p>
-                          <p className="text-[10px] text-muted-foreground capitalize">{conn.nodeType}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Badge variant="outline" className="text-[9px] capitalize">
-                          {conn.edgeType}
-                        </Badge>
-                        <span className={`text-xs font-mono ${getRiskColor(conn.riskScore)}`}>
-                          {conn.riskScore}
-                        </span>
-                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground text-center py-4">No connections</p>
-              )}
-            </CollapsibleContent>
-          </Collapsible>
-        </div>
-      </ScrollArea>
+      {/* Tabbed Content */}
+      <DossierTabs
+        documentCount={documents.length}
+        connectionCount={connections.length}
+      >
+        {{
+          overview: <OverviewContent />,
+          documents: <DocumentsContent />,
+          timeline: <TimelineContent />,
+          notes: <NotesTabContent />,
+        }}
+      </DossierTabs>
 
       {/* Actions */}
       <div className="p-4 border-t border-border space-y-2">
