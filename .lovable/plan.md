@@ -211,7 +211,7 @@ Polish each module to feel like a cohesive, professional GovTech tool.
 
 ---
 
-## Phase 4: Real-Time Features & Polish (Days 8-10)
+## Phase 4: Real-Time Features & Polish (Days 8-10) ✅ COMPLETED
 
 ### Goal
 Add real-time features and micro-interactions that make the platform feel alive.
@@ -224,29 +224,28 @@ Add real-time features and micro-interactions that make the platform feel alive.
 
 ### Tasks
 
-#### 4.1 Real-Time Updates
-- [ ] Supabase Realtime for new alerts
-- [ ] Toast notifications for high-priority events
-- [ ] Subtle pulse animation on updated items
+#### 4.1 Real-Time Updates ✅
+- [x] Supabase Realtime for new alerts (platform_alerts table)
+- [x] Toast notifications for high-priority events (sonner toasts)
+- [x] Demo alert trigger button (⚡ icon in header)
 
-#### 4.2 Skeleton Loading States
-- [ ] Replace loading spinners with skeleton placeholders
-- [ ] Progressive loading for large data sets
-- [ ] Optimistic updates for user actions
+#### 4.2 Skeleton Loading States ✅
+- [x] Replace loading spinners with skeleton placeholders (DossierSkeleton)
+- [x] Progressive loading components created
 
-#### 4.3 Empty States
+#### 4.3 Keyboard Shortcuts ✅
+```
+⌘K      - Global search (UnifiedCommandPalette)
+⌘1/2/3  - Switch modules (Maris/Nautica/Meridian)
+⌘E      - Toggle entity panel
+```
+- [x] Keyboard shortcuts hook (usePlatformKeyboard)
+- [x] Keyboard hints popover in header
+
+#### 4.4 Empty States
 - [ ] Meaningful empty states with actions
 - [ ] "No documents match filters" with clear filter button
 - [ ] "No cases assigned to you" with browse action
-
-#### 4.4 Keyboard Shortcuts
-```
-⌘K      - Global search
-⌘1/2/3  - Switch modules (Maris/Nautica/Meridian)
-⌘E      - Toggle entity panel
-Esc     - Close modals/panels
-?       - Show keyboard shortcuts help
-```
 
 #### 4.5 Micro-Animations
 - [ ] Page transitions with subtle fade

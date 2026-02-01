@@ -17,7 +17,10 @@ import { MeridianPanel } from '@/components/platform/MeridianPanel';
 import { SocialIntelligencePanel } from '@/components/platform/SocialIntelligencePanel';
 import { EntityDossier } from '@/components/platform/nautica/EntityDossier';
 import { UnifiedCommandPalette } from '@/components/platform/UnifiedCommandPalette';
+import { KeyboardShortcutHints } from '@/components/platform/KeyboardShortcutHints';
 import { PlatformProvider, usePlatform } from '@/contexts/PlatformContext';
+import { useRealtimeAlerts } from '@/hooks/useRealtimeAlerts';
+import { usePlatformKeyboard } from '@/hooks/usePlatformKeyboard';
 import { 
   Network, 
   FileSearch, 
@@ -26,7 +29,9 @@ import {
   Database,
   Scale,
   Globe,
-  ChevronDown
+  ChevronDown,
+  Zap,
+  Keyboard
 } from 'lucide-react';
 import {
   Tooltip,
@@ -39,7 +44,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 import { useState } from 'react';
 
 type NauticaView = 'graph' | 'social';
@@ -109,6 +120,15 @@ function PlatformSidebar() {
 function PlatformContent() {
   const { activeModule, selectedEntityId, selectEntity } = usePlatform();
   const [nauticaView, setNauticaView] = useState<NauticaView>('graph');
+  const [showEntityPanel, setShowEntityPanel] = useState(true);
+  
+  // Initialize realtime alerts
+  const { createAlert } = useRealtimeAlerts();
+  
+  // Initialize keyboard shortcuts
+  usePlatformKeyboard({
+    onToggleEntityPanel: () => setShowEntityPanel(prev => !prev),
+  });
 
   const getModuleTitle = () => {
     switch (activeModule) {
@@ -116,6 +136,33 @@ function PlatformContent() {
       case 'nautica': return { title: 'Fraud Network Analysis', subtitle: nauticaView === 'graph' ? 'Entity resolution & integrity verification' : 'OSINT & social intelligence' };
       case 'meridian': return { title: 'Policy Governance', subtitle: 'Compliance & decision workflows' };
     }
+  };
+
+  const handleTriggerDemoAlert = () => {
+    const alertTypes = [
+      { 
+        alert_type: 'fraud_pattern', 
+        severity: 'critical' as const, 
+        title: 'New Fraud Pattern Detected', 
+        message: 'Visa mill pattern identified: 12 applications share document hashes',
+        entity_id: 'app-rezaee',
+      },
+      { 
+        alert_type: 'risk_escalation', 
+        severity: 'high' as const, 
+        title: 'Risk Score Escalated', 
+        message: 'Entity Ahmad Rezaee risk increased to 94 due to network connections',
+        entity_id: 'app-rezaee',
+      },
+      { 
+        alert_type: 'document_anomaly', 
+        severity: 'medium' as const, 
+        title: 'Document Timestamp Anomaly', 
+        message: 'Employment letter creation date precedes employer registration',
+      },
+    ];
+    const randomAlert = alertTypes[Math.floor(Math.random() * alertTypes.length)];
+    createAlert(randomAlert);
   };
 
   const moduleInfo = getModuleTitle();
@@ -157,13 +204,38 @@ function PlatformContent() {
           )}
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {/* Unified Command Palette */}
           <UnifiedCommandPalette />
           
-          <button className="p-2 hover:bg-secondary rounded transition-colors">
-            <FileSearch className="w-4 h-4 text-muted-foreground" />
-          </button>
+          {/* Demo Alert Trigger */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button 
+                onClick={handleTriggerDemoAlert}
+                className="p-2 hover:bg-accent/20 rounded transition-colors group"
+              >
+                <Zap className="w-4 h-4 text-accent group-hover:text-accent" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">Trigger demo alert</p>
+            </TooltipContent>
+          </Tooltip>
+          
+          {/* Keyboard Shortcuts */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="p-2 hover:bg-secondary rounded transition-colors">
+                <Keyboard className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-48">
+              <p className="text-xs font-medium mb-2">Keyboard Shortcuts</p>
+              <KeyboardShortcutHints />
+            </PopoverContent>
+          </Popover>
+          
           <button className="p-2 hover:bg-secondary rounded transition-colors relative">
             <Bell className="w-4 h-4 text-muted-foreground" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
@@ -190,10 +262,12 @@ function PlatformContent() {
                     selectedNode={selectedEntityId}
                   />
                 </div>
-                <div className="w-96 border-l border-border bg-surface-elevated flex flex-col">
-                  <AlertPanel />
-                  <EntityDossier />
-                </div>
+                {showEntityPanel && (
+                  <div className="w-96 border-l border-border bg-surface-elevated flex flex-col">
+                    <AlertPanel />
+                    <EntityDossier />
+                  </div>
+                )}
               </>
             ) : (
               <SocialIntelligencePanel />
