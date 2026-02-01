@@ -1,50 +1,219 @@
+import { useEffect, useState, useCallback } from 'react';
 import { 
   User, 
   Building2, 
   FileText, 
   MapPin,
-  Calendar,
   AlertTriangle,
   Link2,
   Globe,
   Activity,
-  ChevronRight,
   ExternalLink,
   Fingerprint,
-  CreditCard,
-  Plane
+  Loader2,
+  ChevronRight,
+  FileCheck,
+  FileWarning,
+  Clock,
+  Users,
+  Briefcase
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { supabase } from '@/integrations/supabase/client';
+import { usePlatform } from '@/contexts/PlatformContext';
 
-interface EntityData {
+interface EntityDetails {
   id: string;
-  name: string;
-  type: 'applicant' | 'agent' | 'document' | 'address';
-  riskScore: number;
+  nodeId: string;
+  label: string;
+  nodeType: 'applicant' | 'agent' | 'company' | 'address';
   flagged: boolean;
+  riskScore: number;
+  caseId: string | null;
   metadata: Record<string, unknown>;
-  connections: number;
-  documents: number;
-  lastActivity: string;
-  timeline: Array<{
-    date: string;
-    event: string;
-    type: 'submission' | 'flag' | 'connection' | 'document';
-  }>;
-  riskFactors: Array<{
-    factor: string;
-    weight: number;
-    source: string;
-  }>;
 }
 
-interface EntityDossierProps {
-  entityId: string | null;
-  graphData: { nodes: any[]; links: any[] };
+interface LinkedDocument {
+  id: string;
+  filename: string;
+  sha256_hash: string;
+  flagged: boolean;
+  riskScore: number;
+  ocrConfidence: number | null;
+  documentType: string;
 }
 
-export function EntityDossier({ entityId, graphData }: EntityDossierProps) {
-  if (!entityId) {
+interface ConnectedEntity {
+  nodeId: string;
+  label: string;
+  nodeType: string;
+  flagged: boolean;
+  riskScore: number;
+  edgeType: string;
+  direction: 'incoming' | 'outgoing';
+}
+
+interface TimelineEvent {
+  date: string;
+  event: string;
+  type: 'submission' | 'flag' | 'connection' | 'document' | 'review';
+  details?: string;
+}
+
+interface RiskFactor {
+  factor: string;
+  weight: number;
+  source: string;
+}
+
+export function EntityDossier() {
+  const { selectedEntityId, navigateToDocument, navigateToEntity, navigateToCase } = usePlatform();
+  const [entity, setEntity] = useState<EntityDetails | null>(null);
+  const [documents, setDocuments] = useState<LinkedDocument[]>([]);
+  const [connections, setConnections] = useState<ConnectedEntity[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [expandedSections, setExpandedSections] = useState({
+    metadata: true,
+    risk: true,
+    timeline: true,
+    documents: true,
+    connections: true,
+  });
+
+  const fetchEntityData = useCallback(async () => {
+    if (!selectedEntityId) {
+      setEntity(null);
+      setDocuments([]);
+      setConnections([]);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Fetch entity details
+      const { data: nodeData } = await supabase
+        .from('demo_fraud_nodes')
+        .select('*')
+        .eq('node_id', selectedEntityId)
+        .maybeSingle();
+
+      if (!nodeData) {
+        setEntity(null);
+        setLoading(false);
+        return;
+      }
+
+      setEntity({
+        id: nodeData.id,
+        nodeId: nodeData.node_id,
+        label: nodeData.label,
+        nodeType: nodeData.node_type as EntityDetails['nodeType'],
+        flagged: nodeData.flagged || false,
+        riskScore: nodeData.risk_score || 0,
+        caseId: nodeData.case_id,
+        metadata: (nodeData.metadata as Record<string, unknown>) || {},
+      });
+
+      // Fetch linked documents
+      const { data: docsData } = await supabase
+        .from('vault_documents')
+        .select('*')
+        .eq('entity_id', selectedEntityId);
+
+      if (docsData) {
+        setDocuments(docsData.map(d => ({
+          id: d.id,
+          filename: d.filename,
+          sha256_hash: d.sha256_hash,
+          flagged: d.flagged || false,
+          riskScore: d.risk_score || 0,
+          ocrConfidence: d.ocr_confidence,
+          documentType: (d.metadata as Record<string, unknown>)?.documentType as string || 'Unknown',
+        })));
+      }
+
+      // Fetch connections (outgoing edges)
+      const { data: outgoing } = await supabase
+        .from('demo_fraud_edges')
+        .select('target_node_id, edge_type')
+        .eq('source_node_id', selectedEntityId);
+
+      // Fetch connections (incoming edges)
+      const { data: incoming } = await supabase
+        .from('demo_fraud_edges')
+        .select('source_node_id, edge_type')
+        .eq('target_node_id', selectedEntityId);
+
+      // Get connected node details
+      const connectedIds = [
+        ...(outgoing || []).map(e => e.target_node_id),
+        ...(incoming || []).map(e => e.source_node_id),
+      ];
+
+      if (connectedIds.length > 0) {
+        const { data: connectedNodes } = await supabase
+          .from('demo_fraud_nodes')
+          .select('node_id, label, node_type, flagged, risk_score')
+          .in('node_id', connectedIds);
+
+        const connectedEntities: ConnectedEntity[] = [];
+        
+        outgoing?.forEach(edge => {
+          const node = connectedNodes?.find(n => n.node_id === edge.target_node_id);
+          if (node) {
+            connectedEntities.push({
+              nodeId: node.node_id,
+              label: node.label,
+              nodeType: node.node_type,
+              flagged: node.flagged || false,
+              riskScore: node.risk_score || 0,
+              edgeType: edge.edge_type,
+              direction: 'outgoing',
+            });
+          }
+        });
+
+        incoming?.forEach(edge => {
+          const node = connectedNodes?.find(n => n.node_id === edge.source_node_id);
+          if (node) {
+            connectedEntities.push({
+              nodeId: node.node_id,
+              label: node.label,
+              nodeType: node.node_type,
+              flagged: node.flagged || false,
+              riskScore: node.risk_score || 0,
+              edgeType: edge.edge_type,
+              direction: 'incoming',
+            });
+          }
+        });
+
+        setConnections(connectedEntities);
+      } else {
+        setConnections([]);
+      }
+
+    } catch (err) {
+      console.error('Failed to fetch entity data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedEntityId]);
+
+  useEffect(() => {
+    fetchEntityData();
+  }, [fetchEntityData]);
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  if (!selectedEntityId) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-6">
         <User className="w-12 h-12 text-muted-foreground/30 mb-4" />
@@ -54,206 +223,377 @@ export function EntityDossier({ entityId, graphData }: EntityDossierProps) {
     );
   }
 
-  const node = graphData.nodes.find(n => n.id === entityId);
-  if (!node) return null;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
-  const connections = graphData.links.filter(
-    l => (l.source === entityId || l.target === entityId) ||
-         (typeof l.source === 'object' && l.source?.id === entityId) ||
-         (typeof l.target === 'object' && l.target?.id === entityId)
-  );
-
-  const getRiskColor = (score: number) => {
-    if (score > 70) return 'text-destructive';
-    if (score > 40) return 'text-yellow-500';
-    return 'text-accent';
-  };
+  if (!entity) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-center p-6">
+        <AlertTriangle className="w-12 h-12 text-destructive/50 mb-4" />
+        <p className="text-sm text-muted-foreground">Entity not found</p>
+      </div>
+    );
+  }
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'agent': return <Building2 className="w-4 h-4" />;
+      case 'agent': return <Briefcase className="w-4 h-4" />;
       case 'company': return <Building2 className="w-4 h-4" />;
       case 'address': return <MapPin className="w-4 h-4" />;
       default: return <User className="w-4 h-4" />;
     }
   };
 
-  // Generate mock timeline based on entity type
-  const generateTimeline = () => {
-    const baseDate = new Date('2026-01-28');
-    if (node.nodeType === 'applicant') {
-      return [
-        { date: new Date(baseDate.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(), event: 'Application submitted', type: 'submission' as const },
-        { date: new Date(baseDate.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(), event: 'Document uploaded: Passport', type: 'document' as const },
-        { date: new Date(baseDate.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(), event: 'Linked to flagged agency', type: 'connection' as const },
-        { date: new Date(baseDate.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(), event: 'Risk score elevated to ' + node.riskScore, type: 'flag' as const },
-      ];
+  const getRiskColor = (score: number) => {
+    if (score >= 80) return 'text-destructive';
+    if (score >= 50) return 'text-yellow-500';
+    return 'text-accent';
+  };
+
+  const getRiskBg = (score: number) => {
+    if (score >= 80) return 'bg-destructive/10';
+    if (score >= 50) return 'bg-yellow-500/10';
+    return 'bg-accent/10';
+  };
+
+  // Generate timeline from entity metadata and documents
+  const generateTimeline = (): TimelineEvent[] => {
+    const events: TimelineEvent[] = [];
+    const metadata = entity.metadata;
+
+    if (metadata.submissionDate) {
+      events.push({
+        date: String(metadata.submissionDate),
+        event: 'Application submitted',
+        type: 'submission',
+        details: `Via ${metadata.consulate || 'consulate'}`,
+      });
     }
-    return [
-      { date: new Date(baseDate.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(), event: 'Entity registered', type: 'submission' as const },
-      { date: new Date(baseDate.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(), event: 'Multiple applicant connections', type: 'connection' as const },
-    ];
+
+    documents.forEach(doc => {
+      events.push({
+        date: new Date().toISOString().split('T')[0],
+        event: `Document uploaded: ${doc.documentType}`,
+        type: 'document',
+        details: doc.flagged ? 'Flagged for review' : undefined,
+      });
+    });
+
+    if (entity.flagged) {
+      events.push({
+        date: new Date().toISOString().split('T')[0],
+        event: `Risk elevated to ${entity.riskScore}`,
+        type: 'flag',
+        details: 'Automated risk assessment',
+      });
+    }
+
+    connections.filter(c => c.flagged).forEach(conn => {
+      events.push({
+        date: new Date().toISOString().split('T')[0],
+        event: `Linked to flagged ${conn.nodeType}`,
+        type: 'connection',
+        details: conn.label,
+      });
+    });
+
+    return events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  };
+
+  // Generate risk factors
+  const generateRiskFactors = (): RiskFactor[] => {
+    const factors: RiskFactor[] = [];
+    
+    if (entity.flagged) {
+      factors.push({ factor: 'Entity flagged', weight: 25, source: 'System' });
+    }
+    
+    if (entity.riskScore >= 80) {
+      factors.push({ factor: 'Critical risk level', weight: 30, source: 'Risk Engine' });
+    }
+
+    const flaggedConnections = connections.filter(c => c.flagged).length;
+    if (flaggedConnections > 0) {
+      factors.push({ factor: `${flaggedConnections} flagged connections`, weight: flaggedConnections * 10, source: 'Network Analysis' });
+    }
+
+    const flaggedDocs = documents.filter(d => d.flagged).length;
+    if (flaggedDocs > 0) {
+      factors.push({ factor: `${flaggedDocs} flagged documents`, weight: flaggedDocs * 15, source: 'Document Analysis' });
+    }
+
+    const metadata = entity.metadata;
+    if (Array.isArray(metadata.suspiciousIndicators)) {
+      metadata.suspiciousIndicators.forEach((indicator: string) => {
+        factors.push({ factor: indicator, weight: 20, source: 'Pattern Detection' });
+      });
+    }
+
+    return factors;
   };
 
   const timeline = generateTimeline();
-
-  // Generate risk factors
-  const riskFactors = [
-    node.flagged && { factor: 'Flagged entity', weight: 40, source: 'System' },
-    node.riskScore > 80 && { factor: 'High risk score', weight: 30, source: 'Risk Engine' },
-    connections.length > 5 && { factor: 'High connection count', weight: 15, source: 'Network Analysis' },
-    node.nodeType === 'agent' && { factor: 'Agency entity type', weight: 10, source: 'Classification' },
-  ].filter(Boolean) as Array<{ factor: string; weight: number; source: string }>;
+  const riskFactors = generateRiskFactors();
 
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-start gap-3">
-          <div className={`p-3 rounded-lg ${
-            node.flagged ? 'bg-destructive/20' : 'bg-accent/10'
-          }`}>
-            {getTypeIcon(node.nodeType)}
+          <div className={`p-3 rounded-lg ${entity.flagged ? 'bg-destructive/20' : 'bg-accent/10'}`}>
+            {getTypeIcon(entity.nodeType)}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold truncate">{node.label}</h3>
-              {node.flagged && <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />}
+              <h3 className="font-semibold truncate">{entity.label}</h3>
+              {entity.flagged && <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />}
             </div>
-            <p className="text-xs text-muted-foreground capitalize">{node.nodeType}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <Badge variant="outline" className="text-[10px] capitalize">
+                {entity.nodeType}
+              </Badge>
+              {entity.caseId && (
+                <Badge 
+                  variant="secondary" 
+                  className="text-[10px] cursor-pointer hover:bg-secondary/80"
+                  onClick={() => navigateToCase(entity.caseId!)}
+                >
+                  {entity.caseId}
+                </Badge>
+              )}
+            </div>
           </div>
           <div className="text-right">
-            <p className={`text-2xl font-bold ${getRiskColor(node.riskScore)}`}>
-              {node.riskScore}
+            <p className={`text-2xl font-bold ${getRiskColor(entity.riskScore)}`}>
+              {entity.riskScore}
             </p>
             <p className="text-[10px] text-muted-foreground">Risk Score</p>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 space-y-6">
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="p-3 bg-secondary/30 rounded text-center">
-            <p className="text-lg font-bold">{connections.length}</p>
-            <p className="text-[10px] text-muted-foreground">Connections</p>
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-4">
+          {/* Quick Stats */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="p-3 bg-secondary/30 rounded text-center">
+              <p className="text-lg font-bold">{connections.length}</p>
+              <p className="text-[10px] text-muted-foreground">Connections</p>
+            </div>
+            <div className="p-3 bg-secondary/30 rounded text-center">
+              <p className="text-lg font-bold">{documents.length}</p>
+              <p className="text-[10px] text-muted-foreground">Documents</p>
+            </div>
+            <div className="p-3 bg-secondary/30 rounded text-center">
+              <p className="text-lg font-bold">{riskFactors.length}</p>
+              <p className="text-[10px] text-muted-foreground">Risk Factors</p>
+            </div>
           </div>
-          <div className="p-3 bg-secondary/30 rounded text-center">
-            <p className="text-lg font-bold">{node.nodeType === 'agent' ? '47' : '3'}</p>
-            <p className="text-[10px] text-muted-foreground">Applicants</p>
-          </div>
-          <div className="p-3 bg-secondary/30 rounded text-center">
-            <p className="text-lg font-bold">{riskFactors.length}</p>
-            <p className="text-[10px] text-muted-foreground">Risk Factors</p>
-          </div>
-        </div>
 
-        {/* Metadata */}
-        {node.metadata && Object.keys(node.metadata).length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Fingerprint className="w-4 h-4 text-accent" />
-              <p className="text-label">Entity Data</p>
-            </div>
-            <div className="space-y-2 p-3 bg-secondary/20 rounded-lg">
-              {Object.entries(node.metadata as Record<string, unknown>).map(([key, value]) => (
-                <div key={key} className="grid grid-cols-[100px_1fr] gap-2 text-xs">
-                  <span className="text-muted-foreground capitalize shrink-0">{key.replace(/_/g, ' ')}</span>
-                  <span className="font-mono text-foreground break-words text-right">{String(value)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          <Separator />
 
-        {/* Risk Factors */}
-        {riskFactors.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="w-4 h-4 text-destructive" />
-              <p className="text-label">Risk Factors</p>
-            </div>
-            <div className="space-y-2">
-              {riskFactors.map((factor, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2 bg-destructive/10 rounded">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-destructive" />
-                    <span className="text-xs">{factor.factor}</span>
-                  </div>
-                  <span className="text-xs font-mono text-destructive">+{factor.weight}</span>
+          {/* Metadata Section */}
+          {Object.keys(entity.metadata).length > 0 && (
+            <Collapsible open={expandedSections.metadata} onOpenChange={() => toggleSection('metadata')}>
+              <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                <div className="flex items-center gap-2">
+                  <Fingerprint className="w-4 h-4 text-accent" />
+                  <span className="text-sm font-medium">Entity Data</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+                <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.metadata ? 'rotate-90' : ''}`} />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-3">
+                <div className="space-y-2 p-3 bg-secondary/20 rounded-lg">
+                  {Object.entries(entity.metadata)
+                    .filter(([key]) => key !== 'suspiciousIndicators')
+                    .map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground capitalize">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                      </span>
+                      <span className="font-mono text-foreground">
+                        {typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
-        {/* Timeline */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Activity className="w-4 h-4 text-accent" />
-            <p className="text-label">Activity Timeline</p>
-          </div>
-          <div className="space-y-0 relative">
-            <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
-            {timeline.map((event, idx) => (
-              <div key={idx} className="flex items-start gap-3 py-2 relative">
-                <div className={`w-4 h-4 rounded-full border-2 bg-background z-10 ${
-                  event.type === 'flag' ? 'border-destructive' :
-                  event.type === 'connection' ? 'border-yellow-500' :
-                  'border-accent'
-                }`} />
-                <div className="flex-1">
-                  <p className="text-xs">{event.event}</p>
-                  <p className="text-[10px] text-muted-foreground">
-                    {new Date(event.date).toLocaleDateString()}
-                  </p>
+          {/* Risk Factors Section */}
+          {riskFactors.length > 0 && (
+            <Collapsible open={expandedSections.risk} onOpenChange={() => toggleSection('risk')}>
+              <CollapsibleTrigger className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-destructive" />
+                  <span className="text-sm font-medium">Risk Factors</span>
                 </div>
+                <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.risk ? 'rotate-90' : ''}`} />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-3">
+                <div className="space-y-2">
+                  {riskFactors.map((factor, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2 bg-destructive/10 rounded">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-destructive" />
+                        <span className="text-xs">{factor.factor}</span>
+                      </div>
+                      <span className="text-xs font-mono text-destructive">+{factor.weight}</span>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          {/* Timeline Section */}
+          {timeline.length > 0 && (
+            <Collapsible open={expandedSections.timeline} onOpenChange={() => toggleSection('timeline')}>
+              <CollapsibleTrigger className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-accent" />
+                  <span className="text-sm font-medium">Activity Timeline</span>
+                </div>
+                <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.timeline ? 'rotate-90' : ''}`} />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-3">
+                <div className="space-y-0 relative">
+                  <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
+                  {timeline.map((event, idx) => (
+                    <div key={idx} className="flex items-start gap-3 py-2 relative">
+                      <div className={`w-4 h-4 rounded-full border-2 bg-background z-10 shrink-0 ${
+                        event.type === 'flag' ? 'border-destructive' :
+                        event.type === 'connection' ? 'border-yellow-500' :
+                        event.type === 'document' ? 'border-blue-500' :
+                        'border-accent'
+                      }`} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs">{event.event}</p>
+                        {event.details && (
+                          <p className="text-[10px] text-muted-foreground truncate">{event.details}</p>
+                        )}
+                        <p className="text-[10px] text-muted-foreground">
+                          {event.date}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          {/* Documents Section */}
+          <Collapsible open={expandedSections.documents} onOpenChange={() => toggleSection('documents')}>
+            <CollapsibleTrigger className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium">Linked Documents</span>
+                <Badge variant="secondary" className="text-[10px]">{documents.length}</Badge>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Connections Preview */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Link2 className="w-4 h-4 text-accent" />
-              <p className="text-label">Connections</p>
-            </div>
-            <span className="text-xs text-muted-foreground">{connections.length} total</span>
-          </div>
-          <div className="space-y-1">
-            {connections.slice(0, 5).map((link, idx) => {
-              const otherId = link.source === entityId || link.source?.id === entityId 
-                ? (typeof link.target === 'string' ? link.target : link.target?.id)
-                : (typeof link.source === 'string' ? link.source : link.source?.id);
-              const otherNode = graphData.nodes.find(n => n.id === otherId);
-              if (!otherNode) return null;
-              
-              return (
-                <div key={idx} className="flex items-center justify-between p-2 hover:bg-secondary/30 rounded cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      otherNode.flagged ? 'bg-destructive' : 'bg-accent'
-                    }`} />
-                    <span className="text-xs truncate">{otherNode.label}</span>
-                  </div>
-                  <span className="text-[10px] text-muted-foreground capitalize">
-                    {link.edgeType || 'linked'}
-                  </span>
+              <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.documents ? 'rotate-90' : ''}`} />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-3">
+              {documents.length > 0 ? (
+                <div className="space-y-2">
+                  {documents.map(doc => (
+                    <div 
+                      key={doc.id}
+                      onClick={() => navigateToDocument(doc.id)}
+                      className="flex items-center justify-between p-2 bg-secondary/30 rounded hover:bg-secondary/50 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        {doc.flagged ? (
+                          <FileWarning className="w-4 h-4 text-destructive shrink-0" />
+                        ) : (
+                          <FileCheck className="w-4 h-4 text-accent shrink-0" />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs truncate">{doc.filename}</p>
+                          <p className="text-[10px] text-muted-foreground">{doc.documentType}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {doc.flagged && (
+                          <Badge variant="destructive" className="text-[9px]">FLAGGED</Badge>
+                        )}
+                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              );
-            })}
-          </div>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-4">No linked documents</p>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
+
+          {/* Connections Section */}
+          <Collapsible open={expandedSections.connections} onOpenChange={() => toggleSection('connections')}>
+            <CollapsibleTrigger className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                <Link2 className="w-4 h-4 text-accent" />
+                <span className="text-sm font-medium">Connected Entities</span>
+                <Badge variant="secondary" className="text-[10px]">{connections.length}</Badge>
+              </div>
+              <ChevronRight className={`w-4 h-4 text-muted-foreground transition-transform ${expandedSections.connections ? 'rotate-90' : ''}`} />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-3">
+              {connections.length > 0 ? (
+                <div className="space-y-2">
+                  {connections.map((conn, idx) => (
+                    <div 
+                      key={`${conn.nodeId}-${idx}`}
+                      onClick={() => navigateToEntity(conn.nodeId)}
+                      className="flex items-center justify-between p-2 bg-secondary/30 rounded hover:bg-secondary/50 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${
+                          conn.flagged ? 'bg-destructive' : 'bg-accent'
+                        }`} />
+                        <div className="min-w-0">
+                          <p className="text-xs truncate">{conn.label}</p>
+                          <p className="text-[10px] text-muted-foreground capitalize">{conn.nodeType}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Badge variant="outline" className="text-[9px] capitalize">
+                          {conn.edgeType}
+                        </Badge>
+                        <span className={`text-xs font-mono ${getRiskColor(conn.riskScore)}`}>
+                          {conn.riskScore}
+                        </span>
+                        <ChevronRight className="w-3 h-3 text-muted-foreground" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground text-center py-4">No connections</p>
+              )}
+            </CollapsibleContent>
+          </Collapsible>
         </div>
-      </div>
+      </ScrollArea>
 
       {/* Actions */}
       <div className="p-4 border-t border-border space-y-2">
-        <Button className="w-full gap-2" size="sm">
-          <ExternalLink className="w-4 h-4" />
-          Open Full Dossier
-        </Button>
+        {entity.caseId && (
+          <Button 
+            className="w-full gap-2" 
+            size="sm"
+            onClick={() => navigateToCase(entity.caseId!)}
+          >
+            <ExternalLink className="w-4 h-4" />
+            Open Case File
+          </Button>
+        )}
         <Button variant="outline" className="w-full gap-2" size="sm">
           <Globe className="w-4 h-4" />
           Run OSINT Scan

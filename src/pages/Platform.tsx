@@ -11,11 +11,11 @@ import {
 } from '@/components/ui/sidebar';
 import { CompassLogo } from '@/components/CompassLogo';
 import { NauticaGraph } from '@/components/platform/NauticaGraph';
-import { ApplicantPanel } from '@/components/platform/ApplicantPanel';
 import { AlertPanel } from '@/components/platform/AlertPanel';
 import { MarisPanel } from '@/components/platform/MarisPanel';
 import { MeridianPanel } from '@/components/platform/MeridianPanel';
 import { SocialIntelligencePanel } from '@/components/platform/SocialIntelligencePanel';
+import { EntityDossier } from '@/components/platform/nautica/EntityDossier';
 import { UnifiedCommandPalette } from '@/components/platform/UnifiedCommandPalette';
 import { PlatformProvider, usePlatform } from '@/contexts/PlatformContext';
 import { 
@@ -190,9 +190,9 @@ function PlatformContent() {
                     selectedNode={selectedEntityId}
                   />
                 </div>
-                <div className="w-80 border-l border-border bg-surface-elevated flex flex-col">
+                <div className="w-96 border-l border-border bg-surface-elevated flex flex-col">
                   <AlertPanel />
-                  <ApplicantPanel selectedNode={selectedEntityId} />
+                  <EntityDossier />
                 </div>
               </>
             ) : (
