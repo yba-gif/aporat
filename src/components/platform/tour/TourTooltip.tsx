@@ -75,21 +75,21 @@ export function TourTooltip() {
 
   return (
     <div
-      className="bg-background border border-border shadow-2xl animate-scale-in"
+      className="bg-white border border-slate-200 shadow-2xl animate-scale-in rounded-lg"
       style={getTooltipStyle()}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-slate-200">
         <div className="flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-accent animate-pulse-subtle" />
-          <span className="text-xs font-medium text-muted-foreground">
+          <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse-subtle" />
+          <span className="text-xs font-medium text-slate-500">
             Step {currentStepIndex + 1} of {totalSteps}
           </span>
         </div>
         <Button
           variant="ghost"
           size="icon"
-          className="h-6 w-6"
+          className="h-6 w-6 text-slate-400 hover:text-slate-600 hover:bg-slate-100"
           onClick={endTour}
         >
           <X className="h-3 w-3" />
@@ -101,20 +101,20 @@ export function TourTooltip() {
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="text-base font-semibold mb-2">{currentStep.title}</h3>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <h3 className="text-base font-semibold mb-2 text-slate-900">{currentStep.title}</h3>
+        <p className="text-sm text-slate-600 leading-relaxed">
           {currentStep.content}
         </p>
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-secondary/30">
+      <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-slate-50 rounded-b-lg">
         <Button
           variant="ghost"
           size="sm"
           onClick={prevStep}
           disabled={isFirstStep}
-          className="gap-1"
+          className="gap-1 text-slate-600 hover:text-slate-900 hover:bg-slate-200 disabled:text-slate-300"
         >
           <ChevronLeft className="h-4 w-4" />
           Back
@@ -126,10 +126,10 @@ export function TourTooltip() {
               key={i}
               className={`w-1.5 h-1.5 rounded-full transition-colors ${
                 i === currentStepIndex 
-                  ? 'bg-accent' 
+                  ? 'bg-teal-500' 
                   : i < currentStepIndex 
-                    ? 'bg-accent/50' 
-                    : 'bg-muted-foreground/30'
+                    ? 'bg-teal-300' 
+                    : 'bg-slate-300'
               }`}
             />
           ))}
@@ -139,7 +139,7 @@ export function TourTooltip() {
           variant={isLastStep ? "default" : "ghost"}
           size="sm"
           onClick={nextStep}
-          className="gap-1"
+          className={`gap-1 ${isLastStep ? 'bg-teal-600 hover:bg-teal-700 text-white' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'}`}
         >
           {isLastStep ? 'Finish' : 'Next'}
           {!isLastStep && <ChevronRight className="h-4 w-4" />}
