@@ -23,10 +23,42 @@ A comprehensive plan to transform the Portolan demo platform from prototype to p
 
 ---
 
+## Tooling Strategy (Data Sovereignty First)
+
+### Core Principle
+All tools must either be **self-hosted** or use **zero-knowledge/E2EE architecture** to ensure no third party can access sensitive demo or production data.
+
+### Required Tools by Category
+
+| Category | Tool | Type | Purpose |
+|----------|------|------|---------|
+| **Code & DevOps** | GitLab CE | Self-hosted | Version control, CI/CD pipelines |
+| **Project Management** | Plane | Self-hosted | Issue tracking, sprint planning |
+| **Team Communication** | Mattermost | Self-hosted | Internal chat, incident response |
+| **External Comms** | Element (Matrix) | Self-hosted | Secure client/gov communication |
+| **Documents** | Nextcloud | Self-hosted | Internal file sharing, collaboration |
+| **External Sharing** | Tresorit | E2EE SaaS | Secure document sharing with clients |
+| **Design** | Penpot | Self-hosted | UI/UX design, prototyping |
+| **Diagrams** | Excalidraw | Self-hosted | Whiteboarding, architecture diagrams |
+| **Analytics** | Plausible | Self-hosted | Marketing site analytics |
+| **Product Analytics** | PostHog | Self-hosted | Feature usage, user flows |
+| **Secrets** | Infisical | Self-hosted | API keys, credentials management |
+| **Passwords** | Vaultwarden | Self-hosted | Team password management |
+| **Knowledge Base** | Outline | Self-hosted | Internal documentation, wiki |
+| **Local AI** | Ollama | Self-hosted | Private LLM inference |
+| **Email** | Proton Mail | E2EE SaaS | External email (zero-knowledge) |
+
+---
+
 ## Phase 1: Data Architecture & Cohesive Demo Narrative (Days 1-2)
 
 ### Goal
 Create a unified demo dataset with a compelling fraud investigation story that spans all three modules.
+
+### Tools Required
+- **Lovable Cloud**: Database migrations and seed data
+- **Penpot**: Design data flow diagrams
+- **Outline**: Document the demo scenario narrative
 
 ### Tasks
 
@@ -62,6 +94,11 @@ ALTER TABLE demo_fraud_nodes ADD COLUMN case_id text;
 
 ### Goal
 Implement a global context system where selecting an entity in any module propagates context across all modules.
+
+### Tools Required
+- **Penpot**: Design navigation patterns and command palette
+- **Excalidraw**: Sketch information architecture
+- **Plane**: Track implementation tasks
 
 ### Tasks
 
@@ -107,6 +144,12 @@ Redesign header with:
 
 ### Goal
 Polish each module to feel like a cohesive, professional GovTech tool.
+
+### Tools Required
+- **Penpot**: High-fidelity mockups for each module
+- **PostHog**: Set up feature flags for A/B testing refinements
+- **Mattermost**: Collect internal feedback on UX changes
+- **Plane**: Sprint board for refinement tasks
 
 ### 3.1 Maris Refinements
 
@@ -173,6 +216,12 @@ Polish each module to feel like a cohesive, professional GovTech tool.
 ### Goal
 Add real-time features and micro-interactions that make the platform feel alive.
 
+### Tools Required
+- **Lovable Cloud Realtime**: WebSocket subscriptions for live updates
+- **PostHog**: Track user engagement with new features
+- **Plausible**: Monitor demo page performance
+- **Ollama**: Local AI for smart suggestions (optional)
+
 ### Tasks
 
 #### 4.1 Real-Time Updates
@@ -212,6 +261,13 @@ Esc     - Close modals/panels
 ### Goal
 Create a guided demo experience that tells the fraud detection story.
 
+### Tools Required
+- **Penpot**: Design guided tour UI components
+- **Nextcloud**: Store demo assets and presentation materials
+- **Tresorit**: Securely share demo with external stakeholders
+- **Element**: Coordinate demo delivery with gov clients
+- **Outline**: Document demo scripts and talking points
+
 ### Tasks
 
 #### 5.1 Guided Tour Mode
@@ -244,6 +300,49 @@ For live demos:
 
 ---
 
+## Infrastructure Setup Checklist
+
+### Immediate (Before Phase 1)
+- [ ] **Plane** - Set up project board with phases as milestones
+- [ ] **Outline** - Create documentation workspace
+- [ ] **Penpot** - Initialize design project with components
+
+### During Development (Phase 1-3)
+- [ ] **GitLab CE** - Set up CI/CD for automated deployments
+- [ ] **Mattermost** - Create channels: #platform-dev, #feedback, #bugs
+- [ ] **Infisical** - Migrate secrets from current management
+- [ ] **PostHog** - Integrate analytics SDK
+
+### Pre-Demo (Phase 4-5)
+- [ ] **Plausible** - Set up marketing site tracking
+- [ ] **Tresorit** - Create secure share folder for demo assets
+- [ ] **Element** - Set up secure room for gov stakeholder comms
+
+---
+
+## Tool Deployment Options
+
+### Option A: Single-Server Stack (Budget)
+Deploy all self-hosted tools on one powerful VPS:
+- **Provider**: Hetzner (Germany) or OVH (France)
+- **Spec**: 8 vCPU, 32GB RAM, 500GB NVMe
+- **Cost**: ~€50-80/month
+- **Tools**: Docker Compose with all services
+
+### Option B: Kubernetes Cluster (Scalable)
+Deploy on managed Kubernetes:
+- **Provider**: Scaleway Kapsule or Hetzner Cloud
+- **Spec**: 3-node cluster, 4 vCPU/8GB each
+- **Cost**: ~€150-200/month
+- **Tools**: Helm charts for each service
+
+### Option C: Hybrid (Recommended)
+- **Self-hosted** (EU VPS): GitLab, Plane, Mattermost, Nextcloud, Outline, Penpot
+- **E2EE SaaS**: Proton Mail, Tresorit
+- **Lovable Cloud**: Application backend (already configured)
+
+---
+
 ## Success Metrics
 
 1. **Flow Continuity**: User can follow a single case from document upload through network detection to case resolution
@@ -251,6 +350,7 @@ For live demos:
 3. **Professional Polish**: No dead ends, placeholder text, or disconnected UI elements
 4. **Demo Ready**: Can run a 15-minute live demo without encountering issues
 5. **Performance**: Graph renders 100+ nodes at 60fps, page transitions < 200ms
+6. **Tooling**: 100% of sensitive data flows through self-hosted or E2EE tools
 
 ---
 
@@ -307,13 +407,34 @@ src/
 
 ---
 
+## Tool Quick Reference
+
+| Need | Tool | Self-Hosted | Zero Data Exposure |
+|------|------|-------------|-------------------|
+| Code | GitLab CE | ✅ | ✅ |
+| Tasks | Plane | ✅ | ✅ |
+| Chat | Mattermost | ✅ | ✅ |
+| Docs | Nextcloud | ✅ | ✅ |
+| Design | Penpot | ✅ | ✅ |
+| Analytics | Plausible | ✅ | ✅ |
+| Product | PostHog | ✅ | ✅ |
+| Secrets | Infisical | ✅ | ✅ |
+| Wiki | Outline | ✅ | ✅ |
+| AI | Ollama | ✅ | ✅ |
+| Email | Proton | ❌ | ✅ (E2EE) |
+| Sharing | Tresorit | ❌ | ✅ (E2EE) |
+
+---
+
 ## Next Actions
 
 1. **Immediate**: Fix ApplicantPanel `document` → `company` type inconsistency
 2. **This Session**: Start Phase 1 with database migrations and seed data
-3. **User Approval Needed**: Confirm Phase 1 scope before implementation
+3. **Infrastructure**: Deploy Plane + Outline on EU VPS for project tracking
+4. **User Approval Needed**: Confirm Phase 1 scope before implementation
 
 ---
 
 *Plan created: 2026-01-28*
 *Last updated: 2026-02-01*
+*Tools section added: 2026-02-01*
