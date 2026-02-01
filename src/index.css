@@ -372,3 +372,101 @@
   background: hsl(var(--accent) / 0.2);
   color: hsl(var(--foreground));
 }
+
+/* Platform micro-animations */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseSubtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s var(--ease-out-expo) forwards;
+}
+
+.animate-slide-in-up {
+  animation: slideInUp 0.2s var(--ease-out-expo) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s var(--ease-out-expo) forwards;
+}
+
+.animate-pulse-subtle {
+  animation: pulseSubtle 2s ease-in-out infinite;
+}
+
+/* Panel transition classes */
+.panel-enter {
+  animation: slideInRight 0.25s var(--ease-out-expo) forwards;
+}
+
+.panel-exit {
+  animation: slideInRight 0.2s var(--ease-out-expo) reverse forwards;
+}
+
+/* Selection feedback */
+.selectable-item {
+  transition: transform 0.15s var(--ease-out-expo), 
+              box-shadow 0.15s var(--ease-out-expo),
+              background-color 0.15s ease;
+}
+
+.selectable-item:active {
+  transform: scale(0.98);
+}
+
+.selectable-item.selected {
+  box-shadow: 0 0 0 2px hsl(var(--accent));
+}
+
+/* Smooth focus transitions */
+.focus-ring {
+  transition: box-shadow 0.15s ease;
+}
+
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--accent));
+}
+
+/* Toast animation override */
+[data-sonner-toast] {
+  animation: slideInUp 0.3s var(--ease-out-expo) forwards !important;
+}
