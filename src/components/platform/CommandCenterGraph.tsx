@@ -1,6 +1,6 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 
-interface GraphNode {
+export interface GraphNode {
   id: string;
   label: string;
   nodeType: 'applicant' | 'agent' | 'company' | 'address';
@@ -19,6 +19,8 @@ interface GraphLink {
 interface CommandCenterGraphProps {
   nodes: GraphNode[];
   links: GraphLink[];
+  onNodeClick?: (node: GraphNode | null) => void;
+  selectedNodeId?: string | null;
 }
 
 const NODE_COLORS: Record<string, string> = {
@@ -29,10 +31,13 @@ const NODE_COLORS: Record<string, string> = {
 };
 
 const FLAGGED_COLOR = '#ef4444';
+const SELECTED_COLOR = '#22d3ee';
+const HOVER_COLOR = '#ffffff';
 
-export function CommandCenterGraph({ nodes, links }: CommandCenterGraphProps) {
+export function CommandCenterGraph({ nodes, links, onNodeClick, selectedNodeId }: CommandCenterGraphProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
+  const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
   // Pre-calculate node positions in a force-directed-like layout
   const positionedNodes = useMemo(() => {
@@ -102,6 +107,61 @@ export function CommandCenterGraph({ nodes, links }: CommandCenterGraphProps) {
     return map;
   }, [positionedNodes]);
 
+  // Get node size based on type
+  const getNodeSize = useCallback((nodeType: string) => {
+    return nodeType === 'agent' ? 8 : nodeType === 'company' ? 6 : 4;
+  }, []);
+
+  // Find node at position
+  const findNodeAtPosition = useCallback((x: number, y: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return null;
+
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = rect.width / 800;
+    const scaleY = rect.height / 400;
+    const canvasX = x / scaleX;
+    const canvasY = y / scaleY;
+
+    for (const node of positionedNodes) {
+      const size = getNodeSize(node.nodeType);
+      const dx = canvasX - node.x;
+      const dy = canvasY - node.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distance <= size + 4) { // Add some padding for easier clicking
+        return node;
+      }
+    }
+    return null;
+  }, [positionedNodes, getNodeSize]);
+
+  // Handle mouse move for hover
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const node = findNodeAtPosition(x, y);
+    setHoveredNodeId(node?.id || null);
+    canvas.style.cursor = node ? 'pointer' : 'default';
+  }, [findNodeAtPosition]);
+
+  // Handle click
+  const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const node = findNodeAtPosition(x, y);
+    onNodeClick?.(node);
+  }, [findNodeAtPosition, onNodeClick]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -115,22 +175,31 @@ export function CommandCenterGraph({ nodes, links }: CommandCenterGraphProps) {
     canvas.height = rect.height * dpr;
     ctx.scale(dpr, dpr);
 
-    let time = 0;
+    const scaleX = rect.width / 800;
+    const scaleY = rect.height / 400;
 
     const draw = () => {
       ctx.clearRect(0, 0, rect.width, rect.height);
 
+      ctx.save();
+      ctx.scale(scaleX, scaleY);
+
       // Draw links
-      ctx.strokeStyle = 'rgba(13, 148, 136, 0.15)';
-      ctx.lineWidth = 0.5;
-      
       links.forEach(link => {
         const source = nodeMap.get(link.source);
         const target = nodeMap.get(link.target);
         if (source && target) {
+          const isHighlighted = 
+            selectedNodeId === source.id || 
+            selectedNodeId === target.id ||
+            hoveredNodeId === source.id ||
+            hoveredNodeId === target.id;
+
           ctx.beginPath();
           ctx.moveTo(source.x, source.y);
           ctx.lineTo(target.x, target.y);
+          ctx.strokeStyle = isHighlighted ? 'rgba(13, 148, 136, 0.6)' : 'rgba(13, 148, 136, 0.15)';
+          ctx.lineWidth = isHighlighted ? 1.5 : 0.5;
           ctx.stroke();
         }
       });
@@ -138,7 +207,27 @@ export function CommandCenterGraph({ nodes, links }: CommandCenterGraphProps) {
       // Draw nodes
       positionedNodes.forEach(node => {
         const color = NODE_COLORS[node.nodeType] || '#6b7280';
-        const size = node.nodeType === 'agent' ? 8 : node.nodeType === 'company' ? 6 : 4;
+        const size = getNodeSize(node.nodeType);
+        const isSelected = selectedNodeId === node.id;
+        const isHovered = hoveredNodeId === node.id;
+
+        // Selected ring
+        if (isSelected) {
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, size + 6, 0, Math.PI * 2);
+          ctx.strokeStyle = SELECTED_COLOR;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        // Hover ring
+        if (isHovered && !isSelected) {
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, size + 4, 0, Math.PI * 2);
+          ctx.strokeStyle = `${HOVER_COLOR}66`;
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
 
         // Flagged ring
         if (node.flagged) {
@@ -165,9 +254,31 @@ export function CommandCenterGraph({ nodes, links }: CommandCenterGraphProps) {
           ctx.lineWidth = 1;
           ctx.stroke();
         }
+
+        // Label on hover/select
+        if (isSelected || isHovered) {
+          ctx.font = '10px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'top';
+          
+          const label = node.label;
+          const metrics = ctx.measureText(label);
+          const padding = 3;
+          
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+          ctx.fillRect(
+            node.x - metrics.width / 2 - padding,
+            node.y + size + 4,
+            metrics.width + padding * 2,
+            14
+          );
+          
+          ctx.fillStyle = '#e5e7eb';
+          ctx.fillText(label, node.x, node.y + size + 6);
+        }
       });
 
-      time += 0.01;
+      ctx.restore();
       animationRef.current = requestAnimationFrame(draw);
     };
 
@@ -178,13 +289,16 @@ export function CommandCenterGraph({ nodes, links }: CommandCenterGraphProps) {
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [positionedNodes, links, nodeMap]);
+  }, [positionedNodes, links, nodeMap, selectedNodeId, hoveredNodeId, getNodeSize]);
 
   return (
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full"
       style={{ width: '100%', height: '100%' }}
+      onMouseMove={handleMouseMove}
+      onClick={handleClick}
+      onMouseLeave={() => setHoveredNodeId(null)}
     />
   );
 }
