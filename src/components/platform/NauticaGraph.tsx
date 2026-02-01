@@ -185,25 +185,44 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     }
   }, []);
 
-  const handleNodeClick = useCallback((node: GraphNode) => {
+  const handleNodeClick = useCallback((node: GraphNode, event: MouseEvent) => {
     // Close context menu on any click
     setContextMenu(prev => ({ ...prev, visible: false }));
-    onNodeSelect(selectedNode === node.id ? null : node.id);
     
+    // Toggle selection
+    const newSelection = selectedNode === node.id ? null : node.id;
+    onNodeSelect(newSelection);
+    
+    // Center and zoom on node
     if (graphRef.current && node.x !== undefined && node.y !== undefined) {
       graphRef.current.centerAt(node.x, node.y, 500);
       graphRef.current.zoom(2, 500);
+      setZoomLevel(2);
     }
   }, [onNodeSelect, selectedNode]);
 
   const handleNodeRightClick = useCallback((node: GraphNode, event: MouseEvent) => {
     event.preventDefault();
+    event.stopPropagation();
+    
+    // Select the node when right-clicking
+    onNodeSelect(node.id);
+    
     setContextMenu({
       visible: true,
       x: event.clientX,
       y: event.clientY,
       node: node
     });
+  }, [onNodeSelect]);
+
+  const handleBackgroundClick = useCallback(() => {
+    setContextMenu(prev => ({ ...prev, visible: false }));
+  }, []);
+
+  const handleBackgroundRightClick = useCallback((event: MouseEvent) => {
+    event.preventDefault();
+    setContextMenu(prev => ({ ...prev, visible: false }));
   }, []);
 
   const closeContextMenu = useCallback(() => {
@@ -559,6 +578,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
           onNodeClick={handleNodeClick}
           onNodeRightClick={handleNodeRightClick}
           onNodeHover={(node) => setHoveredNode(node ? (node as GraphNode).id : null)}
+          onBackgroundClick={handleBackgroundClick}
+          onBackgroundRightClick={handleBackgroundRightClick}
           nodePointerAreaPaint={(node, color, ctx) => {
             const size = getNodeSize(node as GraphNode) + 4;
             ctx.beginPath();
