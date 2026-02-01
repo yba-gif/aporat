@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { DocumentActions } from './DocumentActions';
 
 interface VaultDocument {
   id: string;
@@ -333,20 +334,25 @@ export function DocumentVault({ onDocumentSelect, selectedDocId }: DocumentVault
           filteredDocs.map((doc) => (
             <div
               key={doc.id}
-              className={`p-4 border-b border-border cursor-pointer transition-colors ${
+              className={`p-4 border-b border-border transition-colors ${
                 selectedDocId === doc.id ? 'bg-accent/10' : 'hover:bg-secondary/30'
               }`}
-              onClick={() => onDocumentSelect(doc)}
             >
               <div className="flex items-start gap-3">
-                <div className={`p-2 rounded ${
-                  doc.status === 'flagged' ? 'bg-destructive/20' : 'bg-secondary'
-                }`}>
+                <div 
+                  className={`p-2 rounded cursor-pointer ${
+                    doc.status === 'flagged' ? 'bg-destructive/20' : 'bg-secondary'
+                  }`}
+                  onClick={() => onDocumentSelect(doc)}
+                >
                   <FileText className={`w-4 h-4 ${
                     doc.status === 'flagged' ? 'text-destructive' : 'text-muted-foreground'
                   }`} />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div 
+                  className="flex-1 min-w-0 cursor-pointer"
+                  onClick={() => onDocumentSelect(doc)}
+                >
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium truncate">{doc.name}</p>
                     {getStatusIcon(doc.status)}
@@ -373,14 +379,24 @@ export function DocumentVault({ onDocumentSelect, selectedDocId }: DocumentVault
                     </div>
                   )}
                 </div>
-                <div className="text-right">
-                  <p className={`text-sm font-mono ${
-                    doc.confidence > 90 ? 'text-accent' : 
-                    doc.confidence > 80 ? 'text-yellow-500' : 'text-destructive'
-                  }`}>
-                    {doc.confidence.toFixed(1)}%
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">OCR</p>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <p className={`text-sm font-mono ${
+                      doc.confidence > 90 ? 'text-accent' : 
+                      doc.confidence > 80 ? 'text-yellow-500' : 'text-destructive'
+                    }`}>
+                      {doc.confidence.toFixed(1)}%
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">OCR</p>
+                  </div>
+                  <DocumentActions
+                    documentId={doc.id}
+                    filename={doc.name}
+                    filePath={doc.fileUrl}
+                    hash={doc.hash}
+                    caseId={doc.caseId}
+                    onCaseLinked={() => fetchDocuments()}
+                  />
                 </div>
               </div>
             </div>
