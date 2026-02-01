@@ -25,6 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { usePlatform } from '@/contexts/PlatformContext';
 import { DossierTabs, NotesTabContent } from './DossierTabs';
+import { DossierSkeleton } from '../skeletons/DossierSkeleton';
 
 interface EntityDetails {
   id: string;
@@ -213,11 +214,7 @@ export function EntityDossier() {
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <DossierSkeleton />;
   }
 
   if (!entity) {

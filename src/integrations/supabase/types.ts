@@ -175,6 +175,45 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_alerts: {
+        Row: {
+          alert_type: string
+          case_id: string | null
+          created_at: string
+          entity_id: string | null
+          id: string
+          is_read: boolean | null
+          message: string
+          metadata: Json | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          case_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          is_read?: boolean | null
+          message: string
+          metadata?: Json | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          case_id?: string | null
+          created_at?: string
+          entity_id?: string | null
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          metadata?: Json | null
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
       vault_documents: {
         Row: {
           case_id: string | null
