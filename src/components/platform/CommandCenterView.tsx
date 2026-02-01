@@ -19,7 +19,8 @@ import {
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
-import { CommandCenterGraph } from './CommandCenterGraph';
+import { CommandCenterGraph, GraphNode } from './CommandCenterGraph';
+import { EntityQuickView } from './EntityQuickView';
 
 interface Alert {
   id: string;
@@ -34,16 +35,6 @@ interface Metric {
   value: string;
   change: number;
   trend: 'up' | 'down';
-}
-
-interface GraphNode {
-  id: string;
-  label: string;
-  nodeType: 'applicant' | 'agent' | 'company' | 'address';
-  flagged: boolean;
-  riskScore: number;
-  x?: number;
-  y?: number;
 }
 
 interface GraphLink {
@@ -66,6 +57,7 @@ const LIVE_ALERTS: Alert[] = [
 
 export function CommandCenterView({ onNavigate }: CommandCenterViewProps) {
   const [selectedAlert, setSelectedAlert] = useState<string | null>(null);
+  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[]; links: GraphLink[] }>({ nodes: [], links: [] });
   const [loading, setLoading] = useState(true);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -208,7 +200,23 @@ export function CommandCenterView({ onNavigate }: CommandCenterViewProps) {
                 </p>
               </div>
               
-              <CommandCenterGraph nodes={graphData.nodes} links={graphData.links} />
+              <CommandCenterGraph 
+                nodes={graphData.nodes} 
+                links={graphData.links} 
+                onNodeClick={setSelectedNode}
+                selectedNodeId={selectedNode?.id}
+              />
+
+              {/* Entity Quick View Panel */}
+              {selectedNode && (
+                <EntityQuickView
+                  node={selectedNode}
+                  links={graphData.links}
+                  allNodes={graphData.nodes}
+                  onClose={() => setSelectedNode(null)}
+                  onNavigateToNautica={() => onNavigate('nautica')}
+                />
+              )}
 
               {/* Legend */}
               <div className="absolute bottom-4 left-4 flex items-center gap-4 text-xs">
