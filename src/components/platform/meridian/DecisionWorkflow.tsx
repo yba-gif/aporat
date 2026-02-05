@@ -11,11 +11,17 @@ import {
   Shield,
   Zap,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Flag,
+  FileDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DecisionDialog, DecisionSuccess } from './DecisionDialog';
+import { RedFlagSummary } from './RedFlagSummary';
+import { AutoDecisionJustification } from './AutoDecisionJustification';
+import { CaseExportPDF } from './CaseExportPDF';
 import { toast } from 'sonner';
 
 interface WorkflowStep {
@@ -104,7 +110,7 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
   const getStepIcon = (step: WorkflowStep) => {
     if (step.status === 'completed') {
       if (step.decision === 'rejected') return <XCircle className="w-5 h-5 text-destructive" />;
-      if (step.decision === 'escalated') return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+      if (step.decision === 'escalated') return <AlertTriangle className="w-5 h-5 text-amber-500 dark:text-amber-400" />;
       return <CheckCircle2 className="w-5 h-5 text-accent" />;
     }
     if (step.status === 'current') {
@@ -161,148 +167,202 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border">
-        <div className="flex items-center gap-3">
-          <GitBranch className="w-5 h-5 text-accent" />
-          <div>
-            <h3 className="font-semibold">Decision Workflow</h3>
-            <p className="text-xs text-muted-foreground">CASE-2026-4829</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <GitBranch className="w-5 h-5 text-accent" />
+            <div>
+              <h3 className="font-semibold">Decision Workflow</h3>
+              <p className="text-xs text-muted-foreground">CASE-2026-4829</p>
+            </div>
           </div>
+          <CaseExportPDF 
+            caseId={caseId}
+            caseNumber="CASE-2026-4829"
+            applicantName="Ahmad Rezaee"
+            riskScore={94}
+            status="under_review"
+          />
         </div>
       </div>
 
-      <div className="flex-1 overflow-auto p-4 space-y-6">
-        {/* Completed Steps - Collapsible */}
-        {completedSteps.length > 0 && (
-          <Collapsible open={expandedHistory} onOpenChange={setExpandedHistory}>
-            <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {expandedHistory ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-              <span>{completedSteps.length} completed steps</span>
-            </CollapsibleTrigger>
-            <CollapsibleContent className="pt-2">
-              <div className="space-y-1 relative pl-2 border-l-2 border-accent/30">
-                {completedSteps.map((step) => (
-                  <div key={step.id} className="pl-4 py-2">
-                    <div className="flex items-center gap-2">
-                      {getStepIcon(step)}
-                      <span className="text-sm">{step.name}</span>
-                      {step.decision && (
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase ${
-                          step.decision === 'approved' ? 'bg-accent/20 text-accent' :
-                          step.decision === 'rejected' ? 'bg-destructive/20 text-destructive' :
-                          'bg-yellow-500/20 text-yellow-500'
-                        }`}>
-                          {step.decision}
-                        </span>
+      {/* Tabs for different views */}
+      <Tabs defaultValue="workflow" className="flex-1 flex flex-col overflow-hidden">
+        <div className="px-4 pt-2 border-b border-border">
+          <TabsList className="w-full justify-start">
+            <TabsTrigger value="workflow" className="gap-1.5 text-xs">
+              <GitBranch className="w-3.5 h-3.5" />
+              Workflow
+            </TabsTrigger>
+            <TabsTrigger value="flags" className="gap-1.5 text-xs">
+              <Flag className="w-3.5 h-3.5" />
+              Red Flags
+            </TabsTrigger>
+            <TabsTrigger value="justification" className="gap-1.5 text-xs">
+              <FileText className="w-3.5 h-3.5" />
+              Justification
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        {/* Workflow Tab */}
+        <TabsContent value="workflow" className="flex-1 overflow-auto p-4 space-y-6 mt-0">
+          {/* Completed Steps - Collapsible */}
+          {completedSteps.length > 0 && (
+            <Collapsible open={expandedHistory} onOpenChange={setExpandedHistory}>
+              <CollapsibleTrigger className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                {expandedHistory ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                <span>{completedSteps.length} completed steps</span>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pt-2">
+                <div className="space-y-1 relative pl-2 border-l-2 border-accent/30">
+                  {completedSteps.map((step) => (
+                    <div key={step.id} className="pl-4 py-2">
+                      <div className="flex items-center gap-2">
+                        {getStepIcon(step)}
+                        <span className="text-sm">{step.name}</span>
+                        {step.decision && (
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase ${
+                            step.decision === 'approved' ? 'bg-accent/20 text-accent' :
+                            step.decision === 'rejected' ? 'bg-destructive/20 text-destructive' :
+                            'bg-amber-500/20 text-amber-600 dark:text-amber-400'
+                          }`}>
+                            {step.decision}
+                          </span>
+                        )}
+                      </div>
+                      {step.actor && (
+                        <p className="text-[10px] text-muted-foreground ml-7">
+                          {step.actor} • {step.timestamp && new Date(step.timestamp).toLocaleString()}
+                        </p>
                       )}
                     </div>
-                    {step.actor && (
-                      <p className="text-[10px] text-muted-foreground ml-7">
-                        {step.actor} • {step.timestamp && new Date(step.timestamp).toLocaleString()}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
-        )}
+                  ))}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
 
-        {/* Current Step - Highlighted */}
-        {currentStep && (
-          <div className="p-4 rounded-lg bg-accent/10 border border-accent/30">
-            <div className="flex items-center gap-3 mb-3">
-              {getStepIcon(currentStep)}
-              <div className="flex-1">
-                <p className="font-medium">{currentStep.name}</p>
-                <p className="text-xs text-muted-foreground">
-                  {currentStep.actor} • In Progress
+          {/* Current Step - Highlighted */}
+          {currentStep && (
+            <div className="p-4 rounded-lg bg-accent/10 border border-accent/30">
+              <div className="flex items-center gap-3 mb-3">
+                {getStepIcon(currentStep)}
+                <div className="flex-1">
+                  <p className="font-medium">{currentStep.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {currentStep.actor} • In Progress
+                  </p>
+                </div>
+              </div>
+              {currentStep.notes && (
+                <p className="text-xs text-muted-foreground italic ml-8">
+                  "{currentStep.notes}"
                 </p>
-              </div>
+              )}
             </div>
-            {currentStep.notes && (
-              <p className="text-xs text-muted-foreground italic ml-8">
-                "{currentStep.notes}"
-              </p>
-            )}
-          </div>
-        )}
+          )}
 
-        {/* Pending Steps */}
-        <div className="space-y-1 relative pl-2 border-l-2 border-muted-foreground/20">
-          {pendingSteps.map((step) => (
-            <div key={step.id} className="pl-4 py-2 opacity-50">
-              <div className="flex items-center gap-2">
-                {getStepIcon(step)}
-                <span className="text-sm text-muted-foreground">{step.name}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Current Step Actions */}
-        <div className="space-y-3">
-          <p className="text-label">Actions</p>
-          <div className="grid grid-cols-2 gap-2">
-            <Button 
-              className="gap-2" 
-              variant="default"
-              onClick={() => handleOpenDialog('approve')}
-            >
-              <CheckCircle2 className="w-4 h-4" />
-              Approve
-            </Button>
-            <Button 
-              className="gap-2" 
-              variant="destructive"
-              onClick={() => handleOpenDialog('reject')}
-            >
-              <XCircle className="w-4 h-4" />
-              Reject
-            </Button>
-          </div>
-          <Button 
-            className="w-full gap-2" 
-            variant="outline"
-            onClick={() => handleOpenDialog('escalate')}
-          >
-            <AlertTriangle className="w-4 h-4" />
-            Escalate to Supervisor
-          </Button>
-        </div>
-
-        {/* Escalation Rules */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-accent" />
-            <p className="text-label">Active Escalation Rules</p>
-          </div>
-          <div className="space-y-2">
-            {ESCALATION_RULES.map((rule, idx) => (
-              <div key={idx} className="flex items-center gap-3 p-2 bg-secondary/30 rounded">
-                <Zap className="w-3 h-3 text-yellow-500" />
-                <div className="flex-1 text-xs">
-                  <span className="text-muted-foreground">IF </span>
-                  <span className="font-medium">{rule.condition}</span>
-                  <span className="text-muted-foreground"> THEN </span>
-                  <span className="text-accent">{rule.action}</span>
+          {/* Pending Steps */}
+          <div className="space-y-1 relative pl-2 border-l-2 border-muted-foreground/20">
+            {pendingSteps.map((step) => (
+              <div key={step.id} className="pl-4 py-2 opacity-50">
+                <div className="flex items-center gap-2">
+                  {getStepIcon(step)}
+                  <span className="text-sm text-muted-foreground">{step.name}</span>
                 </div>
               </div>
             ))}
           </div>
-        </div>
 
-        {/* SLA Timer */}
-        <div className="p-4 bg-orange-500/10 border border-orange-500/30 rounded-lg">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-orange-400" />
-              <span className="text-sm font-medium text-orange-400">SLA Deadline</span>
+          {/* Current Step Actions */}
+          <div className="space-y-3">
+            <p className="text-label">Actions</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button 
+                className="gap-2" 
+                variant="default"
+                onClick={() => handleOpenDialog('approve')}
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                Approve
+              </Button>
+              <Button 
+                className="gap-2" 
+                variant="destructive"
+                onClick={() => handleOpenDialog('reject')}
+              >
+                <XCircle className="w-4 h-4" />
+                Reject
+              </Button>
             </div>
-            <span className="text-lg font-mono text-orange-400">52:34:12</span>
+            <Button 
+              className="w-full gap-2" 
+              variant="outline"
+              onClick={() => handleOpenDialog('escalate')}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              Escalate to Supervisor
+            </Button>
           </div>
-          <p className="text-xs text-orange-400/70 mt-1">Due: Jan 30, 2026 at 18:00</p>
-        </div>
-      </div>
+
+          {/* Escalation Rules */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-accent" />
+              <p className="text-label">Active Escalation Rules</p>
+            </div>
+            <div className="space-y-2">
+              {ESCALATION_RULES.map((rule, idx) => (
+                <div key={idx} className="flex items-center gap-3 p-2 bg-secondary/30 rounded">
+                  <Zap className="w-3 h-3 text-amber-500 dark:text-amber-400" />
+                  <div className="flex-1 text-xs">
+                    <span className="text-muted-foreground">IF </span>
+                    <span className="font-medium">{rule.condition}</span>
+                    <span className="text-muted-foreground"> THEN </span>
+                    <span className="text-accent">{rule.action}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SLA Timer */}
+          <div className="p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+                <span className="text-sm font-medium text-amber-500 dark:text-amber-400">SLA Deadline</span>
+              </div>
+              <span className="text-lg font-mono text-amber-500 dark:text-amber-400">52:34:12</span>
+            </div>
+            <p className="text-xs text-amber-500/70 mt-1">Due: Jan 30, 2026 at 18:00</p>
+          </div>
+        </TabsContent>
+
+        {/* Red Flags Tab */}
+        <TabsContent value="flags" className="flex-1 overflow-auto p-4 mt-0">
+          <RedFlagSummary 
+            caseId={caseId}
+            applicantName="Ahmad Rezaee"
+            riskScore={94}
+          />
+        </TabsContent>
+
+        {/* Justification Tab */}
+        <TabsContent value="justification" className="flex-1 overflow-auto p-4 mt-0">
+          <AutoDecisionJustification 
+            decisionType="reject"
+            applicantName="Ahmad Rezaee"
+            caseNumber="CASE-2026-4829"
+            riskScore={94}
+            flags={[
+              'Connection to known visa mill network (Apex Travel Agency cluster)',
+              'Document hash match with template used in 8 prior applications',
+              'Pre-submission signal: Shared mobile number with 3 other applicants (Source: vizesepetim.com)'
+            ]}
+          />
+        </TabsContent>
+      </Tabs>
 
       {/* Decision Dialog */}
       <DecisionDialog
