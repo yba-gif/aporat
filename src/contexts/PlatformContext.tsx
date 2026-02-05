@@ -61,6 +61,13 @@ interface PlatformContextValue {
   
   // Refresh data
   refreshData: () => Promise<void>;
+  
+  // Path analysis
+  pathSourceNode: string | null;
+  pathTargetNode: string | null;
+  setPathSourceNode: (nodeId: string | null) => void;
+  setPathTargetNode: (nodeId: string | null) => void;
+  clearPathAnalysis: () => void;
 }
 
 const PlatformContext = createContext<PlatformContextValue | null>(null);
@@ -119,6 +126,15 @@ export function PlatformProvider({ children, defaultModule = 'nautica' }: Platfo
   const [documents, setDocuments] = useState<PlatformDocument[]>([]);
   const [cases, setCases] = useState<PlatformCase[]>(DEMO_CASES);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Path analysis state
+  const [pathSourceNode, setPathSourceNode] = useState<string | null>(null);
+  const [pathTargetNode, setPathTargetNode] = useState<string | null>(null);
+
+  const clearPathAnalysis = useCallback(() => {
+    setPathSourceNode(null);
+    setPathTargetNode(null);
+  }, []);
 
   // Fetch all platform data
   const refreshData = useCallback(async () => {
@@ -228,6 +244,11 @@ export function PlatformProvider({ children, defaultModule = 'nautica' }: Platfo
     cases,
     isLoading,
     refreshData,
+    pathSourceNode,
+    pathTargetNode,
+    setPathSourceNode,
+    setPathTargetNode,
+    clearPathAnalysis,
   };
 
   return (

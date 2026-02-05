@@ -16,7 +16,9 @@ import {
   FileWarning,
   Clock,
   Users,
-  Briefcase
+  Briefcase,
+  Route,
+  Target
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -73,7 +75,16 @@ interface RiskFactor {
 }
 
 export function EntityDossier() {
-  const { selectedEntityId, navigateToDocument, navigateToEntity, navigateToCase } = usePlatform();
+  const { 
+    selectedEntityId, 
+    navigateToDocument, 
+    navigateToEntity, 
+    navigateToCase,
+    pathSourceNode,
+    pathTargetNode,
+    setPathSourceNode,
+    setPathTargetNode,
+  } = usePlatform();
   const [entity, setEntity] = useState<EntityDetails | null>(null);
   const [documents, setDocuments] = useState<LinkedDocument[]>([]);
   const [connections, setConnections] = useState<ConnectedEntity[]>([]);
@@ -586,6 +597,44 @@ export function EntityDossier() {
           notes: <NotesTabContent />,
         }}
       </DossierTabs>
+
+      {/* Path Analysis Controls */}
+      <div className="px-4 py-2 border-t border-border bg-secondary/20">
+        <div className="flex items-center gap-2 mb-2">
+          <Route className="w-4 h-4 text-accent" />
+          <span className="text-xs font-medium">Path Analysis</span>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant={pathSourceNode === entity.nodeId ? 'default' : 'outline'}
+            size="sm"
+            className="flex-1 gap-1.5 text-xs h-8"
+            onClick={() => setPathSourceNode(pathSourceNode === entity.nodeId ? null : entity.nodeId)}
+          >
+            <Target className="w-3 h-3" />
+            {pathSourceNode === entity.nodeId ? 'Source ✓' : 'Set Source'}
+          </Button>
+          <Button
+            variant={pathTargetNode === entity.nodeId ? 'default' : 'outline'}
+            size="sm"
+            className="flex-1 gap-1.5 text-xs h-8"
+            onClick={() => setPathTargetNode(pathTargetNode === entity.nodeId ? null : entity.nodeId)}
+            disabled={pathSourceNode === entity.nodeId}
+          >
+            <Target className="w-3 h-3" />
+            {pathTargetNode === entity.nodeId ? 'Target ✓' : 'Set Target'}
+          </Button>
+        </div>
+        {(pathSourceNode || pathTargetNode) && (
+          <p className="text-[10px] text-muted-foreground mt-1.5">
+            {pathSourceNode && pathTargetNode 
+              ? 'Both selected - path will be calculated' 
+              : pathSourceNode 
+                ? 'Source set. Select target from another entity.' 
+                : 'Target set. Select source from another entity.'}
+          </p>
+        )}
+      </div>
 
       {/* Actions */}
       <div className="p-4 border-t border-border space-y-2">
