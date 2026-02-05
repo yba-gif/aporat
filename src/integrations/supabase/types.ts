@@ -110,6 +110,35 @@ export type Database = {
         }
         Relationships: []
       }
+      entity_documents: {
+        Row: {
+          document_id: string
+          entity_id: string
+          id: string
+          linked_at: string
+        }
+        Insert: {
+          document_id: string
+          entity_id: string
+          id?: string
+          linked_at?: string
+        }
+        Update: {
+          document_id?: string
+          entity_id?: string
+          id?: string
+          linked_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entity_documents_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "vault_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_applications: {
         Row: {
           created_at: string
@@ -214,6 +243,39 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_audit_log: {
+        Row: {
+          action: string
+          context: Json | null
+          created_at: string
+          id: string
+          source: string
+          target_id: string | null
+          target_type: string | null
+          user_role: string | null
+        }
+        Insert: {
+          action: string
+          context?: Json | null
+          created_at?: string
+          id?: string
+          source?: string
+          target_id?: string | null
+          target_type?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          action?: string
+          context?: Json | null
+          created_at?: string
+          id?: string
+          source?: string
+          target_id?: string | null
+          target_type?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
+      }
       vault_documents: {
         Row: {
           case_id: string | null
@@ -268,6 +330,51 @@ export type Database = {
           risk_score?: number | null
           sha256_hash?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      vizesepetim_applicants: {
+        Row: {
+          created_at: string
+          external_id: string
+          gender: string | null
+          id: string
+          ip_address: string | null
+          ip_country: string | null
+          ip_is_vpn: boolean | null
+          linked_entity_id: string | null
+          metadata: Json | null
+          mobile_number_hash: string
+          processed_at: string | null
+          target_country: string
+        }
+        Insert: {
+          created_at?: string
+          external_id: string
+          gender?: string | null
+          id?: string
+          ip_address?: string | null
+          ip_country?: string | null
+          ip_is_vpn?: boolean | null
+          linked_entity_id?: string | null
+          metadata?: Json | null
+          mobile_number_hash: string
+          processed_at?: string | null
+          target_country: string
+        }
+        Update: {
+          created_at?: string
+          external_id?: string
+          gender?: string | null
+          id?: string
+          ip_address?: string | null
+          ip_country?: string | null
+          ip_is_vpn?: boolean | null
+          linked_entity_id?: string | null
+          metadata?: Json | null
+          mobile_number_hash?: string
+          processed_at?: string | null
+          target_country?: string
         }
         Relationships: []
       }
