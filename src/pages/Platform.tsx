@@ -23,6 +23,7 @@ import { UnifiedCommandPalette } from '@/components/platform/UnifiedCommandPalet
 import { KeyboardShortcutHints } from '@/components/platform/KeyboardShortcutHints';
 import { TourOverlay, TourLauncher } from '@/components/platform/tour';
 import { PresentationOverlay, PresentationLauncher } from '@/components/platform/presentation';
+import { RoleBadge } from '@/components/platform/RoleGate';
 import { PlatformProvider, usePlatform } from '@/contexts/PlatformContext';
 import { TourProvider } from '@/contexts/TourContext';
 import { PresentationProvider, usePresentation } from '@/contexts/PresentationContext';
@@ -254,6 +255,9 @@ function PlatformContent() {
           
           {/* Language Toggle */}
           <LanguageToggle />
+          
+          {/* Role Badge */}
+          <RoleBadge />
           
           <button className="p-2 hover:bg-secondary rounded transition-colors relative">
             <Bell className="w-4 h-4 text-muted-foreground" />
