@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { GraphNode, GraphLink } from '@/components/platform/NauticaGraph';
 
 interface PathResult {
@@ -8,11 +8,42 @@ interface PathResult {
   links: { source: string; target: string; edgeType: string }[];
 }
 
-export function usePathAnalysis(nodes: GraphNode[], links: GraphLink[]) {
-  const [sourceNode, setSourceNode] = useState<string | null>(null);
-  const [targetNode, setTargetNode] = useState<string | null>(null);
+interface UsePathAnalysisOptions {
+  externalSourceNode?: string | null;
+  externalTargetNode?: string | null;
+  onSourceChange?: (nodeId: string | null) => void;
+  onTargetChange?: (nodeId: string | null) => void;
+}
+
+export function usePathAnalysis(
+  nodes: GraphNode[], 
+  links: GraphLink[],
+  options?: UsePathAnalysisOptions
+) {
+  const [internalSourceNode, setInternalSourceNode] = useState<string | null>(null);
+  const [internalTargetNode, setInternalTargetNode] = useState<string | null>(null);
   const [pathResult, setPathResult] = useState<PathResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Use external state if provided, otherwise use internal state
+  const sourceNode = options?.externalSourceNode ?? internalSourceNode;
+  const targetNode = options?.externalTargetNode ?? internalTargetNode;
+
+  const setSourceNode = useCallback((nodeId: string | null) => {
+    if (options?.onSourceChange) {
+      options.onSourceChange(nodeId);
+    } else {
+      setInternalSourceNode(nodeId);
+    }
+  }, [options]);
+
+  const setTargetNode = useCallback((nodeId: string | null) => {
+    if (options?.onTargetChange) {
+      options.onTargetChange(nodeId);
+    } else {
+      setInternalTargetNode(nodeId);
+    }
+  }, [options]);
 
   // Build adjacency list for BFS
   const adjacencyList = useMemo(() => {
@@ -86,18 +117,20 @@ export function usePathAnalysis(nodes: GraphNode[], links: GraphLink[]) {
     return null; // No path found
   }, [adjacencyList, nodes]);
 
-  // Analyze path between two nodes
-  const analyzePath = useCallback(() => {
-    if (!sourceNode || !targetNode) return;
-    
-    setIsAnalyzing(true);
-    
-    // Small delay to show loading state
-    setTimeout(() => {
-      const result = findShortestPath(sourceNode, targetNode);
-      setPathResult(result);
-      setIsAnalyzing(false);
-    }, 100);
+  // Auto-analyze when both source and target are set
+  useEffect(() => {
+    if (sourceNode && targetNode) {
+      setIsAnalyzing(true);
+      // Small delay to show loading state
+      const timeout = setTimeout(() => {
+        const result = findShortestPath(sourceNode, targetNode);
+        setPathResult(result);
+        setIsAnalyzing(false);
+      }, 100);
+      return () => clearTimeout(timeout);
+    } else {
+      setPathResult(null);
+    }
   }, [sourceNode, targetNode, findShortestPath]);
 
   // Set node for path analysis (shift+click handling)
@@ -107,11 +140,9 @@ export function usePathAnalysis(nodes: GraphNode[], links: GraphLink[]) {
       if (!sourceNode) {
         setSourceNode(nodeId);
         setTargetNode(null);
-        setPathResult(null);
       } else if (sourceNode === nodeId) {
         // Clicking same node - deselect
         setSourceNode(null);
-        setPathResult(null);
       } else {
         // Set as target if source exists
         setTargetNode(nodeId);
@@ -124,14 +155,14 @@ export function usePathAnalysis(nodes: GraphNode[], links: GraphLink[]) {
         setSourceNode(nodeId);
       }
     }
-  }, [sourceNode]);
+  }, [sourceNode, setSourceNode, setTargetNode]);
 
   // Clear path analysis
   const clearPath = useCallback(() => {
     setSourceNode(null);
     setTargetNode(null);
     setPathResult(null);
-  }, []);
+  }, [setSourceNode, setTargetNode]);
 
   // Check if a node is in the current path
   const isNodeInPath = useCallback((nodeId: string): boolean => {
@@ -157,7 +188,7 @@ export function usePathAnalysis(nodes: GraphNode[], links: GraphLink[]) {
     setSourceNode,
     setTargetNode,
     selectNodeForPath,
-    analyzePath,
+    analyzePath: () => {}, // No longer needed since auto-analyze
     clearPath,
     findShortestPath,
     isNodeInPath,

@@ -10,6 +10,7 @@ import { GraphContextMenu } from './nautica/GraphContextMenu';
 import { Slider } from '@/components/ui/slider';
 import { PathAnalysisPanel } from './analytics/PathAnalysisPanel';
 import { usePathAnalysis } from '@/hooks/usePathAnalysis';
+import { usePlatform } from '@/contexts/PlatformContext';
 
 export interface GraphNode extends NodeObject {
   id: string;
@@ -64,6 +65,7 @@ const NETWORK_PATTERNS: Record<string, string[]> = {
 };
 
 export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) {
+  const { pathSourceNode, pathTargetNode, setPathSourceNode, setPathTargetNode, clearPathAnalysis } = usePlatform();
   const graphRef = useRef<ForceGraphMethods<GraphNode, GraphLink>>();
   const containerRef = useRef<HTMLDivElement>(null);
   const [graphData, setGraphData] = useState<GraphData>({ nodes: [], links: [] });
@@ -176,8 +178,13 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     return { nodes, links };
   }, [graphData, filters]);
 
-  // Path analysis hook
-  const pathAnalysis = usePathAnalysis(filteredData.nodes, filteredData.links);
+  // Path analysis hook - connected to PlatformContext for shared state
+  const pathAnalysis = usePathAnalysis(filteredData.nodes, filteredData.links, {
+    externalSourceNode: pathSourceNode,
+    externalTargetNode: pathTargetNode,
+    onSourceChange: setPathSourceNode,
+    onTargetChange: setPathTargetNode,
+  });
 
   // Always use node type color - flagged status shown via ring
   const getNodeColor = useCallback((node: GraphNode) => {
@@ -538,7 +545,7 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
           isAnalyzing={pathAnalysis.isAnalyzing}
           nodes={filteredData.nodes}
           onAnalyze={pathAnalysis.analyzePath}
-          onClear={pathAnalysis.clearPath}
+          onClear={clearPathAnalysis}
           onNodeClick={(nodeId) => {
             onNodeSelect(nodeId);
             const node = filteredData.nodes.find(n => n.id === nodeId);
