@@ -14,9 +14,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { useVizesepetimData, VizesepetimApplicant } from '@/hooks/useVizesepetimData';
 import { usePlatform } from '@/contexts/PlatformContext';
+import { WebhookSimulator } from './WebhookSimulator';
 
 interface VizesepetimPanelProps {
   onClose?: () => void;
@@ -74,14 +74,21 @@ export function VizesepetimPanel({ onClose }: VizesepetimPanelProps) {
             <p className="text-[10px] text-muted-foreground">External Applicant Data</p>
           </div>
         </div>
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={() => fetchApplicants()}
-          disabled={isLoading}
-        >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-        </Button>
+        <div className="flex items-center gap-1">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => fetchApplicants()}
+            disabled={isLoading}
+          >
+            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          </Button>
+        </div>
+      </div>
+
+      {/* Simulator Button */}
+      <div className="px-3 py-2 border-b border-border">
+        <WebhookSimulator onSuccess={fetchApplicants} />
       </div>
 
       {/* Stats Bar */}
