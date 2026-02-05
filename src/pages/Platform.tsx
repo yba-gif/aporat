@@ -16,6 +16,7 @@ import { MarisPanel } from '@/components/platform/MarisPanel';
 import { MeridianPanel } from '@/components/platform/MeridianPanel';
 import { SocialIntelligencePanel } from '@/components/platform/SocialIntelligencePanel';
 import { EntityDossier } from '@/components/platform/nautica/EntityDossier';
+import { VizesepetimPanel } from '@/components/platform/external/VizesepetimPanel';
 import { UnifiedCommandPalette } from '@/components/platform/UnifiedCommandPalette';
 import { KeyboardShortcutHints } from '@/components/platform/KeyboardShortcutHints';
 import { TourOverlay, TourLauncher } from '@/components/platform/tour';
@@ -25,6 +26,7 @@ import { TourProvider } from '@/contexts/TourContext';
 import { PresentationProvider, usePresentation } from '@/contexts/PresentationContext';
 import { useRealtimeAlerts } from '@/hooks/useRealtimeAlerts';
 import { usePlatformKeyboard } from '@/hooks/usePlatformKeyboard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Network, 
   FileSearch, 
@@ -274,8 +276,24 @@ function PlatformContent() {
                 </div>
                 {showEntityPanel && (
                   <div className="w-96 border-l border-border bg-surface-elevated flex flex-col" data-tour="entity-dossier">
-                    <AlertPanel data-tour="flagged-entities" />
-                    <EntityDossier />
+                    <Tabs defaultValue="alerts" className="flex flex-col h-full">
+                      <TabsList className="w-full rounded-none border-b border-border bg-transparent px-2 py-0 h-10">
+                        <TabsTrigger value="alerts" className="flex-1 data-[state=active]:bg-secondary rounded-sm text-xs">
+                          Alerts
+                        </TabsTrigger>
+                        <TabsTrigger value="vizesepetim" className="flex-1 data-[state=active]:bg-secondary rounded-sm text-xs gap-1">
+                          <Globe className="w-3 h-3" />
+                          External
+                        </TabsTrigger>
+                      </TabsList>
+                      <TabsContent value="alerts" className="flex-1 flex flex-col m-0 overflow-hidden">
+                        <AlertPanel data-tour="flagged-entities" />
+                        <EntityDossier />
+                      </TabsContent>
+                      <TabsContent value="vizesepetim" className="flex-1 m-0 overflow-hidden">
+                        <VizesepetimPanel />
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 )}
               </>
