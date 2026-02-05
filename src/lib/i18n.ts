@@ -84,6 +84,15 @@ const translations = {
     simulateWebhook: 'Simulate Webhook',
     resetDemoData: 'Reset Demo Data',
     scenarioPresets: 'Scenario Presets',
+    
+    // Roles
+    admin: 'Admin',
+    supervisor: 'Supervisor',
+    analyst: 'Analyst',
+    viewer: 'Viewer',
+    insufficientPermissions: 'Insufficient permissions',
+    requiresRole: 'Requires',
+    orHigher: 'or higher',
   },
   tr: {
     // Actions
@@ -166,6 +175,15 @@ const translations = {
     simulateWebhook: 'Webhook Simüle Et',
     resetDemoData: 'Demo Verisini Sıfırla',
     scenarioPresets: 'Senaryo Ön Ayarları',
+    
+    // Roles
+    admin: 'Yönetici',
+    supervisor: 'Amir',
+    analyst: 'Analist',
+    viewer: 'Görüntüleyici',
+    insufficientPermissions: 'Yetersiz yetki',
+    requiresRole: 'Gerekli',
+    orHigher: 'veya üstü',
   },
 } as const;
 
