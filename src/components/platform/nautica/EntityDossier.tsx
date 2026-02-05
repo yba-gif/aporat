@@ -26,6 +26,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { usePlatform } from '@/contexts/PlatformContext';
 import { DossierTabs, NotesTabContent } from './DossierTabs';
 import { DossierSkeleton } from '../skeletons/DossierSkeleton';
+import { ExplainableFlagsList, RiskExplanationPanel } from '../analytics/ExplainableFlags';
 
 interface EntityDetails {
   id: string;
@@ -366,8 +367,28 @@ export function EntityDossier() {
           </div>
         )}
 
-        {/* Risk Factors Section */}
-        {riskFactors.length > 0 && (
+        {/* Explainable Flags Section */}
+        {entity.metadata?.flags && Array.isArray(entity.metadata.flags) && (entity.metadata.flags as string[]).length > 0 && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-destructive" />
+              <span className="text-sm font-medium">Detection Flags</span>
+            </div>
+            <ExplainableFlagsList flags={entity.metadata.flags as string[]} maxVisible={5} />
+          </div>
+        )}
+
+        {/* Risk Explanation Panel */}
+        {entity.flagged && (
+          <RiskExplanationPanel 
+            riskScore={entity.riskScore}
+            flags={(entity.metadata?.flags as string[]) || []}
+            metadata={entity.metadata}
+          />
+        )}
+
+        {/* Risk Factors Section (fallback for entities without flags) */}
+        {riskFactors.length > 0 && !entity.metadata?.flags && (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-destructive" />

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import ForceGraph2D, { ForceGraphMethods, NodeObject, LinkObject } from 'react-force-graph-2d';
-import { ZoomIn, ZoomOut, Maximize2, Loader2, RotateCcw, Target } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, Loader2, RotateCcw, Target, Route } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { FilterPanel, FilterState } from './FilterPanel';
 import { GraphMinimap } from './GraphMinimap';
@@ -8,6 +8,8 @@ import { ViewToggle } from './ViewToggle';
 import { NauticaGraph3D } from './NauticaGraph3D';
 import { GraphContextMenu } from './nautica/GraphContextMenu';
 import { Slider } from '@/components/ui/slider';
+import { PathAnalysisPanel } from './analytics/PathAnalysisPanel';
+import { usePathAnalysis } from '@/hooks/usePathAnalysis';
 
 export interface GraphNode extends NodeObject {
   id: string;
@@ -84,7 +86,10 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     riskRange: [0, 100],
     flaggedOnly: false,
     networkFilter: null,
+    dateRange: null,
   });
+
+  const [pathAnalysisMode, setPathAnalysisMode] = useState(false);
 
   // Fetch data from database
   useEffect(() => {
@@ -171,6 +176,9 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     return { nodes, links };
   }, [graphData, filters]);
 
+  // Path analysis hook
+  const pathAnalysis = usePathAnalysis(filteredData.nodes, filteredData.links);
+
   // Always use node type color - flagged status shown via ring
   const getNodeColor = useCallback((node: GraphNode) => {
     return NODE_COLORS[node.nodeType] || '#6b7280';
@@ -189,6 +197,12 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     // Close context menu on any click
     setContextMenu(prev => ({ ...prev, visible: false }));
     
+    // Path analysis mode - Shift+click for target selection
+    if (pathAnalysisMode || event.shiftKey) {
+      pathAnalysis.selectNodeForPath(node.id, event.shiftKey);
+      return;
+    }
+    
     // Toggle selection
     const newSelection = selectedNode === node.id ? null : node.id;
     onNodeSelect(newSelection);
@@ -199,7 +213,7 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
       graphRef.current.zoom(2, 500);
       setZoomLevel(2);
     }
-  }, [onNodeSelect, selectedNode]);
+  }, [onNodeSelect, selectedNode, pathAnalysisMode, pathAnalysis]);
 
   const handleNodeRightClick = useCallback((node: GraphNode, event: MouseEvent) => {
     event.preventDefault();
@@ -288,6 +302,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     const color = getNodeColor(node);
     const isSelected = selectedNode === node.id;
     const isHovered = hoveredNode === node.id;
+    const isInPath = pathAnalysis.isNodeInPath(node.id);
+    const isPathEndpoint = pathAnalysis.sourceNode === node.id || pathAnalysis.targetNode === node.id;
     const x = node.x || 0;
     const y = node.y || 0;
 
@@ -308,8 +324,17 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
       ctx.fill();
     }
 
+    // Path analysis highlight
+    if (isInPath || isPathEndpoint) {
+      ctx.beginPath();
+      ctx.arc(x, y, size + 5, 0, 2 * Math.PI);
+      ctx.strokeStyle = isPathEndpoint ? '#f59e0b' : '#22d3ee';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+    }
+
     // Selection ring - cyan for visibility
-    if (isSelected) {
+    if (isSelected && !isPathEndpoint) {
       ctx.beginPath();
       ctx.arc(x, y, size + 3, 0, 2 * Math.PI);
       ctx.strokeStyle = SELECTED_COLOR;
@@ -364,7 +389,7 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
       ctx.fillStyle = color;
       ctx.fillText(node.nodeType.toUpperCase(), x, y - size - 2);
     }
-  }, [getNodeColor, getNodeSize, selectedNode, hoveredNode]);
+  }, [getNodeColor, getNodeSize, selectedNode, hoveredNode, pathAnalysis]);
 
   // Custom link rendering
   const paintLink = useCallback((link: LinkObject, ctx: CanvasRenderingContext2D) => {
@@ -378,14 +403,25 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
       selectedNode === target.id ||
       hoveredNode === source.id ||
       hoveredNode === target.id;
+    
+    const isInPath = pathAnalysis.isLinkInPath(source.id, target.id);
 
     ctx.beginPath();
     ctx.moveTo(source.x, source.y);
     ctx.lineTo(target.x, target.y);
-    ctx.strokeStyle = isHighlighted ? '#0d9488' : '#ffffff22';
-    ctx.lineWidth = isHighlighted ? 1.5 : 0.5;
+    
+    if (isInPath) {
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 3;
+    } else if (isHighlighted) {
+      ctx.strokeStyle = '#0d9488';
+      ctx.lineWidth = 1.5;
+    } else {
+      ctx.strokeStyle = '#ffffff22';
+      ctx.lineWidth = 0.5;
+    }
     ctx.stroke();
-  }, [selectedNode, hoveredNode]);
+  }, [selectedNode, hoveredNode, pathAnalysis]);
 
   const stats = {
     nodes: filteredData.nodes.length,
@@ -471,6 +507,18 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
           >
             <RotateCcw className="w-4 h-4" />
           </button>
+          
+          <div className="w-full h-px bg-border my-1" />
+          
+          <button 
+            onClick={() => setPathAnalysisMode(!pathAnalysisMode)}
+            className={`p-2 rounded transition-colors ${
+              pathAnalysisMode ? 'bg-accent text-accent-foreground' : 'hover:bg-secondary'
+            }`}
+            title="Path Analysis Mode (Shift+click)"
+          >
+            <Route className="w-4 h-4" />
+          </button>
         </div>
         
         {/* Zoom percentage */}
@@ -480,6 +528,27 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
           </span>
         </div>
       </div>
+
+      {/* Path Analysis Panel */}
+      {(pathAnalysis.sourceNode || pathAnalysis.targetNode || pathAnalysis.pathResult) && (
+        <PathAnalysisPanel
+          sourceNode={pathAnalysis.sourceNode}
+          targetNode={pathAnalysis.targetNode}
+          pathResult={pathAnalysis.pathResult}
+          isAnalyzing={pathAnalysis.isAnalyzing}
+          nodes={filteredData.nodes}
+          onAnalyze={pathAnalysis.analyzePath}
+          onClear={pathAnalysis.clearPath}
+          onNodeClick={(nodeId) => {
+            onNodeSelect(nodeId);
+            const node = filteredData.nodes.find(n => n.id === nodeId);
+            if (graphRef.current && node?.x !== undefined && node?.y !== undefined) {
+              graphRef.current.centerAt(node.x, node.y, 500);
+              graphRef.current.zoom(2.5, 500);
+            }
+          }}
+        />
+      )}
 
       {/* Filter panel */}
       <FilterPanel

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Filter, X, ChevronDown } from 'lucide-react';
+import { Filter, X, ChevronDown, Calendar } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -7,12 +7,14 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
+import { format, subDays } from 'date-fns';
 
 export interface FilterState {
   nodeTypes: string[];
   riskRange: [number, number];
   flaggedOnly: boolean;
   networkFilter: string | null;
+  dateRange: [Date, Date] | null;
 }
 
 interface FilterPanelProps {
@@ -44,15 +46,48 @@ export function FilterPanel({ filters, onChange, networks }: FilterPanelProps) {
       riskRange: [0, 100],
       flaggedOnly: false,
       networkFilter: null,
+      dateRange: null,
     });
   };
+
+  // Date range helpers
+  const defaultMinDate = subDays(new Date(), 30);
+  const defaultMaxDate = new Date();
+  const totalDays = 30;
+  
+  const dateToValue = (date: Date): number => {
+    const days = Math.ceil((date.getTime() - defaultMinDate.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.round((days / totalDays) * 100);
+  };
+  
+  const valueToDate = (value: number): Date => {
+    const days = Math.round((value / 100) * totalDays);
+    const result = new Date(defaultMinDate);
+    result.setDate(result.getDate() + days);
+    return result;
+  };
+
+  const handleDateSliderChange = (values: number[]) => {
+    const newRange: [Date, Date] = [
+      valueToDate(values[0]),
+      valueToDate(values[1]),
+    ];
+    onChange({ ...filters, dateRange: newRange });
+  };
+
+  const currentDateRange = filters.dateRange || [defaultMinDate, defaultMaxDate];
+  const dateSliderValues = [
+    dateToValue(currentDateRange[0]),
+    dateToValue(currentDateRange[1]),
+  ];
 
   const hasActiveFilters =
     filters.nodeTypes.length < 4 ||
     filters.riskRange[0] > 0 ||
     filters.riskRange[1] < 100 ||
     filters.flaggedOnly ||
-    filters.networkFilter !== null;
+    filters.networkFilter !== null ||
+    filters.dateRange !== null;
 
   return (
     <div className="absolute top-4 left-16 z-10 w-56">
@@ -141,6 +176,26 @@ export function FilterPanel({ filters, onChange, networks }: FilterPanelProps) {
                 min={0}
                 max={100}
                 step={5}
+                className="w-full"
+              />
+            </div>
+
+            {/* Time Range */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Time Range
+                </p>
+                <span className="text-[10px] font-mono text-muted-foreground">
+                  {format(currentDateRange[0], 'MM/dd')} - {format(currentDateRange[1], 'MM/dd')}
+                </span>
+              </div>
+              <Slider
+                value={dateSliderValues}
+                onValueChange={handleDateSliderChange}
+                min={0}
+                max={100}
+                step={1}
                 className="w-full"
               />
             </div>
