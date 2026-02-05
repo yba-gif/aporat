@@ -17,6 +17,7 @@ import { MeridianPanel } from '@/components/platform/MeridianPanel';
 import { SocialIntelligencePanel } from '@/components/platform/SocialIntelligencePanel';
 import { EntityDossier } from '@/components/platform/nautica/EntityDossier';
 import { VizesepetimPanel } from '@/components/platform/external/VizesepetimPanel';
+import { DemoControlsPanel } from '@/components/platform/admin/DemoControlsPanel';
 import { UnifiedCommandPalette } from '@/components/platform/UnifiedCommandPalette';
 import { KeyboardShortcutHints } from '@/components/platform/KeyboardShortcutHints';
 import { TourOverlay, TourLauncher } from '@/components/platform/tour';
@@ -27,6 +28,7 @@ import { PresentationProvider, usePresentation } from '@/contexts/PresentationCo
 import { useRealtimeAlerts } from '@/hooks/useRealtimeAlerts';
 import { usePlatformKeyboard } from '@/hooks/usePlatformKeyboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useSearchParams } from 'react-router-dom';
 import { 
   Network, 
   FileSearch, 
@@ -37,7 +39,8 @@ import {
   Globe,
   ChevronDown,
   Zap,
-  Keyboard
+  Keyboard,
+  Wrench
 } from 'lucide-react';
 import {
   Tooltip,
@@ -57,7 +60,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type NauticaView = 'graph' | 'social';
 
@@ -336,12 +339,39 @@ function PlatformWithProviders() {
 
 function PresentationModeWrapper() {
   const { isPresenting } = usePresentation();
+  const [searchParams] = useSearchParams();
+  const [showDemoPanel, setShowDemoPanel] = useState(false);
+  
+  // Check for ?demo=true URL parameter
+  const isDemoMode = searchParams.get('demo') === 'true';
+  
+  // Auto-show demo panel when URL param is present
+  useEffect(() => {
+    if (isDemoMode) {
+      setShowDemoPanel(true);
+    }
+  }, [isDemoMode]);
   
   return (
     <SidebarProvider defaultOpen={!isPresenting}>
       <div className={`min-h-screen flex w-full bg-background text-foreground ${isPresenting ? 'presentation-mode' : ''}`}>
         {!isPresenting && <PlatformSidebar />}
         <PlatformContent />
+        
+        {/* Demo Controls Toggle Button (visible when ?demo=true) */}
+        {isDemoMode && !showDemoPanel && (
+          <button
+            onClick={() => setShowDemoPanel(true)}
+            className="fixed bottom-4 right-4 p-3 bg-amber-500 text-amber-950 rounded-full shadow-lg hover:bg-amber-400 transition-colors z-50"
+          >
+            <Wrench className="w-5 h-5" />
+          </button>
+        )}
+        
+        {/* Demo Controls Panel */}
+        {isDemoMode && showDemoPanel && (
+          <DemoControlsPanel onClose={() => setShowDemoPanel(false)} />
+        )}
       </div>
     </SidebarProvider>
   );
