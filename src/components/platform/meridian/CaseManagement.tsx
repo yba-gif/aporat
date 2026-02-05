@@ -3,111 +3,12 @@ import {
   Briefcase, 
   User, 
   Clock, 
-  AlertTriangle,
-  CheckCircle2,
-  XCircle,
   ArrowUpRight,
   MessageSquare,
-  Paperclip,
-  ChevronRight,
-  Users,
-  Calendar
+  Paperclip
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-interface Case {
-  id: string;
-  caseNumber: string;
-  applicant: string;
-  type: string;
-  status: 'open' | 'under_review' | 'pending_approval' | 'escalated' | 'closed';
-  priority: 'critical' | 'high' | 'medium' | 'low';
-  riskScore: number;
-  assignee: string;
-  team: string;
-  createdAt: string;
-  updatedAt: string;
-  documents: number;
-  notes: number;
-  linkedEntities: string[];
-  slaDeadline: string;
-  slaBreach: boolean;
-}
-
-const DEMO_CASES: Case[] = [
-  {
-    id: 'case-001',
-    caseNumber: 'CASE-2026-4829',
-    applicant: 'Ahmad Rezaee',
-    type: 'Visa Fraud Investigation',
-    status: 'under_review',
-    priority: 'critical',
-    riskScore: 94,
-    assignee: 'Officer Yilmaz',
-    team: 'Fraud Detection Unit',
-    createdAt: '2026-01-25T10:00:00Z',
-    updatedAt: '2026-01-28T14:30:00Z',
-    documents: 12,
-    notes: 8,
-    linkedEntities: ['Global Finance Consultants', 'Dmitri Volkov', 'Template Bank Statement'],
-    slaDeadline: '2026-01-30T18:00:00Z',
-    slaBreach: false
-  },
-  {
-    id: 'case-002',
-    caseNumber: 'CASE-2026-4827',
-    applicant: 'Elena Sokolova',
-    type: 'Document Verification',
-    status: 'escalated',
-    priority: 'high',
-    riskScore: 72,
-    assignee: 'Supervisor Demir',
-    team: 'Document Review',
-    createdAt: '2026-01-26T09:00:00Z',
-    updatedAt: '2026-01-28T11:00:00Z',
-    documents: 7,
-    notes: 4,
-    linkedEntities: ['TechServe Solutions GmbH'],
-    slaDeadline: '2026-01-29T12:00:00Z',
-    slaBreach: true
-  },
-  {
-    id: 'case-003',
-    caseNumber: 'CASE-2026-4830',
-    applicant: 'Viktor Petrov',
-    type: 'Network Analysis',
-    status: 'open',
-    priority: 'high',
-    riskScore: 65,
-    assignee: 'Unassigned',
-    team: 'Intelligence',
-    createdAt: '2026-01-27T14:00:00Z',
-    updatedAt: '2026-01-28T08:00:00Z',
-    documents: 5,
-    notes: 2,
-    linkedEntities: ['Apex Travel Agency', 'High-Risk Network Cluster'],
-    slaDeadline: '2026-01-31T18:00:00Z',
-    slaBreach: false
-  },
-  {
-    id: 'case-004',
-    caseNumber: 'CASE-2026-4825',
-    applicant: 'Maria Santos',
-    type: 'Routine Verification',
-    status: 'closed',
-    priority: 'low',
-    riskScore: 12,
-    assignee: 'Officer Kaya',
-    team: 'Standard Processing',
-    createdAt: '2026-01-24T11:00:00Z',
-    updatedAt: '2026-01-27T16:45:00Z',
-    documents: 4,
-    notes: 1,
-    linkedEntities: [],
-    slaDeadline: '2026-01-28T18:00:00Z',
-    slaBreach: false
-  }
-];
+import { DEMO_CASES, Case } from './caseData';
 
 interface CaseManagementProps {
   onCaseSelect: (caseId: string) => void;
