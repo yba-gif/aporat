@@ -1,439 +1,277 @@
-# Portolan Platform: 5-Phase Completion Plan
+
+
+# Portolan Platform: 5-Phase Strategic Roadmap
+## Expert Analysis from Palantir CTO, Consulate Director, and MFA Intelligence Analyst
+
+---
 
 ## Executive Summary
 
-A comprehensive plan to transform the Portolan demo platform from prototype to production-ready product demonstration, fixing logical inconsistencies and implementing award-winning UX patterns used by enterprise GovTech leaders.
+This plan synthesizes strategic feedback from three critical stakeholder perspectives—enterprise technology leadership (Palantir CTO), operational users (Turkish Consulate Director), and intelligence analysts (Turkish MFA)—to define the next development phases for Portolan Labs before the Turkish Foreign Ministry meeting in 2 weeks.
 
 ---
 
-## Current State Analysis
+## Expert Perspectives Summary
 
-### Critical Issues Identified
+### Perspective 1: CTO of Palantir (Enterprise/Competitor View)
 
-1. **Disconnected Data Flow**: Maris documents don't connect to Nautica graph entities
-2. **Static Demo Data**: No cohesive narrative tying all three modules together
-3. **Missing Navigation Context**: Users don't understand where they are in the workflow
-4. **Inconsistent Entity Types**: ApplicantPanel still references `document` type instead of `company`
-5. **No Cross-Module Linking**: Clicking a flagged entity in Nautica should open related documents in Maris
-6. **Alert Panel Disconnected**: Alerts don't link to actual graph nodes or cases
-7. **Vault Statistics Hardcoded**: Numbers don't reflect actual database state
-8. **Missing User Journey**: No guided flow demonstrating Maris → Nautica → Meridian pipeline
-9. **Case Management Isolated**: Cases don't link to graph entities or documents
-10. **No Unified Command Experience**: Each module has its own navigation pattern
+**What's Genuinely Impressive:**
+- SHA-256 document hashing positions this as "evidence management" not just "data management"
+- The Maris → Nautica → Meridian pipeline mirrors proven Data → Intelligence → Action patterns
+- Keyboard-first UX (⌘K shortcuts, skeleton loading) suggests power-user focus
 
----
+**Critical Concerns:**
+- **ORM Desync**: Entities, documents, and cases are siloed—they need relational linking
+- **No RBAC**: GovTech is 90% access control; missing ACLs is a non-starter
+- **No Data Lineage**: Hash exists but transformation/flagging history is missing
+- **Scaling Limits**: 3D graph will fail at 10k+ nodes without server-side clustering
+- **No Multi-tenancy**: How is data siloed between consular regions?
 
-## Tooling Strategy (Data Sovereignty First)
-
-### Core Principle
-All tools must either be **self-hosted** or use **zero-knowledge/E2EE architecture** to ensure no third party can access sensitive demo or production data.
-
-### Required Tools by Category
-
-| Category | Tool | Type | Purpose |
-|----------|------|------|---------|
-| **Code & DevOps** | GitLab CE | Self-hosted | Version control, CI/CD pipelines |
-| **Project Management** | Plane | Self-hosted | Issue tracking, sprint planning |
-| **Team Communication** | Mattermost | Self-hosted | Internal chat, incident response |
-| **External Comms** | Element (Matrix) | Self-hosted | Secure client/gov communication |
-| **Documents** | Nextcloud | Self-hosted | Internal file sharing, collaboration |
-| **External Sharing** | Tresorit | E2EE SaaS | Secure document sharing with clients |
-| **Design** | Penpot | Self-hosted | UI/UX design, prototyping |
-| **Diagrams** | Excalidraw | Self-hosted | Whiteboarding, architecture diagrams |
-| **Analytics** | Plausible | Self-hosted | Marketing site analytics |
-| **Product Analytics** | PostHog | Self-hosted | Feature usage, user flows |
-| **Secrets** | Infisical | Self-hosted | API keys, credentials management |
-| **Passwords** | Vaultwarden | Self-hosted | Team password management |
-| **Knowledge Base** | Outline | Self-hosted | Internal documentation, wiki |
-| **Local AI** | Ollama | Self-hosted | Private LLM inference |
-| **Email** | Proton Mail | E2EE SaaS | External email (zero-knowledge) |
+**What They'd Steal**: Cryptographic integrity focus, modular product architecture
+**What They'd Avoid**: Over-reliance on client-side graph rendering
 
 ---
 
-## Phase 1: Data Architecture & Cohesive Demo Narrative (Days 1-2)
+### Perspective 2: Turkish Consulate Operations Director (Daily User)
 
-### Goal
-Create a unified demo dataset with a compelling fraud investigation story that spans all three modules.
+**What Works:**
+- Fraud network detection (same bank statement across "unrelated" applicants) solves biggest pain point
+- Tamper detection automates what officers miss manually
+- Presentation mode useful for briefing Consul General
 
-### Tools Required
-- **Lovable Cloud**: Database migrations and seed data
-- **Penpot**: Design data flow diagrams
-- **Outline**: Document the demo scenario narrative
+**Critical Gaps:**
+- **MERNIS/KPS Integration**: Must verify Turkish sponsors against national identity DB
+- **Batch Processing**: Need to upload 50 passports and auto-flag 5 suspicious ones
+- **Turkish Language**: Interface must be localized for junior staff
+- **Auto-Generated Refusal Reasons**: Decision must produce formal rejection letter text
+- **Offline Mode**: Low-bandwidth consulates need local cache
 
-### Tasks
+**Deal Breaker**: If it adds 5 minutes per application instead of saving time, it dies.
 
-#### 1.1 Define Demo Scenario
-- **Primary Case**: "CASE-2026-4829 - Ahmad Rezaee"
-  - Applicant flagged by Nautica for visa mill association
-  - Documents in Maris vault with tamper detection alerts
-  - Active workflow in Meridian awaiting supervisor approval
+---
 
-#### 1.2 Database Schema Alignment
-```sql
--- Add case_id to vault_documents for cross-module linking
-ALTER TABLE vault_documents ADD COLUMN case_id text;
-ALTER TABLE vault_documents ADD COLUMN entity_id text;
+### Perspective 3: MFA Intelligence Analyst (Counter-Intel)
 
--- Add case_id to demo_fraud_nodes for graph-case linking
-ALTER TABLE demo_fraud_nodes ADD COLUMN case_id text;
+**What's Valuable:**
+- Graph-based entity resolution (matching "Ahmad Rezaee" = "A. Rezaye")
+- Immutable evidence vault for long-term counter-intel
+- Visual pattern detection (circular funding, common guarantor)
+
+**Critical Gaps:**
+- **Temporal Analysis**: Need time-slider to see how network grew
+- **Geospatial Mapping**: Fraud is geographic—need IP/location clustering
+- **Pathfinding**: "Show shortest path between Applicant A and Known Terrorist B"
+- **OSINT Ingestion**: Pull from sanctions lists, social media
+- **Cluster Metrics**: Is this a "star" (one leader) or "mesh" (decentralized)?
+
+**Deal Breaker**: If algorithms are black-box and can't be explained to a judge, evidence is inadmissible.
+
+---
+
+## 5-Phase Strategic Roadmap
+
+### Phase 1: Data Architecture Unification (Days 1-3)
+**Goal**: Create true cross-module data linkage so selecting an entity shows its documents and cases.
+
+| Task | Priority | Effort |
+|------|----------|--------|
+| Add `entity_id` foreign key to `vault_documents` | Critical | 2h |
+| Add `case_id` foreign key to `demo_fraud_nodes` | Critical | 2h |
+| Create `entity_documents` junction table | High | 3h |
+| Implement cross-module navigation (entity → documents → case) | Critical | 6h |
+| Update PlatformContext to maintain selection across modules | High | 4h |
+| Dynamic audit log table (`platform_audit_log`) | High | 3h |
+
+**Deliverables:**
+- Clicking Ahmad Rezaee node → shows his 3 linked documents in dossier
+- Clicking document → shows linked entities and case
+- All actions logged with timestamp and context
+
+---
+
+### Phase 2: Analytical Capabilities (Days 4-7)
+**Goal**: Add the graph analytics that intelligence analysts expect.
+
+| Task | Priority | Effort |
+|------|----------|--------|
+| **Path Analysis**: Select 2 nodes → show shortest connection path | Critical | 8h |
+| **Time Slider**: Filter graph by date range (temporal analysis) | High | 6h |
+| **Risk Score Filter**: Slider to hide low-risk nodes | High | 3h |
+| **Cluster Metrics**: Display "network type" (star/mesh/chain) | Medium | 4h |
+| **Node Metadata Panel**: Expand dossier with risk profile table | High | 4h |
+| **Explainable Flags**: Show WHY each entity is flagged (rule that triggered) | Critical | 6h |
+
+**Deliverables:**
+- "Show Path" button when 2 nodes selected
+- Timeline scrubber component showing network evolution
+- Each flagged entity shows specific triggering rules
+
+---
+
+### Phase 3: Operational Workflow (Days 8-10)
+**Goal**: Make Meridian actually usable for case decisions.
+
+| Task | Priority | Effort |
+|------|----------|--------|
+| **Red Flag Summary**: Sidebar listing top 3 specific reasons for flag | Critical | 4h |
+| **Auto-Decision Justification**: Generate formal refusal text from flags | High | 6h |
+| **PDF Export**: One-page case summary with findings | Critical | 6h |
+| **Decision Simulation**: "If approved, X similar cases affected" | Medium | 5h |
+| **Batch Document Upload**: Select multiple files, auto-analyze | High | 4h |
+| **Document Preview Enhancement**: Show hash status ON the preview | High | 3h |
+
+**Deliverables:**
+- "Export Case Summary" button produces professional PDF
+- Each case shows auto-generated refusal/approval reasoning
+- Batch upload with progress indicator
+
+---
+
+### Phase 4: Demo Infrastructure (Days 11-12)
+**Goal**: Bulletproof demo for Turkish MFA meeting.
+
+| Task | Priority | Effort |
+|------|----------|--------|
+| **Demo Controls Panel** (`?demo=true`): Reset data, trigger alerts, scenario toggle | Critical | 4h |
+| **Scenario Presets**: "Clean Applicant" vs "Fraud Ring" vs "State-Actor" | High | 3h |
+| **Guided Demo Script**: Update tour with new analytical features | High | 3h |
+| **Presentation Mode Polish**: Add slide for path analysis, temporal view | Medium | 2h |
+| **Offline Fallback**: Cache demo data in localStorage | Medium | 3h |
+| **Turkish Localization**: Critical UI labels only | High | 4h |
+
+**Deliverables:**
+- Hidden admin panel at `/platform?demo=true`
+- 3 switchable demo scenarios
+- Core labels translated to Turkish
+
+---
+
+### Phase 5: Security & Sovereignty (Days 13-14)
+**Goal**: Address the deal-breaker concerns around data sovereignty and access control.
+
+| Task | Priority | Effort |
+|------|----------|--------|
+| **Basic RBAC**: Analyst vs Supervisor vs Admin roles | Critical | 6h |
+| **Sovereignty Documentation**: Create architecture doc showing data residency | Critical | 3h |
+| **Audit Trail Enhancement**: Log all graph queries and exports | High | 4h |
+| **Algorithm Explainability Doc**: Document each flagging rule | Critical | 4h |
+| **API Integration Spec**: Mock spec for MERNIS/KPS integration | Medium | 3h |
+| **Security Scan**: Run linter and fix RLS policies | High | 2h |
+
+**Deliverables:**
+- Role-based login (demo: analyst@mfa.gov.tr, supervisor@mfa.gov.tr)
+- "Data Sovereignty Architecture" PDF for MFA
+- Complete audit log of demo session
+
+---
+
+## Technical Implementation Details
+
+### Database Schema Changes
+
+```text
+┌─────────────────────────────────────────────────────────────────┐
+│                    NEW JUNCTION TABLES                          │
+├─────────────────────────────────────────────────────────────────┤
+│  entity_documents                                               │
+│  ├── id (uuid, primary key)                                    │
+│  ├── entity_id (text, FK → demo_fraud_nodes.node_id)          │
+│  ├── document_id (uuid, FK → vault_documents.id)              │
+│  └── linked_at (timestamp)                                     │
+│                                                                 │
+│  platform_audit_log                                            │
+│  ├── id (uuid, primary key)                                    │
+│  ├── action (text: 'view_entity', 'export_case', etc.)        │
+│  ├── target_id (text)                                          │
+│  ├── user_role (text)                                          │
+│  ├── context (jsonb)                                           │
+│  └── created_at (timestamp)                                    │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-#### 1.3 Seed Cohesive Demo Data
-- 1 primary fraud network (8-12 entities)
-- 6 vault documents linked to the case
-- 1 active case with full workflow history
-- Cross-linked entities, documents, and cases
+### New Components to Build
 
-#### 1.4 UI Updates
-- Update ApplicantPanel interface to use `company` instead of `document`
-- Ensure FilterPanel, CommandBar, and all components use consistent types
-
----
-
-## Phase 2: Unified Navigation & Global Context (Days 3-4)
-
-### Goal
-Implement a global context system where selecting an entity in any module propagates context across all modules.
-
-### Tools Required
-- **Penpot**: Design navigation patterns and command palette
-- **Excalidraw**: Sketch information architecture
-- **Plane**: Track implementation tasks
-
-### Tasks
-
-#### 2.1 Global State Management
-Create a unified context that tracks:
-```typescript
-interface GlobalContext {
-  selectedCase: CaseInfo | null;
-  selectedEntity: EntityInfo | null;
-  selectedDocument: DocumentInfo | null;
-  activeAlerts: Alert[];
-  breadcrumb: BreadcrumbItem[];
-}
-```
-
-#### 2.2 Global Command Palette (⌘K)
-Move command bar to platform level:
-- Search across entities, documents, cases
-- Quick actions: "Open in Maris", "View in Nautica", "Go to Case"
-- Recent items and bookmarks
-
-#### 2.3 Contextual Breadcrumb
-Add persistent breadcrumb below header:
-```
-Platform > Nautica > Entity: Ahmad Rezaee > Linked Documents (3)
-```
-
-#### 2.4 Cross-Module Deep Links
-- Clicking "View Documents" on an entity opens Maris filtered to that entity
-- Clicking "View Network" on a document opens Nautica centered on that entity
-- Clicking "Open Case" navigates to Meridian with case selected
-
-#### 2.5 Unified Top Bar
-Redesign header with:
-- Module tabs (not sidebar) for faster switching
-- Global search always visible
-- Notification center with categorized alerts
-- User avatar with role indicator
-
----
-
-## Phase 3: Module-Level UX Refinements (Days 5-7)
-
-### Goal
-Polish each module to feel like a cohesive, professional GovTech tool.
-
-### Tools Required
-- **Penpot**: High-fidelity mockups for each module
-- **PostHog**: Set up feature flags for A/B testing refinements
-- **Mattermost**: Collect internal feedback on UX changes
-- **Plane**: Sprint board for refinement tasks
-
-### 3.1 Maris Refinements
-
-#### Evidence Vault
-- [ ] Real document counts from database
-- [ ] Thumbnail previews for documents
-- [ ] Quick actions: Download, View, Link to Case
-- [ ] Batch selection mode
-- [ ] Search and filter by type, date, entity
-
-#### Ingestion Flow
-- [ ] Replace simulation with actual file upload
-- [ ] Show real SHA-256 hash after upload
-- [ ] Auto-link to selected case if in context
-- [ ] Success state with "View in Vault" action
-
-#### Integrity Panel
-- [ ] Connect alerts to actual documents
-- [ ] Click alert → open document detail
-- [ ] Resolution actions: Dismiss, Investigate, Escalate
-
-### 3.2 Nautica Refinements
-
-#### Graph Interactions
-- [ ] Double-click to drill into entity dossier
-- [ ] Right-click context menu: View Docs, Open Case, Add to Watchlist
-- [ ] Keyboard navigation: Arrow keys to traverse, Enter to select
-- [ ] Path highlighting: Show shortest path between two selected nodes
-
-#### Entity Dossier (Right Panel)
-- [ ] Tabbed interface: Overview, Documents, Timeline, Notes
-- [ ] Documents tab shows linked vault items (clickable)
-- [ ] Timeline tab shows chronological events
-- [ ] Notes tab for analyst annotations (demo mode: read-only)
-
-#### Cluster Detection
-- [ ] Visual cluster boundaries (subtle convex hull or glow)
-- [ ] Cluster summary tooltip: "Visa Mill - 8 entities, 94 avg risk"
-- [ ] "Expand cluster" / "Collapse cluster" toggle
-
-### 3.3 Meridian Refinements
-
-#### Case Management
-- [ ] Case detail view (not just workflow)
-- [ ] Linked entities summary with risk indicators
-- [ ] Linked documents summary with integrity status
-- [ ] Activity log with all actions taken
-
-#### Decision Workflow
-- [ ] Interactive decision buttons (simulate approve/reject)
-- [ ] Confirmation dialogs with impact summary
-- [ ] After action: Show "Decision recorded" success state
-- [ ] Workflow history with collapsible completed steps
-
-#### Policy Rules
-- [ ] Policy simulation: "If enabled, X cases would be affected"
-- [ ] Rule effectiveness metrics (false positive rate, etc.)
-- [ ] Rule dependencies visualization
-
----
-
-## Phase 4: Real-Time Features & Polish (Days 8-10) ✅ COMPLETED
-
-### Goal
-Add real-time features and micro-interactions that make the platform feel alive.
-
-### Tools Required
-- **Lovable Cloud Realtime**: WebSocket subscriptions for live updates
-- **PostHog**: Track user engagement with new features
-- **Plausible**: Monitor demo page performance
-- **Ollama**: Local AI for smart suggestions (optional)
-
-### Tasks
-
-#### 4.1 Real-Time Updates ✅
-- [x] Supabase Realtime for new alerts (platform_alerts table)
-- [x] Toast notifications for high-priority events (sonner toasts)
-- [x] Demo alert trigger button (⚡ icon in header)
-
-#### 4.2 Skeleton Loading States ✅
-- [x] Replace loading spinners with skeleton placeholders (DossierSkeleton)
-- [x] Progressive loading components created
-
-#### 4.3 Keyboard Shortcuts ✅
-```
-⌘K      - Global search (UnifiedCommandPalette)
-⌘1/2/3  - Switch modules (Maris/Nautica/Meridian)
-⌘E      - Toggle entity panel
-```
-- [x] Keyboard shortcuts hook (usePlatformKeyboard)
-- [x] Keyboard hints popover in header
-
-#### 4.4 Empty States
-- [ ] Meaningful empty states with actions
-- [ ] "No documents match filters" with clear filter button
-- [ ] "No cases assigned to you" with browse action
-
-#### 4.5 Micro-Animations
-- [ ] Page transitions with subtle fade
-- [ ] Panel collapse/expand with smooth easing
-- [ ] Selection state with scale feedback
-- [ ] Loading progress with determinate bars where possible
-
----
-
-## Phase 5: Storytelling Mode & Demo Polish (Days 11-14)
-
-### Goal
-Create a guided demo experience that tells the fraud detection story.
-
-### Tools Required
-- **Penpot**: Design guided tour UI components
-- **Nextcloud**: Store demo assets and presentation materials
-- **Tresorit**: Securely share demo with external stakeholders
-- **Element**: Coordinate demo delivery with gov clients
-- **Outline**: Document demo scripts and talking points
-
-### Tasks
-
-#### 5.1 Guided Tour Mode
-Optional walkthrough for first-time viewers:
-1. "Meet Ahmad Rezaee - a flagged applicant"
-2. "Nautica detected his connection to a visa mill network"
-3. "Maris sealed his documents with integrity alerts"
-4. "Meridian manages the investigation workflow"
-
-#### 5.2 Demo Controls Panel (Hidden)
-Accessible via `?demo=true` query param:
-- Reset demo data button
-- Trigger sample alerts
-- Simulate time progression
-- Toggle between scenarios
-
-#### 5.3 Presentation Mode
-For live demos:
-- Larger fonts and higher contrast
-- Hide technical details (IDs, hashes)
-- Spotlight effect on current focus
-- Click-to-advance for scripted demos
-
-#### 5.4 Final Polish
-- [ ] Favicon and meta tags
-- [ ] Print/export styles for case reports
-- [ ] Error boundaries with graceful fallbacks
-- [ ] Performance optimization (memo, lazy loading)
-- [ ] Accessibility audit (ARIA labels, focus management)
-
----
-
-## Infrastructure Setup Checklist
-
-### Immediate (Before Phase 1)
-- [ ] **Plane** - Set up project board with phases as milestones
-- [ ] **Outline** - Create documentation workspace
-- [ ] **Penpot** - Initialize design project with components
-
-### During Development (Phase 1-3)
-- [ ] **GitLab CE** - Set up CI/CD for automated deployments
-- [ ] **Mattermost** - Create channels: #platform-dev, #feedback, #bugs
-- [ ] **Infisical** - Migrate secrets from current management
-- [ ] **PostHog** - Integrate analytics SDK
-
-### Pre-Demo (Phase 4-5)
-- [ ] **Plausible** - Set up marketing site tracking
-- [ ] **Tresorit** - Create secure share folder for demo assets
-- [ ] **Element** - Set up secure room for gov stakeholder comms
-
----
-
-## Tool Deployment Options
-
-### Option A: Single-Server Stack (Budget)
-Deploy all self-hosted tools on one powerful VPS:
-- **Provider**: Hetzner (Germany) or OVH (France)
-- **Spec**: 8 vCPU, 32GB RAM, 500GB NVMe
-- **Cost**: ~€50-80/month
-- **Tools**: Docker Compose with all services
-
-### Option B: Kubernetes Cluster (Scalable)
-Deploy on managed Kubernetes:
-- **Provider**: Scaleway Kapsule or Hetzner Cloud
-- **Spec**: 3-node cluster, 4 vCPU/8GB each
-- **Cost**: ~€150-200/month
-- **Tools**: Helm charts for each service
-
-### Option C: Hybrid (Recommended)
-- **Self-hosted** (EU VPS): GitLab, Plane, Mattermost, Nextcloud, Outline, Penpot
-- **E2EE SaaS**: Proton Mail, Tresorit
-- **Lovable Cloud**: Application backend (already configured)
-
----
-
-## Success Metrics
-
-1. **Flow Continuity**: User can follow a single case from document upload through network detection to case resolution
-2. **Data Consistency**: All numbers, entities, and references are interconnected and accurate
-3. **Professional Polish**: No dead ends, placeholder text, or disconnected UI elements
-4. **Demo Ready**: Can run a 15-minute live demo without encountering issues
-5. **Performance**: Graph renders 100+ nodes at 60fps, page transitions < 200ms
-6. **Tooling**: 100% of sensitive data flows through self-hosted or E2EE tools
-
----
-
-## Technical Debt to Address
-
-- [ ] Refactor `NauticaGraph.tsx` (547 lines) into smaller components
-- [ ] Refactor `CaseManagement.tsx` (285 lines) into smaller components
-- [ ] Refactor `DecisionWorkflow.tsx` (220 lines) into smaller components
-- [ ] Centralize demo data definitions
-- [ ] Create shared types file for cross-module entities
-- [ ] Add unit tests for critical business logic
-
----
-
-## File Structure Proposal
-
-```
+```text
 src/
-├── components/
-│   ├── platform/
-│   │   ├── global/
-│   │   │   ├── GlobalCommandBar.tsx
-│   │   │   ├── Breadcrumb.tsx
-│   │   │   ├── NotificationCenter.tsx
-│   │   │   └── ModuleTabs.tsx
-│   │   ├── maris/
-│   │   │   ├── DocumentVault.tsx
-│   │   │   ├── DocumentDetail.tsx
-│   │   │   ├── IngestFlow.tsx
-│   │   │   └── TamperDetection.tsx
-│   │   ├── nautica/
-│   │   │   ├── GraphCanvas.tsx
-│   │   │   ├── GraphControls.tsx
-│   │   │   ├── EntityDossier/
-│   │   │   │   ├── index.tsx
-│   │   │   │   ├── OverviewTab.tsx
-│   │   │   │   ├── DocumentsTab.tsx
-│   │   │   │   └── TimelineTab.tsx
-│   │   │   └── ClusterOverlay.tsx
-│   │   └── meridian/
-│   │       ├── CaseList.tsx
-│   │       ├── CaseDetail.tsx
-│   │       ├── WorkflowTracker.tsx
-│   │       └── PolicyEditor.tsx
-├── context/
-│   └── PlatformContext.tsx
-├── hooks/
-│   ├── usePlatformContext.ts
-│   ├── useEntityNavigation.ts
-│   └── useKeyboardShortcuts.ts
-└── types/
-    └── platform.ts
+├── components/platform/
+│   ├── analytics/
+│   │   ├── PathAnalysis.tsx          # Select 2 nodes → show path
+│   │   ├── TimeSlider.tsx            # Temporal filter for graph
+│   │   └── ClusterMetrics.tsx        # Network topology stats
+│   ├── export/
+│   │   ├── CasePDFExport.tsx         # Generate case summary PDF
+│   │   └── DecisionJustification.tsx # Auto-generate refusal text
+│   ├── admin/
+│   │   ├── DemoControlsPanel.tsx     # Reset, scenarios, triggers
+│   │   └── ScenarioSelector.tsx      # Switch demo datasets
+│   └── auth/
+│       ├── RoleGate.tsx              # Conditional rendering by role
+│       └── AuditLogger.tsx           # Log all actions
+└── hooks/
+    ├── usePathAnalysis.ts            # Graph pathfinding logic
+    ├── useAuditLog.ts                # Log actions to DB
+    └── useScenario.ts                # Demo scenario management
 ```
 
----
+### Key Integration Points
 
-## Tool Quick Reference
-
-| Need | Tool | Self-Hosted | Zero Data Exposure |
-|------|------|-------------|-------------------|
-| Code | GitLab CE | ✅ | ✅ |
-| Tasks | Plane | ✅ | ✅ |
-| Chat | Mattermost | ✅ | ✅ |
-| Docs | Nextcloud | ✅ | ✅ |
-| Design | Penpot | ✅ | ✅ |
-| Analytics | Plausible | ✅ | ✅ |
-| Product | PostHog | ✅ | ✅ |
-| Secrets | Infisical | ✅ | ✅ |
-| Wiki | Outline | ✅ | ✅ |
-| AI | Ollama | ✅ | ✅ |
-| Email | Proton | ❌ | ✅ (E2EE) |
-| Sharing | Tresorit | ❌ | ✅ (E2EE) |
+1. **Path Analysis Algorithm**: Use Dijkstra or BFS on the graph data structure in `NauticaGraph.tsx`
+2. **PDF Generation**: Use `@react-pdf/renderer` or `jspdf` for client-side PDF
+3. **Localization**: Add `react-i18next` with Turkish translations JSON
+4. **Audit Logging**: Create hook that wraps all platform actions
 
 ---
 
-## Next Actions
+## Success Criteria for MFA Demo
 
-1. **Immediate**: Fix ApplicantPanel `document` → `company` type inconsistency
-2. **This Session**: Start Phase 1 with database migrations and seed data
-3. **Infrastructure**: Deploy Plane + Outline on EU VPS for project tracking
-4. **User Approval Needed**: Confirm Phase 1 scope before implementation
+| Criterion | Target |
+|-----------|--------|
+| **Flow Continuity** | Click through Ahmad Rezaee from graph → documents → case decision without dead ends |
+| **Explainability** | Every flagged entity shows specific rule that triggered it |
+| **Path Analysis** | Can demonstrate "how is Ahmad connected to known visa mill" |
+| **Export** | Can generate PDF case summary during demo |
+| **Sovereignty Story** | Can show architecture diagram proving Turkish data residency |
+| **Demo Resilience** | Can reset and re-run demo without technical issues |
+| **Professional Polish** | No placeholder text, no console errors, no broken links |
 
 ---
 
-*Plan created: 2026-01-28*
-*Last updated: 2026-02-01*
-*Tools section added: 2026-02-01*
+## Risk Mitigation
+
+| Risk | Mitigation |
+|------|------------|
+| Graph performance with demo data | Limit demo dataset to 50 nodes max |
+| PDF generation complexity | Start with simple HTML-to-PDF, not complex layouts |
+| Localization scope creep | Only translate 20 critical labels, not full UI |
+| RBAC implementation time | Use demo roles with hardcoded permissions, not full auth |
+| MFA asks about MERNIS integration | Have architecture spec ready showing API integration points |
+
+---
+
+## Quick Wins for Maximum Demo Impact
+
+These can be implemented in 24 hours and dramatically improve demo quality:
+
+1. **"View Documents" button on entity dossier** → Opens Maris filtered to that entity
+2. **Path analysis selection mode** → Shift+click two nodes to see connection
+3. **Demo reset button** → Hidden keyboard shortcut (⌘⇧R) to reset state
+4. **Explainable flags tooltip** → Hover on flag icon shows "Triggered by: Shared Bank Statement Hash"
+5. **Case PDF export** → Simple one-page summary with risk score and linked entities
+
+---
+
+## Timeline Summary
+
+```text
+Week 1:
+├── Days 1-3: Data Architecture (cross-module linking)
+├── Days 4-5: Path Analysis + Time Slider
+├── Days 6-7: Explainable Flags + Cluster Metrics
+
+Week 2:
+├── Days 8-9: PDF Export + Red Flag Summary
+├── Days 10-11: Demo Controls + Scenarios
+├── Days 12-13: RBAC + Audit + Turkish Labels
+└── Day 14: Final polish + dry run
+```
+
