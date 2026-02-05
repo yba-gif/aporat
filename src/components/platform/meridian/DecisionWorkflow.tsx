@@ -22,6 +22,7 @@ import { DecisionDialog, DecisionSuccess } from './DecisionDialog';
 import { RedFlagSummary } from './RedFlagSummary';
 import { AutoDecisionJustification } from './AutoDecisionJustification';
 import { CaseExportPDF } from './CaseExportPDF';
+import { getCaseById } from './caseData';
 import { toast } from 'sonner';
 
 interface WorkflowStep {
@@ -98,7 +99,14 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
   const [completedDecision, setCompletedDecision] = useState<'approve' | 'reject' | 'escalate' | null>(null);
   const [expandedHistory, setExpandedHistory] = useState(false);
 
-  if (!caseId) {
+  // Get case data for dynamic rendering
+  const caseData = caseId ? getCaseById(caseId) : null;
+  const applicantName = caseData?.applicant || 'Unknown Applicant';
+  const caseNumber = caseData?.caseNumber || 'Unknown';
+  const riskScore = caseData?.riskScore || 0;
+  const redFlags = caseData?.redFlags || [];
+
+  if (!caseId || !caseData) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center p-6">
         <GitBranch className="w-12 h-12 text-muted-foreground/30 mb-4" />
@@ -144,14 +152,14 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
             <GitBranch className="w-5 h-5 text-accent" />
             <div>
               <h3 className="font-semibold">Decision Workflow</h3>
-              <p className="text-xs text-muted-foreground">CASE-2026-4829</p>
+              <p className="text-xs text-muted-foreground">{caseNumber}</p>
             </div>
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <DecisionSuccess 
             decisionType={completedDecision}
-            caseNumber="CASE-2026-4829"
+            caseNumber={caseNumber}
             onDismiss={handleDismissSuccess}
           />
         </div>
@@ -172,15 +180,15 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
             <GitBranch className="w-5 h-5 text-accent" />
             <div>
               <h3 className="font-semibold">Decision Workflow</h3>
-              <p className="text-xs text-muted-foreground">CASE-2026-4829</p>
+              <p className="text-xs text-muted-foreground">{caseNumber}</p>
             </div>
           </div>
           <CaseExportPDF 
             caseId={caseId}
-            caseNumber="CASE-2026-4829"
-            applicantName="Ahmad Rezaee"
-            riskScore={94}
-            status="under_review"
+            caseNumber={caseNumber}
+            applicantName={applicantName}
+            riskScore={riskScore}
+            status={caseData.status}
           />
         </div>
       </div>
@@ -343,22 +351,22 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
         <TabsContent value="flags" className="flex-1 overflow-auto p-4 mt-0">
           <RedFlagSummary 
             caseId={caseId}
-            applicantName="Ahmad Rezaee"
-            riskScore={94}
+            applicantName={applicantName}
+            riskScore={riskScore}
           />
         </TabsContent>
 
         {/* Justification Tab */}
         <TabsContent value="justification" className="flex-1 overflow-auto p-4 mt-0">
           <AutoDecisionJustification 
-            decisionType="reject"
-            applicantName="Ahmad Rezaee"
-            caseNumber="CASE-2026-4829"
-            riskScore={94}
-            flags={[
-              'Connection to known visa mill network (Apex Travel Agency cluster)',
-              'Document hash match with template used in 8 prior applications',
-              'Pre-submission signal: Shared mobile number with 3 other applicants (Source: vizesepetim.com)'
+            decisionType={riskScore >= 50 ? "reject" : "approve"}
+            applicantName={applicantName}
+            caseNumber={caseNumber}
+            riskScore={riskScore}
+            flags={redFlags.map(f => `${f.title}: ${f.description} (Source: ${f.source})`).length > 0 
+              ? redFlags.map(f => `${f.title}: ${f.description} (Source: ${f.source})`)
+              : [
+              'No specific risk factors identified'
             ]}
           />
         </TabsContent>
@@ -369,9 +377,9 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         decisionType={decisionType}
-        caseNumber="CASE-2026-4829"
-        applicantName="Ahmad Rezaee"
-        riskScore={94}
+        caseNumber={caseNumber}
+        applicantName={applicantName}
+        riskScore={riskScore}
         onConfirm={handleDecisionConfirm}
       />
     </div>
