@@ -293,7 +293,7 @@ function PlatformContent() {
                         <AlertPanel data-tour="flagged-entities" />
                         <EntityDossier />
                       </TabsContent>
-                      <TabsContent value="vizesepetim" className="flex-1 m-0 overflow-hidden">
+                      <TabsContent value="vizesepetim" className="flex-1 m-0 overflow-hidden" data-tour="external-data">
                         <VizesepetimPanel />
                       </TabsContent>
                     </Tabs>

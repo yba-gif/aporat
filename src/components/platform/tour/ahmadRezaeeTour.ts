@@ -34,6 +34,19 @@ export const ahmadRezaeeTourSteps: TourStep[] = [
     position: 'bottom',
   },
   {
+    id: 'vizesepetim-integration',
+    title: 'External Data: vizesepetim.com',
+    content: 'Real-time webhook from vizesepetim.com flagged Ahmad\'s mobile number. It matches 3 other "unrelated" applications submitted through different agencies. Same IP address detected across all submissions.',
+    module: 'nautica',
+    target: '[data-tour="external-data"]',
+    position: 'left',
+    action: () => {
+      // Click the External tab to show VizesepetimPanel
+      const externalTab = document.querySelector('[value="vizesepetim"]') as HTMLElement;
+      if (externalTab) externalTab.click();
+    },
+  },
+  {
     id: 'social-intel',
     title: 'Social Intelligence Layer',
     content: 'OSINT analysis revealed Ahmad follows 3 accounts flagged for visa coaching on Telegram. His LinkedIn shows employment at a different company than his visa application states.',
