@@ -18,6 +18,7 @@ import { SocialIntelligencePanel } from '@/components/platform/SocialIntelligenc
 import { EntityDossier } from '@/components/platform/nautica/EntityDossier';
 import { VizesepetimPanel } from '@/components/platform/external/VizesepetimPanel';
 import { DemoControlsPanel } from '@/components/platform/admin/DemoControlsPanel';
+import { LanguageToggle } from '@/components/platform/LanguageToggle';
 import { UnifiedCommandPalette } from '@/components/platform/UnifiedCommandPalette';
 import { KeyboardShortcutHints } from '@/components/platform/KeyboardShortcutHints';
 import { TourOverlay, TourLauncher } from '@/components/platform/tour';
@@ -250,6 +251,9 @@ function PlatformContent() {
               <KeyboardShortcutHints />
             </PopoverContent>
           </Popover>
+          
+          {/* Language Toggle */}
+          <LanguageToggle />
           
           <button className="p-2 hover:bg-secondary rounded transition-colors relative">
             <Bell className="w-4 h-4 text-muted-foreground" />

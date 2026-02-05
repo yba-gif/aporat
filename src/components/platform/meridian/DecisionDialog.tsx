@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { useLocale } from '@/lib/i18n';
 
 type DecisionType = 'approve' | 'reject' | 'escalate';
 
@@ -32,13 +33,13 @@ interface DecisionDialogProps {
   onConfirm: (notes: string) => void;
 }
 
-const DECISION_CONFIG = {
+const getDecisionConfig = (t: (key: string) => string) => ({
   approve: {
-    title: 'Approve Application',
+    title: t('approve'),
     description: 'This will approve the application and move it to final processing.',
     icon: CheckCircle2,
     iconColor: 'text-accent',
-    buttonText: 'Confirm Approval',
+    buttonText: t('approve'),
     buttonVariant: 'default' as const,
     impact: [
       'Application will be approved',
@@ -47,11 +48,11 @@ const DECISION_CONFIG = {
     ]
   },
   reject: {
-    title: 'Reject Application',
+    title: t('reject'),
     description: 'This will reject the application. This action requires justification.',
     icon: XCircle,
     iconColor: 'text-destructive',
-    buttonText: 'Confirm Rejection',
+    buttonText: t('reject'),
     buttonVariant: 'destructive' as const,
     impact: [
       'Application will be denied',
@@ -60,11 +61,11 @@ const DECISION_CONFIG = {
     ]
   },
   escalate: {
-    title: 'Escalate to Supervisor',
+    title: t('escalate'),
     description: 'This will escalate the case for supervisor review.',
     icon: AlertTriangle,
-    iconColor: 'text-yellow-500',
-    buttonText: 'Confirm Escalation',
+    iconColor: 'text-amber-500',
+    buttonText: t('escalate'),
     buttonVariant: 'outline' as const,
     impact: [
       'Case priority will be elevated',
@@ -72,7 +73,7 @@ const DECISION_CONFIG = {
       'SLA timer will be paused',
     ]
   }
-};
+});
 
 export function DecisionDialog({
   open,
@@ -85,7 +86,9 @@ export function DecisionDialog({
 }: DecisionDialogProps) {
   const [notes, setNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { t } = useLocale();
 
+  const DECISION_CONFIG = getDecisionConfig(t);
   const config = DECISION_CONFIG[decisionType];
   const Icon = config.icon;
 
@@ -129,7 +132,7 @@ export function DecisionDialog({
             <span className="text-xs font-medium">{applicantName}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Risk Score</span>
+            <span className="text-xs text-muted-foreground">{t('riskScore')}</span>
             <Badge 
               variant={riskScore >= 80 ? 'destructive' : riskScore >= 50 ? 'secondary' : 'default'}
               className="text-[10px]"
@@ -174,7 +177,7 @@ export function DecisionDialog({
 
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t('cancel')}
           </Button>
           <Button 
             variant={config.buttonVariant}

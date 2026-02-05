@@ -24,6 +24,7 @@ import { AutoDecisionJustification } from './AutoDecisionJustification';
 import { CaseExportPDF } from './CaseExportPDF';
 import { getCaseById } from './caseData';
 import { toast } from 'sonner';
+import { useLocale } from '@/lib/i18n';
 
 interface WorkflowStep {
   id: string;
@@ -98,6 +99,7 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
   const [showSuccess, setShowSuccess] = useState(false);
   const [completedDecision, setCompletedDecision] = useState<'approve' | 'reject' | 'escalate' | null>(null);
   const [expandedHistory, setExpandedHistory] = useState(false);
+  const { t } = useLocale();
 
   // Get case data for dynamic rendering
   const caseData = caseId ? getCaseById(caseId) : null;
@@ -179,7 +181,7 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
           <div className="flex items-center gap-3">
             <GitBranch className="w-5 h-5 text-accent" />
             <div>
-              <h3 className="font-semibold">Decision Workflow</h3>
+              <h3 className="font-semibold">{t('decisionWorkflow')}</h3>
               <p className="text-xs text-muted-foreground">{caseNumber}</p>
             </div>
           </div>
@@ -199,15 +201,15 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
           <TabsList className="w-full justify-start">
             <TabsTrigger value="workflow" className="gap-1.5 text-xs">
               <GitBranch className="w-3.5 h-3.5" />
-              Workflow
+              {t('workflow')}
             </TabsTrigger>
             <TabsTrigger value="flags" className="gap-1.5 text-xs">
               <Flag className="w-3.5 h-3.5" />
-              Red Flags
+              {t('redFlags')}
             </TabsTrigger>
             <TabsTrigger value="justification" className="gap-1.5 text-xs">
               <FileText className="w-3.5 h-3.5" />
-              Justification
+              {t('justification')}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -292,7 +294,7 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
                 onClick={() => handleOpenDialog('approve')}
               >
                 <CheckCircle2 className="w-4 h-4" />
-                Approve
+                {t('approve')}
               </Button>
               <Button 
                 className="gap-2" 
@@ -300,7 +302,7 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
                 onClick={() => handleOpenDialog('reject')}
               >
                 <XCircle className="w-4 h-4" />
-                Reject
+                {t('reject')}
               </Button>
             </div>
             <Button 
@@ -309,7 +311,7 @@ export function DecisionWorkflow({ caseId }: DecisionWorkflowProps) {
               onClick={() => handleOpenDialog('escalate')}
             >
               <AlertTriangle className="w-4 h-4" />
-              Escalate to Supervisor
+              {t('escalate')}
             </Button>
           </div>
 

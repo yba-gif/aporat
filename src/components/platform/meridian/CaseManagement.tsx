@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DEMO_CASES, Case } from './caseData';
+import { useLocale } from '@/lib/i18n';
 
 interface CaseManagementProps {
   onCaseSelect: (caseId: string) => void;
@@ -17,6 +18,7 @@ interface CaseManagementProps {
 
 export function CaseManagement({ onCaseSelect, selectedCaseId }: CaseManagementProps) {
   const [statusFilter, setStatusFilter] = useState<Case['status'] | 'all'>('all');
+  const { t } = useLocale();
 
   const filteredCases = DEMO_CASES.filter(c => 
     statusFilter === 'all' || c.status === statusFilter
@@ -60,9 +62,9 @@ export function CaseManagement({ onCaseSelect, selectedCaseId }: CaseManagementP
           <div className="flex items-center gap-3">
             <Briefcase className="w-5 h-5 text-accent" />
             <div>
-              <h3 className="font-semibold">Case Management</h3>
+              <h3 className="font-semibold">{t('caseManagement')}</h3>
               <p className="text-xs text-muted-foreground">
-                {filteredCases.length} cases • {DEMO_CASES.filter(c => c.status !== 'closed').length} active
+                {filteredCases.length} {t('cases')} • {DEMO_CASES.filter(c => c.status !== 'closed').length} active
               </p>
             </div>
           </div>
