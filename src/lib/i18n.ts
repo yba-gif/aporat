@@ -119,6 +119,13 @@ const translations = {
     accountsAnalyzed: 'accounts analyzed',
     indicatorsFound: 'indicators found',
     flaggedConnections: 'flagged connections',
+    scanHistory: 'Scan History',
+    noScanHistory: 'No previous scans for this entity',
+    scanDate: 'Scan Date',
+    aiConfidence: 'AI Confidence',
+    webCitations: 'Web Citations',
+    findings: 'Findings',
+    actions: 'Actions',
   },
   tr: {
     // Actions
@@ -236,6 +243,13 @@ const translations = {
     accountsAnalyzed: 'hesap analiz edildi',
     indicatorsFound: 'gösterge bulundu',
     flaggedConnections: 'işaretli bağlantı',
+    scanHistory: 'Tarama Geçmişi',
+    noScanHistory: 'Bu varlık için önceki tarama bulunamadı',
+    scanDate: 'Tarama Tarihi',
+    aiConfidence: 'AI Güven',
+    webCitations: 'Web Kaynakları',
+    findings: 'Bulgular',
+    actions: 'Eylemler',
   },
 } as const;
 
