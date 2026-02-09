@@ -53,6 +53,11 @@ export const ahmadRezaeeTourSteps: TourStep[] = [
     module: 'nautica',
     target: '[data-tour="social-panel"]',
     position: 'left',
+    action: () => {
+      // Switch Nautica view to social intel mode
+      const socialMenuItem = document.querySelector('[data-nautica-view="social"]') as HTMLElement;
+      if (socialMenuItem) socialMenuItem.click();
+    },
   },
   {
     id: 'maris-evidence',
