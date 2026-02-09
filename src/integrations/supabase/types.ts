@@ -204,6 +204,51 @@ export type Database = {
         }
         Relationships: []
       }
+      osint_scan_results: {
+        Row: {
+          ai_confidence: number | null
+          ai_findings: Json | null
+          ai_recommended_actions: Json | null
+          ai_risk_assessment: string | null
+          created_at: string
+          entity_id: string
+          entity_name: string
+          id: string
+          scan_type: string
+          scanned_by: string | null
+          web_citations: Json | null
+          web_results: Json | null
+        }
+        Insert: {
+          ai_confidence?: number | null
+          ai_findings?: Json | null
+          ai_recommended_actions?: Json | null
+          ai_risk_assessment?: string | null
+          created_at?: string
+          entity_id: string
+          entity_name: string
+          id?: string
+          scan_type?: string
+          scanned_by?: string | null
+          web_citations?: Json | null
+          web_results?: Json | null
+        }
+        Update: {
+          ai_confidence?: number | null
+          ai_findings?: Json | null
+          ai_recommended_actions?: Json | null
+          ai_risk_assessment?: string | null
+          created_at?: string
+          entity_id?: string
+          entity_name?: string
+          id?: string
+          scan_type?: string
+          scanned_by?: string | null
+          web_citations?: Json | null
+          web_results?: Json | null
+        }
+        Relationships: []
+      }
       platform_alerts: {
         Row: {
           alert_type: string

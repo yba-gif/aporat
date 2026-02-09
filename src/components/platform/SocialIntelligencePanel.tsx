@@ -25,6 +25,7 @@ import { useLocale, type TranslationKey } from '@/lib/i18n';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { RoleGate } from '@/components/platform/RoleGate';
 import { supabase } from '@/integrations/supabase/client';
+import type { Json } from '@/integrations/supabase/types';
 import { toast } from 'sonner';
 
 // --- Types ---
@@ -324,6 +325,7 @@ export function SocialIntelligencePanel() {
     clearInterval(interval);
 
     // Process xAI results
+    let parsedAiAnalysis: typeof aiAnalysis = null;
     if (xaiResult.status === 'fulfilled') {
       const { data, error } = xaiResult.value;
       if (error || data?.error) {
@@ -337,25 +339,49 @@ export function SocialIntelligencePanel() {
           severity: f.severity || 'medium',
           timestamp: new Date().toISOString(),
         }));
-        setAiAnalysis({
+        parsedAiAnalysis = {
           riskAssessment: data.riskAssessment,
           newFindings: aiFindings,
           recommendedActions: data.recommendedActions || [],
           confidence: data.confidence || 0.5,
-        });
+        };
+        setAiAnalysis(parsedAiAnalysis);
       }
     }
 
     // Process Perplexity results
+    let parsedWebIntel: typeof webIntel = null;
     if (perplexityResult.status === 'fulfilled') {
       const { data, error } = perplexityResult.value;
       if (error || data?.error) {
         console.error('Perplexity OSINT error:', error || data?.error);
       } else {
-        setWebIntel({
+        parsedWebIntel = {
           results: data.results || [],
           searchedAt: data.searchedAt,
-        });
+        };
+        setWebIntel(parsedWebIntel);
+      }
+    }
+
+    // Persist scan results to database for audit trail
+    if (parsedAiAnalysis || parsedWebIntel) {
+      const allCitations = (parsedWebIntel?.results || []).flatMap((r: any) => r.citations || []);
+      const { error: insertError } = await supabase
+        .from('osint_scan_results')
+        .insert([{
+          entity_id: selectedEntity.entityId || selectedEntity.id,
+          entity_name: selectedEntity.name,
+          scan_type: 'combined',
+          ai_risk_assessment: parsedAiAnalysis?.riskAssessment || null,
+          ai_findings: (parsedAiAnalysis?.newFindings || []) as unknown as Json,
+          ai_recommended_actions: (parsedAiAnalysis?.recommendedActions || []) as unknown as Json,
+          ai_confidence: parsedAiAnalysis?.confidence || null,
+          web_results: (parsedWebIntel?.results || []) as unknown as Json,
+          web_citations: allCitations as unknown as Json,
+        }]);
+      if (insertError) {
+        console.error('Failed to persist OSINT scan:', insertError);
       }
     }
 
