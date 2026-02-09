@@ -15,6 +15,7 @@ import {
   Eye,
   Search,
   Shield,
+  Brain,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,6 +24,8 @@ import { usePlatform } from '@/contexts/PlatformContext';
 import { useLocale, type TranslationKey } from '@/lib/i18n';
 import { useAuditLog } from '@/hooks/useAuditLog';
 import { RoleGate } from '@/components/platform/RoleGate';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 // --- Types ---
 
@@ -239,6 +242,12 @@ export function SocialIntelligencePanel() {
   const [scanRunning, setScanRunning] = useState(false);
   const [scanStep, setScanStep] = useState(0);
   const [scanComplete, setScanComplete] = useState(false);
+  const [aiAnalysis, setAiAnalysis] = useState<{
+    riskAssessment?: string;
+    newFindings?: OsintFinding[];
+    recommendedActions?: string[];
+    confidence?: number;
+  } | null>(null);
 
   // Sync with PlatformContext selectedEntityId
   useEffect(() => {
@@ -263,10 +272,11 @@ export function SocialIntelligencePanel() {
     }
   };
 
-  const runOsintScan = useCallback(() => {
+  const runOsintScan = useCallback(async () => {
     setScanRunning(true);
     setScanComplete(false);
     setScanStep(0);
+    setAiAnalysis(null);
 
     log({
       action: 'entity_flagged',
@@ -276,18 +286,60 @@ export function SocialIntelligencePanel() {
       context: { scanType: 'osint', entityName: selectedEntity.name },
     });
 
+    // Animate through scan steps while API call runs
     let step = 0;
     const interval = setInterval(() => {
       step++;
-      if (step >= SCAN_STEPS.length) {
-        clearInterval(interval);
-        setScanRunning(false);
-        setScanComplete(true);
-        setScanStep(SCAN_STEPS.length);
-      } else {
+      if (step < SCAN_STEPS.length - 1) {
         setScanStep(step);
       }
     }, 1200);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('xai-osint', {
+        body: {
+          entityName: selectedEntity.name,
+          entityType: selectedEntity.type,
+          socialProfiles: selectedEntity.socialProfiles,
+          connections: selectedEntity.connections,
+          existingFindings: selectedEntity.osintFindings,
+        },
+      });
+
+      clearInterval(interval);
+
+      if (error) {
+        console.error('xAI OSINT error:', error);
+        toast.error('OSINT scan failed — using cached data');
+      } else if (data?.error) {
+        console.error('xAI OSINT error:', data.error);
+        toast.error(data.error);
+      } else {
+        // Map AI findings to OsintFinding format
+        const aiFindings = (data.newFindings || []).map((f: any, idx: number) => ({
+          id: `ai-${Date.now()}-${idx}`,
+          source: f.source || 'xAI Grok',
+          category: f.category || 'AI Analysis',
+          detail: f.detail,
+          severity: f.severity || 'medium',
+          timestamp: new Date().toISOString(),
+        }));
+        setAiAnalysis({
+          riskAssessment: data.riskAssessment,
+          newFindings: aiFindings,
+          recommendedActions: data.recommendedActions || [],
+          confidence: data.confidence || 0.5,
+        });
+      }
+    } catch (err) {
+      clearInterval(interval);
+      console.error('xAI OSINT call failed:', err);
+      toast.error('OSINT scan failed — network error');
+    }
+
+    setScanStep(SCAN_STEPS.length);
+    setScanRunning(false);
+    setScanComplete(true);
   }, [selectedEntity, log]);
 
   const handleConnectionClick = (conn: SocialConnection) => {
@@ -371,6 +423,35 @@ export function SocialIntelligencePanel() {
               </span>
               <span>{totalIndicators} {t('indicatorsFound')}</span>
               <span>{flaggedConns} {t('flaggedConnections')}</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* xAI Grok Analysis Results */}
+      {aiAnalysis && scanComplete && (
+        <div className="px-4 py-3 border-b border-border bg-accent/5 space-y-3">
+          <div className="flex items-center gap-2">
+            <Brain className="w-4 h-4 text-accent" />
+            <span className="text-xs font-medium">Grok AI Assessment</span>
+            {aiAnalysis.confidence != null && (
+              <span className="text-[10px] font-mono text-muted-foreground ml-auto">
+                confidence: {Math.round(aiAnalysis.confidence * 100)}%
+              </span>
+            )}
+          </div>
+          {aiAnalysis.riskAssessment && (
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {aiAnalysis.riskAssessment}
+            </p>
+          )}
+          {aiAnalysis.recommendedActions && aiAnalysis.recommendedActions.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {aiAnalysis.recommendedActions.map((action, idx) => (
+                <span key={idx} className="text-[10px] px-2 py-0.5 bg-accent/10 text-accent border border-accent/20 rounded">
+                  {action}
+                </span>
+              ))}
             </div>
           )}
         </div>
@@ -573,7 +654,7 @@ export function SocialIntelligencePanel() {
                 <Search className="w-4 h-4 text-accent" />
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{t('osintFindings')}</p>
               </div>
-              {selectedEntity.osintFindings.map((finding) => (
+              {[...selectedEntity.osintFindings, ...(aiAnalysis?.newFindings || [])].map((finding) => (
                 <div key={finding.id} className="p-3 border border-border rounded-lg space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -582,6 +663,11 @@ export function SocialIntelligencePanel() {
                       </span>
                       <span className="text-xs font-medium text-foreground">{finding.source}</span>
                       <span className="text-[10px] text-muted-foreground">• {finding.category}</span>
+                      {finding.id.startsWith('ai-') && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-accent/10 text-accent rounded flex items-center gap-1">
+                          <Brain className="w-2.5 h-2.5" /> AI
+                        </span>
+                      )}
                     </div>
                     <span className="text-[10px] text-muted-foreground font-mono">
                       {new Date(finding.timestamp).toLocaleDateString()}
