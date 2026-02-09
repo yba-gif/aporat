@@ -14,7 +14,8 @@ export type AuditAction =
   | 'module_switched'
   | 'path_analysis'
   | 'webhook_received'
-  | 'entity_created';
+  | 'entity_created'
+  | 'twitter_lookup';
 
 export type AuditSource = 'user' | 'system' | 'vizesepetim';
 
