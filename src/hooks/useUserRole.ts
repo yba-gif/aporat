@@ -31,7 +31,8 @@ export function useUserRole(): UserRoleState {
         if (!session?.user) {
           if (mounted) {
             setIsAuthenticated(false);
-            setRole(null);
+            // Default to 'analyst' for unauthenticated demo visitors
+            setRole('analyst');
             setUserId(null);
             setIsLoading(false);
           }
