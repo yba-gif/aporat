@@ -18,6 +18,8 @@ import {
   Brain,
   History,
   Clock,
+  Twitter,
+  Download,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -258,6 +260,8 @@ export function SocialIntelligencePanel() {
   } | null>(null);
   const [scanHistoryRecords, setScanHistoryRecords] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [twitterData, setTwitterData] = useState<Record<string, any>>({});
+  const [twitterLoading, setTwitterLoading] = useState<string | null>(null);
 
   // Sync with PlatformContext selectedEntityId
   useEffect(() => {
@@ -417,6 +421,32 @@ export function SocialIntelligencePanel() {
     setScanStep(SCAN_STEPS.length);
     setScanRunning(false);
     setScanComplete(true);
+  }, [selectedEntity, log]);
+
+  const fetchTwitterProfile = useCallback(async (handle: string) => {
+    setTwitterLoading(handle);
+    try {
+      const { data, error } = await supabase.functions.invoke('twitter-osint', {
+        body: { username: handle },
+      });
+      if (error || data?.error) {
+        toast.error(`Twitter lookup failed: ${data?.error || error?.message || 'Unknown error'}`);
+      } else {
+        setTwitterData(prev => ({ ...prev, [handle]: data }));
+        toast.success(`Fetched live Twitter data for ${handle}`);
+        log({
+          action: 'twitter_lookup',
+          source: 'system',
+          targetId: selectedEntity.entityId || selectedEntity.id,
+          targetType: 'entity',
+          context: { handle, username: data.profile?.username },
+        });
+      }
+    } catch (err) {
+      toast.error('Twitter API error');
+      console.error('Twitter fetch error:', err);
+    }
+    setTwitterLoading(null);
   }, [selectedEntity, log]);
 
   const handleConnectionClick = (conn: SocialConnection) => {
@@ -689,6 +719,25 @@ export function SocialIntelligencePanel() {
                               <p className="font-mono text-foreground">{profile.following.toLocaleString()}</p>
                               <p className="text-muted-foreground">following</p>
                             </div>
+                            {profile.platform === 'twitter' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="ml-2 gap-1 text-[10px] h-7 px-2"
+                                disabled={twitterLoading === profile.handle}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  fetchTwitterProfile(profile.handle);
+                                }}
+                              >
+                                {twitterLoading === profile.handle ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <Download className="w-3 h-3" />
+                                )}
+                                Fetch Live
+                              </Button>
+                            )}
                           </div>
                         </RoleGate>
                       </div>
@@ -700,6 +749,79 @@ export function SocialIntelligencePanel() {
                               {indicator}
                             </div>
                           ))}
+                        </div>
+                      )}
+
+                      {/* Live Twitter Data */}
+                      {profile.platform === 'twitter' && twitterData[profile.handle] && (
+                        <div className="mt-3 p-3 bg-accent/5 border border-accent/20 rounded-lg space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Twitter className="w-3.5 h-3.5 text-accent" />
+                            <span className="text-[10px] font-medium text-accent uppercase tracking-wider">Live Twitter/X Data</span>
+                          </div>
+                          {(() => {
+                            const td = twitterData[profile.handle];
+                            const p = td.profile;
+                            return (
+                              <>
+                                <div className="flex items-center gap-3">
+                                  {p.profileImageUrl && (
+                                    <img src={p.profileImageUrl} alt="" className="w-10 h-10 rounded-full border border-border" />
+                                  )}
+                                  <div>
+                                    <p className="text-sm font-medium">{p.name}</p>
+                                    <p className="text-xs text-muted-foreground">@{p.username}</p>
+                                    {p.location && <p className="text-[10px] text-muted-foreground">{p.location}</p>}
+                                  </div>
+                                  {p.verified && (
+                                    <CheckCircle2 className="w-4 h-4 text-accent ml-auto" />
+                                  )}
+                                </div>
+                                {p.description && (
+                                  <p className="text-xs text-muted-foreground">{p.description}</p>
+                                )}
+                                <div className="grid grid-cols-4 gap-2 text-center">
+                                  <div><p className="text-sm font-mono">{p.metrics.followers.toLocaleString()}</p><p className="text-[9px] text-muted-foreground">Followers</p></div>
+                                  <div><p className="text-sm font-mono">{p.metrics.following.toLocaleString()}</p><p className="text-[9px] text-muted-foreground">Following</p></div>
+                                  <div><p className="text-sm font-mono">{p.metrics.tweets.toLocaleString()}</p><p className="text-[9px] text-muted-foreground">Tweets</p></div>
+                                  <div><p className="text-sm font-mono">{p.metrics.listed.toLocaleString()}</p><p className="text-[9px] text-muted-foreground">Listed</p></div>
+                                </div>
+
+                                {/* Risk indicators from live data */}
+                                {td.riskIndicators && td.riskIndicators.length > 0 && (
+                                  <div className="space-y-1">
+                                    <p className="text-[10px] font-medium text-destructive">Live Risk Indicators</p>
+                                    {td.riskIndicators.map((ri: string, idx: number) => (
+                                      <div key={idx} className="flex items-center gap-2 text-xs text-destructive">
+                                        <AlertTriangle className="w-3 h-3 shrink-0" />
+                                        {ri}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {/* Recent tweets */}
+                                {td.recentTweets && td.recentTweets.length > 0 && (
+                                  <div className="space-y-2">
+                                    <p className="text-[10px] font-medium text-muted-foreground">Recent Tweets</p>
+                                    {td.recentTweets.slice(0, 3).map((tweet: any) => (
+                                      <div key={tweet.id} className="p-2 bg-secondary/30 rounded text-xs text-muted-foreground">
+                                        <p className="line-clamp-2">{tweet.text}</p>
+                                        <p className="text-[9px] mt-1 font-mono">
+                                          {new Date(tweet.createdAt).toLocaleDateString()}
+                                          {tweet.metrics && ` · ♥ ${tweet.metrics.like_count} · ↻ ${tweet.metrics.retweet_count}`}
+                                        </p>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+
+                                <p className="text-[9px] text-muted-foreground font-mono">
+                                  Fetched: {new Date(td.fetchedAt).toLocaleTimeString()}
+                                </p>
+                              </>
+                            );
+                          })()}
                         </div>
                       )}
                     </div>
