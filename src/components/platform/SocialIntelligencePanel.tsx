@@ -16,6 +16,8 @@ import {
   Search,
   Shield,
   Brain,
+  History,
+  Clock,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -254,6 +256,8 @@ export function SocialIntelligencePanel() {
     results: Array<{ query: string; content: string; citations: string[] }>;
     searchedAt?: string;
   } | null>(null);
+  const [scanHistoryRecords, setScanHistoryRecords] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   // Sync with PlatformContext selectedEntityId
   useEffect(() => {
@@ -262,6 +266,31 @@ export function SocialIntelligencePanel() {
       if (match) setSelectedEntity(match);
     }
   }, [selectedEntityId]);
+
+  // Fetch scan history for selected entity
+  const fetchScanHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    const entityId = selectedEntity.entityId || selectedEntity.id;
+    const { data, error } = await supabase
+      .from('osint_scan_results')
+      .select('*')
+      .eq('entity_id', entityId)
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (!error && data) {
+      setScanHistoryRecords(data);
+    }
+    setHistoryLoading(false);
+  }, [selectedEntity]);
+
+  useEffect(() => {
+    fetchScanHistory();
+  }, [fetchScanHistory]);
+
+  // Refresh history after scan completes
+  useEffect(() => {
+    if (scanComplete) fetchScanHistory();
+  }, [scanComplete, fetchScanHistory]);
 
   const getRiskColor = (score: number) => {
     if (score > 70) return 'text-destructive';
@@ -600,6 +629,10 @@ export function SocialIntelligencePanel() {
               <TabsTrigger value="riskflow" className="flex-1 data-[state=active]:bg-secondary rounded-sm text-xs">
                 {t('riskFlow')}
               </TabsTrigger>
+              <TabsTrigger value="history" className="flex-1 data-[state=active]:bg-secondary rounded-sm text-xs gap-1">
+                <History className="w-3 h-3" />
+                {t('scanHistory')}
+              </TabsTrigger>
             </TabsList>
 
             {/* Profile Tab */}
@@ -845,6 +878,109 @@ export function SocialIntelligencePanel() {
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">{t('flaggedConnections')}</p>
                 </div>
               </div>
+            </TabsContent>
+
+            {/* Scan History Tab */}
+            <TabsContent value="history" className="flex-1 overflow-auto p-5 space-y-3 m-0">
+              <div className="flex items-center gap-2 mb-1">
+                <History className="w-4 h-4 text-accent" />
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{t('scanHistory')}</p>
+                <span className="text-[10px] text-muted-foreground ml-auto">{scanHistoryRecords.length} records</span>
+              </div>
+
+              {historyLoading ? (
+                <div className="flex items-center justify-center py-12 text-muted-foreground gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="text-sm">Loading...</span>
+                </div>
+              ) : scanHistoryRecords.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
+                  <Clock className="w-8 h-8 opacity-40" />
+                  <p className="text-sm">{t('noScanHistory')}</p>
+                </div>
+              ) : (
+                scanHistoryRecords.map((record) => {
+                  const aiFindings = Array.isArray(record.ai_findings) ? record.ai_findings : [];
+                  const webCitations = Array.isArray(record.web_citations) ? record.web_citations : [];
+                  const confidence = record.ai_confidence != null ? Math.round(record.ai_confidence * 100) : null;
+
+                  return (
+                    <div key={record.id} className="p-4 border border-border rounded-lg space-y-3 bg-secondary/10">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-xs font-medium">
+                            {new Date(record.created_at).toLocaleDateString(undefined, {
+                              year: 'numeric', month: 'short', day: 'numeric',
+                              hour: '2-digit', minute: '2-digit',
+                            })}
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 bg-secondary rounded text-muted-foreground">
+                            {record.scan_type}
+                          </span>
+                        </div>
+                        {confidence !== null && (
+                          <span className="text-[10px] font-mono text-muted-foreground">
+                            {t('aiConfidence')}: {confidence}%
+                          </span>
+                        )}
+                      </div>
+
+                      {record.ai_risk_assessment && (
+                        <div className="flex items-start gap-2">
+                          <Brain className="w-3.5 h-3.5 text-accent mt-0.5 shrink-0" />
+                          <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                            {record.ai_risk_assessment}
+                          </p>
+                        </div>
+                      )}
+
+                      {aiFindings.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-[10px] text-muted-foreground font-medium">{t('findings')} ({aiFindings.length})</p>
+                          {aiFindings.slice(0, 3).map((f: any, idx: number) => (
+                            <div key={idx} className="flex items-center gap-2 text-xs">
+                              <span className={`px-1 py-0.5 rounded text-[9px] font-medium border ${getSeverityColor(f.severity || 'medium')}`}>
+                                {(f.severity || 'medium').toUpperCase()}
+                              </span>
+                              <span className="text-muted-foreground truncate">{f.detail}</span>
+                            </div>
+                          ))}
+                          {aiFindings.length > 3 && (
+                            <p className="text-[10px] text-muted-foreground">+{aiFindings.length - 3} more</p>
+                          )}
+                        </div>
+                      )}
+
+                      {webCitations.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-[10px] text-muted-foreground font-medium">{t('webCitations')} ({webCitations.length})</p>
+                          <div className="flex flex-wrap gap-1">
+                            {webCitations.slice(0, 4).map((url: string, cidx: number) => {
+                              try {
+                                return (
+                                  <a
+                                    key={cidx}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[9px] text-accent hover:underline truncate max-w-[180px] inline-flex items-center gap-0.5"
+                                  >
+                                    <ExternalLink className="w-2 h-2 shrink-0" />
+                                    {new URL(url).hostname}
+                                  </a>
+                                );
+                              } catch {
+                                return null;
+                              }
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
             </TabsContent>
           </Tabs>
         </div>
