@@ -233,6 +233,7 @@ const SCAN_STEPS = [
   'scanningInstagram',
   'scanningLinkedin',
   'scanningTelegram',
+  'scanningTwitter',
   'searchingWeb',
   'generatingAssessment',
 ] as const;
@@ -335,8 +336,15 @@ export function SocialIntelligencePanel() {
       }
     }, 1200);
 
-    // Run xAI and Perplexity in parallel
-    const [xaiResult, perplexityResult] = await Promise.allSettled([
+    // Find Twitter handles for this entity
+    const twitterProfiles = selectedEntity.socialProfiles.filter(p => p.platform === 'twitter');
+
+    // Run xAI, Perplexity, and Twitter in parallel
+    const twitterCalls = twitterProfiles.map(p =>
+      supabase.functions.invoke('twitter-osint', { body: { username: p.handle } })
+    );
+
+    const [xaiResult, perplexityResult, ...twitterResults] = await Promise.allSettled([
       supabase.functions.invoke('xai-osint', {
         body: {
           entityName: selectedEntity.name,
@@ -353,6 +361,7 @@ export function SocialIntelligencePanel() {
           socialHandles: selectedEntity.socialProfiles.map(p => p.handle),
         },
       }),
+      ...twitterCalls,
     ]);
 
     clearInterval(interval);
@@ -396,6 +405,30 @@ export function SocialIntelligencePanel() {
         setWebIntel(parsedWebIntel);
       }
     }
+
+    // Process Twitter results — merge into twitterData state
+    twitterResults.forEach((result, idx) => {
+      if (result.status === 'fulfilled') {
+        const { data, error } = result.value;
+        if (!error && !data?.error && data?.profile) {
+          const handle = twitterProfiles[idx]?.handle || '';
+          setTwitterData(prev => ({ ...prev, [handle]: data }));
+          // Add Twitter risk indicators as OSINT findings
+          const twitterFindings: OsintFinding[] = (data.riskIndicators || []).map((indicator: string, i: number) => ({
+            id: `tw-${Date.now()}-${idx}-${i}`,
+            source: 'Twitter/X (Live)',
+            category: 'Social Media Intelligence',
+            detail: indicator,
+            severity: indicator.toLowerCase().includes('bot') || indicator.toLowerCase().includes('sock puppet') ? 'high' as const : 'medium' as const,
+            timestamp: new Date().toISOString(),
+          }));
+          if (parsedAiAnalysis && twitterFindings.length > 0) {
+            parsedAiAnalysis.newFindings = [...(parsedAiAnalysis.newFindings || []), ...twitterFindings];
+            setAiAnalysis({ ...parsedAiAnalysis });
+          }
+        }
+      }
+    });
 
     // Persist scan results to database for audit trail
     if (parsedAiAnalysis || parsedWebIntel) {
