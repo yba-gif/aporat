@@ -1,1 +1,4 @@
 project_id = "aszoekuhxvywxlthmivs"
+
+[functions.instagram-osint]
+verify_jwt = false

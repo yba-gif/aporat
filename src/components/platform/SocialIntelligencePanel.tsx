@@ -336,15 +336,19 @@ export function SocialIntelligencePanel() {
       }
     }, 1200);
 
-    // Find Twitter handles for this entity
+    // Find Twitter and Instagram handles for this entity
     const twitterProfiles = selectedEntity.socialProfiles.filter(p => p.platform === 'twitter');
+    const instagramProfiles = selectedEntity.socialProfiles.filter(p => p.platform === 'instagram');
 
-    // Run xAI, Perplexity, and Twitter in parallel
+    // Run xAI, Perplexity, Twitter, and Instagram in parallel
     const twitterCalls = twitterProfiles.map(p =>
       supabase.functions.invoke('twitter-osint', { body: { username: p.handle } })
     );
+    const instagramCalls = instagramProfiles.map(p =>
+      supabase.functions.invoke('instagram-osint', { body: { handle: p.handle } })
+    );
 
-    const [xaiResult, perplexityResult, ...twitterResults] = await Promise.allSettled([
+    const [xaiResult, perplexityResult, ...socialResults] = await Promise.allSettled([
       supabase.functions.invoke('xai-osint', {
         body: {
           entityName: selectedEntity.name,
@@ -362,7 +366,11 @@ export function SocialIntelligencePanel() {
         },
       }),
       ...twitterCalls,
+      ...instagramCalls,
     ]);
+
+    const twitterResults = socialResults.slice(0, twitterCalls.length);
+    const instagramResults = socialResults.slice(twitterCalls.length);
 
     clearInterval(interval);
 
@@ -425,6 +433,33 @@ export function SocialIntelligencePanel() {
           if (parsedAiAnalysis && twitterFindings.length > 0) {
             parsedAiAnalysis.newFindings = [...(parsedAiAnalysis.newFindings || []), ...twitterFindings];
             setAiAnalysis({ ...parsedAiAnalysis });
+          }
+        }
+      }
+    });
+
+    // Process Instagram results via Firecrawl
+    instagramResults.forEach((result, idx) => {
+      if (result.status === 'fulfilled') {
+        const { data, error } = result.value;
+        if (!error && !data?.error && data?.profile) {
+          const handle = instagramProfiles[idx]?.handle || '';
+          // Add Instagram risk indicators as OSINT findings
+          const igFindings: OsintFinding[] = (data.riskIndicators || []).map((indicator: string, i: number) => ({
+            id: `ig-${Date.now()}-${idx}-${i}`,
+            source: 'Instagram (Firecrawl)',
+            category: 'Social Media Intelligence',
+            detail: indicator,
+            severity: indicator.toLowerCase().includes('fake') || indicator.toLowerCase().includes('bot') || indicator.toLowerCase().includes('suspicious') ? 'high' as const : 'medium' as const,
+            timestamp: new Date().toISOString(),
+          }));
+          if (parsedAiAnalysis && igFindings.length > 0) {
+            parsedAiAnalysis.newFindings = [...(parsedAiAnalysis.newFindings || []), ...igFindings];
+            setAiAnalysis({ ...parsedAiAnalysis });
+          }
+          // Update the entity's Instagram profile data with live scraped info
+          if (data.profile.followers !== null || data.profile.following !== null) {
+            console.log(`Instagram OSINT for ${handle}: ${data.profile.followers} followers, ${data.profile.following} following, ${igFindings.length} risk indicators`);
           }
         }
       }
