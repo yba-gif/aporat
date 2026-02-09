@@ -32,11 +32,16 @@ export interface PlatformDocument {
 }
 
 type ActiveModule = 'maris' | 'nautica' | 'meridian';
+export type NauticaView = 'graph' | 'social';
 
 interface PlatformContextValue {
   // Active module
   activeModule: ActiveModule;
   setActiveModule: (module: ActiveModule) => void;
+  
+  // Nautica sub-view
+  nauticaView: NauticaView;
+  setNauticaView: (view: NauticaView) => void;
   
   // Selection state
   selectedEntityId: string | null;
@@ -118,6 +123,7 @@ interface PlatformProviderProps {
 
 export function PlatformProvider({ children, defaultModule = 'nautica' }: PlatformProviderProps) {
   const [activeModule, setActiveModule] = useState<ActiveModule>(defaultModule);
+  const [nauticaView, setNauticaView] = useState<NauticaView>('graph');
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(null);
@@ -230,6 +236,8 @@ export function PlatformProvider({ children, defaultModule = 'nautica' }: Platfo
   const value: PlatformContextValue = {
     activeModule,
     setActiveModule,
+    nauticaView,
+    setNauticaView,
     selectedEntityId,
     selectedCaseId,
     selectedDocumentId,

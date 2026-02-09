@@ -64,7 +64,7 @@ import {
 } from '@/components/ui/popover';
 import { useState, useEffect } from 'react';
 
-type NauticaView = 'graph' | 'social';
+type NauticaView = 'graph' | 'social'; // kept for local reference
 
 const navItems = [
   { id: 'maris' as const, label: 'Maris', sublabel: 'Evidence', icon: Database },
@@ -129,8 +129,7 @@ function PlatformSidebar() {
 }
 
 function PlatformContent() {
-  const { activeModule, selectedEntityId, selectEntity } = usePlatform();
-  const [nauticaView, setNauticaView] = useState<NauticaView>('graph');
+  const { activeModule, selectedEntityId, selectEntity, nauticaView, setNauticaView } = usePlatform();
   const [showEntityPanel, setShowEntityPanel] = useState(true);
   
   // Initialize realtime alerts
@@ -206,7 +205,10 @@ function PlatformContent() {
                   <Network className="w-4 h-4 mr-2" />
                   Network Graph
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setNauticaView('social')}>
+                <DropdownMenuItem 
+                  onClick={() => setNauticaView('social')}
+                  data-nautica-view="social"
+                >
                   <Globe className="w-4 h-4 mr-2" />
                   Social Intelligence
                 </DropdownMenuItem>
