@@ -1,340 +1,110 @@
 
 
-# Portolan Platform: 5-Phase Strategic Roadmap (Updated)
-## With vizesepetim.com API Integration
+# Plan: Complete Social Intelligence Panel
+
+## Current State
+
+The Social Intelligence panel (`SocialIntelligencePanel.tsx`) exists as a basic prototype within the Nautica module. It is accessible via a dropdown toggle ("Social Intel" vs "Network Graph") in the Nautica header. However, it has several significant gaps compared to the maturity level of the other platform components (Maris, Nautica Graph, Meridian, VizesepetimPanel).
+
+### What exists today:
+- A static panel with 2 hardcoded demo entities (Mehmet Yilmaz, Ahmad Rezaee)
+- Social profile cards for Instagram, LinkedIn, Telegram with risk indicators
+- A static "Network Connections" list
+- A basic "Risk Propagation Path" diagram (a horizontal flow: Applicant -> Agency -> Owner -> Social Network)
+- A "Run OSINT Scan" button that fakes a 3-second spinner and does nothing
+- No connection to PlatformContext (entities cannot be navigated to from other modules)
+- No localization (English-only)
+- No integration with the Guided Tour (the tour references `[data-tour="social-panel"]` but the step just points at the container; it doesn't switch the Nautica view to "social" first)
+
+### What the other panels have that this one lacks:
+- Integration with PlatformContext (click-through navigation to graph, documents, cases)
+- Turkish localization via the i18n system
+- Rich demo data tied to the Ahmad Rezaee fraud case
+- Tabbed sub-views for organized information
+- RBAC awareness via RoleGate
 
 ---
 
-## Executive Summary
+## Implementation Steps
 
-This updated plan now includes the **vizesepetim.com API integration** as a priority in Phase 1. vizesepetim.com is Turkey's visa matching platform that connects applicants with agencies. They will provide applicant data (mobile number, IP address, gender, target country) which will flow into the Portolan platform for fraud detection and risk analysis.
+### Step 1: Connect to PlatformContext
 
----
+Wire the panel into the shared state so it can participate in cross-module navigation:
+- Import `usePlatform` and use `selectedEntityId` to auto-select the relevant entity when navigating from the graph or dossier
+- Make "Network Connections" items clickable -- navigating to the entity in the Nautica graph via `navigateToEntity()`
+- Add a "View in Graph" button per entity that switches back to graph view and selects the node
 
-## NEW: vizesepetim.com Integration Overview
+### Step 2: Expand Demo Data
 
-**What is vizesepetim.com?**
-- Turkish platform ("Türkiye'nin güvenilir vize platformu") that matches visa applicants with approved agencies
-- Supports Schengen, USA, UK, Canada, and other destinations
-- Has 6+ verified agencies and handles tourist, business, and student visas
+Enrich the hardcoded demo data to align with the Ahmad Rezaee fraud case narrative:
+- Add 2-3 more entities (e.g., Dmitri Volkov, the Apex Travel Agency owner) to show a broader network
+- Add richer social profiles: Twitter/X accounts, Facebook profiles
+- Include more risk indicators (e.g., "Account follows 5 known visa coaching channels", "Employment listed differs from visa application")
+- Add a "Risk Timeline" per entity showing when social signals were detected
 
-**Data to be received from their API:**
-| Field | Type | Purpose |
-|-------|------|---------|
-| `mobile_number` | string | Identity correlation, duplicate detection |
-| `ip_address` | string | Geolocation analysis, VPN/proxy detection |
-| `gender` | string | Profile validation |
-| `target_country` | string | Destination risk scoring |
+### Step 3: Add Tabbed Layout
 
-**Integration Value:**
-- Cross-reference applicants between agencies to detect visa mill patterns
-- Flag same mobile/IP used across multiple "unrelated" applications
-- Geographic anomaly detection (IP location vs claimed residence)
+Restructure the main content area with tabs for better information architecture (matching the pattern used in EntityDossier's DossierTabs):
+- **Profile** tab: Current entity overview with risk narrative, social profiles, and risk indicators
+- **Network** tab: Social connections with risk scores, shared connections, and click-through to graph
+- **OSINT Findings** tab: Detailed OSINT results organized by source (Instagram analysis, LinkedIn verification, Telegram group membership)
+- **Risk Flow** tab: The risk propagation diagram, enhanced with animated flow indicators
 
----
+### Step 4: Enhance the OSINT Scan Simulation
 
-## 5-Phase Strategic Roadmap
+Make the "Run OSINT Scan" button produce visible, staged results:
+- Show a multi-step progress indicator (similar to Maris document ingestion pipeline): "Scanning Instagram...", "Cross-referencing LinkedIn...", "Analyzing Telegram groups...", "Generating risk assessment..."
+- After the scan completes, surface new risk indicators on the selected entity
+- Log the action to the audit system via `useAuditLog`
 
-### Phase 1: Data Architecture + vizesepetim.com Integration (Days 1-3)
+### Step 5: Add Risk Heatmap Visualization
 
-**Goal**: Create cross-module data linkage AND establish external data ingestion pipeline from vizesepetim.com.
+Replace the simple horizontal flow diagram with a more compelling visualization:
+- A mini network diagram showing social connections with risk heat (color-coded by risk severity)
+- Show risk flow direction with animated gradient lines
+- Include a summary card: "X social accounts analyzed, Y risk indicators found, Z connections to flagged entities"
 
-#### 1A: vizesepetim.com API Integration
+### Step 6: Add Turkish Localization
 
-| Task | Priority | Effort |
-|------|----------|--------|
-| Create `vizesepetim_applicants` table for incoming data | Critical | 1h |
-| Build `vizesepetim-webhook` edge function to receive data | Critical | 3h |
-| Implement HMAC signature verification for webhook security | Critical | 2h |
-| Create junction table linking vizesepetim data to fraud nodes | High | 2h |
-| Add IP geolocation lookup (flag VPN/proxy) | High | 2h |
-| Create automatic entity generation from incoming applicants | High | 3h |
+Extend the i18n translation keys for the Social Intelligence panel:
+- Add keys: `socialIntelligence`, `osintAnalysis`, `socialProfiles`, `riskPropagation`, `networkConnections`, `runOsintScan`, `scanning`, `profile`, `osintFindings`, `riskFlow`, `socialMedia`, `riskIndicators`, `sanctionedConnections`, `flaggedGroups`
+- Add Turkish translations: "Sosyal İstihbarat", "OSINT Analizi", "Sosyal Profiller", "Risk Yayilimi", "Ag Baglantilari", "OSINT Tarasi Baslat", "Taraniyor...", "Profil", "OSINT Bulgulari", "Risk Akisi", "Sosyal Medya", "Risk Gostergeleri", "Yaptirimsiz Baglantilar", "Isaretli Gruplar"
+- Apply `useLocale` hook to all UI strings in the panel
 
-**Database Schema:**
-```text
-vizesepetim_applicants
-├── id (uuid, primary key)
-├── external_id (text, unique) -- vizesepetim's applicant ID
-├── mobile_number_hash (text) -- SHA-256 for privacy
-├── ip_address (text)
-├── ip_country (text) -- resolved geolocation
-├── gender (text)
-├── target_country (text)
-├── is_vpn (boolean) -- flagged if detected
-├── linked_entity_id (text, FK → demo_fraud_nodes.node_id)
-├── created_at (timestamp)
-└── metadata (jsonb) -- for future fields
-```
+### Step 7: Fix Tour Integration
 
-**Edge Function: `vizesepetim-webhook`**
-- Receives POST requests with signed payloads
-- Validates HMAC-SHA256 signature using shared secret
-- Hashes mobile number before storage (privacy compliance)
-- Performs IP geolocation lookup
-- Creates/links to entity in fraud graph
-- Returns 200 OK with processing status
+Update the guided tour step for Social Intelligence:
+- Add an `action` callback to the `social-intel` tour step (similar to how the vizesepetim step clicks the External tab)
+- The action should programmatically switch the Nautica view to 'social' mode
+- This requires either lifting `setNauticaView` into PlatformContext or passing it through the tour action callback
 
-#### 1B: Internal Data Architecture Unification
+### Step 8: Add RBAC Awareness
 
-| Task | Priority | Effort |
-|------|----------|--------|
-| Create `entity_documents` junction table | High | 2h |
-| Create `platform_audit_log` table | High | 2h |
-| Implement cross-module navigation (entity → documents → case) | Critical | 4h |
-| Update PlatformContext for selection persistence | High | 3h |
-
-**Deliverables:**
-- Webhook endpoint at `/functions/v1/vizesepetim-webhook`
-- Incoming applicant data visible in Nautica graph
-- Mobile number correlation flags duplicate applications
-- IP geolocation flags geographic anomalies
+Wrap sensitive sections with the RoleGate component:
+- The "Run OSINT Scan" button should require at least `analyst` role
+- Detailed social profiles (account handles, follower counts) should require at least `analyst` role
+- Risk indicators should be visible to `viewer` but with redacted details
 
 ---
 
-### Phase 2: Analytical Capabilities (Days 4-7)
+## Technical Details
 
-**Goal**: Add graph analytics including vizesepetim correlation patterns.
+### Files to Create
+- None (all changes are to existing files)
 
-| Task | Priority | Effort |
-|------|----------|--------|
-| **Path Analysis**: Select 2 nodes → show shortest path | Critical | 8h |
-| **vizesepetim Correlation Panel**: Show applicants sharing mobile/IP | Critical | 4h |
-| **Time Slider**: Filter graph by date range | High | 6h |
-| **Risk Score Filter**: Hide low-risk nodes | High | 3h |
-| **Cluster Metrics**: Network topology (star/mesh/chain) | Medium | 4h |
-| **Explainable Flags**: Show WHY each entity is flagged | Critical | 6h |
+### Files to Modify
+1. **`src/components/platform/SocialIntelligencePanel.tsx`** -- Major rewrite: PlatformContext integration, tabbed layout, expanded demo data, OSINT scan simulation, risk heatmap, localization, RBAC
+2. **`src/lib/i18n.ts`** -- Add ~15 new translation keys for both English and Turkish
+3. **`src/components/platform/tour/ahmadRezaeeTour.ts`** -- Add `action` callback to the `social-intel` step to switch Nautica view
+4. **`src/pages/Platform.tsx`** -- Lift `nauticaView` state setter to be accessible from tour actions (either via PlatformContext or a ref callback)
+5. **`src/contexts/PlatformContext.tsx`** -- Optionally add `nauticaView` and `setNauticaView` to shared context so the tour and cross-module navigation can trigger view switches
 
-**vizesepetim-specific analytics:**
-- "5 applicants share this mobile number across 3 agencies"
-- "IP 185.x.x.x used by 12 applicants in 24 hours (possible fraud farm)"
-- "Claimed residence: Tehran, IP location: Istanbul (VPN likely)"
+### Dependencies
+- No new npm packages needed
+- Uses existing: `lucide-react`, `@/components/ui/*`, `@/lib/i18n`, `@/contexts/PlatformContext`, `@/hooks/useAuditLog`, `@/components/platform/RoleGate`
 
-**Deliverables:**
-- Path analysis between two selected nodes
-- Timeline scrubber for temporal analysis
-- vizesepetim correlation alerts in entity dossier
-
----
-
-### Phase 3: Operational Workflow (Days 8-10)
-
-**Goal**: Make Meridian usable for case decisions with vizesepetim data.
-
-| Task | Priority | Effort |
-|------|----------|--------|
-| **Red Flag Summary**: Top 3 reasons including vizesepetim signals | Critical | 4h |
-| **Auto-Decision Justification**: Include external data signals | High | 6h |
-| **PDF Export**: One-page case summary with vizesepetim flags | Critical | 6h |
-| **Batch Document Upload**: Multi-file upload with progress | High | 4h |
-| **vizesepetim Data Panel**: Show raw external data in dossier | High | 3h |
-
-**Deliverables:**
-- Case summary shows "Source: vizesepetim.com" attribution
-- Refusal justification includes "Mobile number linked to 3 other applications"
-- PDF export with external data section
-
----
-
-### Phase 4: Demo Infrastructure (Days 11-12)
-
-**Goal**: Bulletproof demo including simulated vizesepetim data flow.
-
-| Task | Priority | Effort |
-|------|----------|--------|
-| **Demo Controls Panel** (`?demo=true`) | Critical | 4h |
-| **vizesepetim Webhook Simulator**: Button to inject test applicants | Critical | 2h |
-| **Scenario Presets**: Include "External Data Fraud Ring" scenario | High | 3h |
-| **Update Guided Tour**: Include vizesepetim integration step | High | 2h |
-| **Turkish Localization**: Critical UI labels | High | 4h |
-
-**Demo Script Addition:**
-"Watch as a new applicant arrives from vizesepetim.com in real-time... Notice how the system immediately correlates their mobile number with an existing flagged network."
-
-**Deliverables:**
-- Simulated webhook button triggers live data ingestion
-- New tour step explaining external data integration
-- Demo scenario showing fraud detection across platforms
-
----
-
-### Phase 5: Security & Sovereignty (Days 13-14)
-
-**Goal**: Secure external data handling and RBAC.
-
-| Task | Priority | Effort |
-|------|----------|--------|
-| **HMAC Webhook Verification**: Document and test | Critical | 2h |
-| **vizesepetim Secret Management**: Store API key securely | Critical | 1h |
-| **Basic RBAC**: Analyst vs Supervisor roles | Critical | 6h |
-| **Audit Trail**: Log all webhook receipts | High | 3h |
-| **Data Retention Policy**: Auto-purge vizesepetim data after X days | Medium | 2h |
-| **API Documentation**: Create integration spec for vizesepetim | Critical | 3h |
-
-**Security Deliverables:**
-- Webhook signature validation documented
-- No raw mobile numbers stored (only hashes)
-- Complete audit log of external data ingestion
-- Integration spec PDF for vizesepetim team
-
----
-
-## Technical Implementation Details
-
-### New Database Tables
-
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  vizesepetim_applicants                                        │
-├─────────────────────────────────────────────────────────────────┤
-│  ├── id (uuid, primary key)                                    │
-│  ├── external_id (text, unique)                                │
-│  ├── mobile_number_hash (text) -- SHA-256 hashed               │
-│  ├── ip_address (text)                                         │
-│  ├── ip_country (text) -- resolved via geolocation             │
-│  ├── ip_is_vpn (boolean) -- VPN/proxy detection flag           │
-│  ├── gender (text: 'male' | 'female' | 'other')                │
-│  ├── target_country (text)                                     │
-│  ├── linked_entity_id (text, FK → demo_fraud_nodes.node_id)    │
-│  ├── processed_at (timestamp)                                  │
-│  ├── metadata (jsonb)                                          │
-│  └── created_at (timestamp, default now())                     │
-├─────────────────────────────────────────────────────────────────┤
-│  entity_documents (junction table)                             │
-├─────────────────────────────────────────────────────────────────┤
-│  ├── id (uuid, primary key)                                    │
-│  ├── entity_id (text, FK → demo_fraud_nodes.node_id)          │
-│  ├── document_id (uuid, FK → vault_documents.id)              │
-│  └── linked_at (timestamp)                                     │
-├─────────────────────────────────────────────────────────────────┤
-│  platform_audit_log                                            │
-├─────────────────────────────────────────────────────────────────┤
-│  ├── id (uuid, primary key)                                    │
-│  ├── action (text: 'webhook_received', 'entity_created', etc.) │
-│  ├── source (text: 'vizesepetim', 'system', 'user')           │
-│  ├── target_id (text)                                          │
-│  ├── user_role (text)                                          │
-│  ├── context (jsonb)                                           │
-│  └── created_at (timestamp)                                    │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### New Edge Function: vizesepetim-webhook
-
-```text
-supabase/functions/vizesepetim-webhook/index.ts
-├── HMAC-SHA256 signature verification
-├── Mobile number SHA-256 hashing
-├── IP geolocation lookup (using free service)
-├── VPN/proxy detection
-├── Entity creation or linking
-├── Audit log insertion
-└── Response with processing status
-```
-
-### New Components
-
-```text
-src/
-├── components/platform/
-│   ├── analytics/
-│   │   ├── PathAnalysis.tsx
-│   │   ├── TimeSlider.tsx
-│   │   └── ClusterMetrics.tsx
-│   ├── external/
-│   │   ├── VizesepetimPanel.tsx      # Show incoming external data
-│   │   ├── CorrelationAlerts.tsx     # Mobile/IP sharing warnings
-│   │   └── WebhookSimulator.tsx      # Demo: inject test data
-│   ├── export/
-│   │   ├── CasePDFExport.tsx
-│   │   └── DecisionJustification.tsx
-│   └── admin/
-│       ├── DemoControlsPanel.tsx
-│       └── ScenarioSelector.tsx
-└── hooks/
-    ├── useVizesepetimData.ts         # Fetch/subscribe to external applicants
-    ├── usePathAnalysis.ts
-    └── useAuditLog.ts
-```
-
-### Webhook Request/Response Format
-
-**Incoming (from vizesepetim.com):**
-```json
-POST /functions/v1/vizesepetim-webhook
-Headers:
-  X-Signature: sha256=abc123...
-  X-Timestamp: 1707148800
-Body:
-{
-  "applicant_id": "vs-12345",
-  "mobile_number": "+905551234567",
-  "ip_address": "185.123.45.67",
-  "gender": "male",
-  "target_country": "Germany"
-}
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "entity_id": "app-vs-12345",
-  "correlations": {
-    "mobile_matches": 2,
-    "ip_matches": 5
-  },
-  "flags": ["ip_vpn_detected", "mobile_duplicate"]
-}
-```
-
----
-
-## Success Criteria for MFA Demo
-
-| Criterion | Target |
-|-----------|--------|
-| **vizesepetim Integration** | Live webhook receives data and creates entities in < 2 seconds |
-| **Correlation Detection** | Demo shows "This mobile used by 3 other applicants" |
-| **Flow Continuity** | vizesepetim applicant → graph node → documents → case decision |
-| **Explainability** | Every flag shows source ("vizesepetim: duplicate mobile") |
-| **Path Analysis** | Show connection between external applicant and fraud network |
-| **Export** | PDF includes "External Data Sources: vizesepetim.com" |
-| **Security** | Webhook signature validation demonstrated |
-
----
-
-## API Secret Required
-
-Before implementation, you will need to provide or receive from vizesepetim.com:
-- **VIZESEPETIM_WEBHOOK_SECRET**: Shared secret for HMAC signature verification
-
-This will be stored securely as a backend secret and never exposed to the frontend.
-
----
-
-## Timeline Summary
-
-```text
-Week 1:
-├── Days 1-2: vizesepetim webhook + database tables
-├── Day 3: Cross-module linking + entity correlation
-├── Days 4-5: Path Analysis + vizesepetim correlation panel
-├── Days 6-7: Explainable Flags + Time Slider
-
-Week 2:
-├── Days 8-9: PDF Export + Red Flag Summary with external data
-├── Days 10-11: Demo Controls + Webhook Simulator
-├── Days 12-13: RBAC + Audit + Turkish Labels
-└── Day 14: Final polish + integration test with vizesepetim
-```
-
----
-
-## Quick Wins for Maximum Demo Impact
-
-1. **Webhook Simulator Button** → Inject a test applicant and watch it appear in the graph
-2. **Correlation Badge** → Show "3 linked via mobile" on entity cards
-3. **IP Flag Indicator** → Red "VPN" badge when IP is suspicious
-4. **External Data Tab** → New tab in EntityDossier showing vizesepetim raw data
-5. **Real-time Toast** → "New applicant from vizesepetim.com" notification on webhook receipt
+### Risk Considerations
+- The panel uses only hardcoded demo data (no new database tables needed)
+- OSINT scan is purely simulated -- no external API calls
+- Tour action must handle the case where the user is already in social view
 
