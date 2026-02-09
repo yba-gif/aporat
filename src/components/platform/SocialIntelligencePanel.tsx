@@ -228,6 +228,7 @@ const SCAN_STEPS = [
   'scanningInstagram',
   'scanningLinkedin',
   'scanningTelegram',
+  'searchingWeb',
   'generatingAssessment',
 ] as const;
 
@@ -247,6 +248,10 @@ export function SocialIntelligencePanel() {
     newFindings?: OsintFinding[];
     recommendedActions?: string[];
     confidence?: number;
+  } | null>(null);
+  const [webIntel, setWebIntel] = useState<{
+    results: Array<{ query: string; content: string; citations: string[] }>;
+    searchedAt?: string;
   } | null>(null);
 
   // Sync with PlatformContext selectedEntityId
@@ -277,6 +282,7 @@ export function SocialIntelligencePanel() {
     setScanComplete(false);
     setScanStep(0);
     setAiAnalysis(null);
+    setWebIntel(null);
 
     log({
       action: 'entity_flagged',
@@ -286,7 +292,7 @@ export function SocialIntelligencePanel() {
       context: { scanType: 'osint', entityName: selectedEntity.name },
     });
 
-    // Animate through scan steps while API call runs
+    // Animate through scan steps while API calls run
     let step = 0;
     const interval = setInterval(() => {
       step++;
@@ -295,8 +301,9 @@ export function SocialIntelligencePanel() {
       }
     }, 1200);
 
-    try {
-      const { data, error } = await supabase.functions.invoke('xai-osint', {
+    // Run xAI and Perplexity in parallel
+    const [xaiResult, perplexityResult] = await Promise.allSettled([
+      supabase.functions.invoke('xai-osint', {
         body: {
           entityName: selectedEntity.name,
           entityType: selectedEntity.type,
@@ -304,18 +311,24 @@ export function SocialIntelligencePanel() {
           connections: selectedEntity.connections,
           existingFindings: selectedEntity.osintFindings,
         },
-      });
+      }),
+      supabase.functions.invoke('perplexity-osint', {
+        body: {
+          entityName: selectedEntity.name,
+          entityType: selectedEntity.type,
+          socialHandles: selectedEntity.socialProfiles.map(p => p.handle),
+        },
+      }),
+    ]);
 
-      clearInterval(interval);
+    clearInterval(interval);
 
-      if (error) {
-        console.error('xAI OSINT error:', error);
-        toast.error('OSINT scan failed — using cached data');
-      } else if (data?.error) {
-        console.error('xAI OSINT error:', data.error);
-        toast.error(data.error);
+    // Process xAI results
+    if (xaiResult.status === 'fulfilled') {
+      const { data, error } = xaiResult.value;
+      if (error || data?.error) {
+        console.error('xAI OSINT error:', error || data?.error);
       } else {
-        // Map AI findings to OsintFinding format
         const aiFindings = (data.newFindings || []).map((f: any, idx: number) => ({
           id: `ai-${Date.now()}-${idx}`,
           source: f.source || 'xAI Grok',
@@ -331,10 +344,19 @@ export function SocialIntelligencePanel() {
           confidence: data.confidence || 0.5,
         });
       }
-    } catch (err) {
-      clearInterval(interval);
-      console.error('xAI OSINT call failed:', err);
-      toast.error('OSINT scan failed — network error');
+    }
+
+    // Process Perplexity results
+    if (perplexityResult.status === 'fulfilled') {
+      const { data, error } = perplexityResult.value;
+      if (error || data?.error) {
+        console.error('Perplexity OSINT error:', error || data?.error);
+      } else {
+        setWebIntel({
+          results: data.results || [],
+          searchedAt: data.searchedAt,
+        });
+      }
     }
 
     setScanStep(SCAN_STEPS.length);
@@ -454,6 +476,45 @@ export function SocialIntelligencePanel() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Perplexity Web Intelligence Results */}
+      {webIntel && scanComplete && webIntel.results.length > 0 && (
+        <div className="px-4 py-3 border-b border-border bg-secondary/10 space-y-3">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-accent" />
+            <span className="text-xs font-medium">Web Intelligence (Perplexity)</span>
+            {webIntel.searchedAt && (
+              <span className="text-[10px] font-mono text-muted-foreground ml-auto">
+                {new Date(webIntel.searchedAt).toLocaleTimeString()}
+              </span>
+            )}
+          </div>
+          {webIntel.results.map((result, idx) => (
+            <div key={idx} className="space-y-1.5">
+              <p className="text-[10px] font-mono text-muted-foreground truncate">🔍 {result.query}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
+                {result.content}
+              </p>
+              {result.citations.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {result.citations.slice(0, 3).map((url, cidx) => (
+                    <a
+                      key={cidx}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[9px] text-accent hover:underline truncate max-w-[200px] inline-flex items-center gap-0.5"
+                    >
+                      <ExternalLink className="w-2 h-2 shrink-0" />
+                      {new URL(url).hostname}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 
