@@ -15,11 +15,12 @@ export type AuditAction =
   | 'path_analysis'
   | 'webhook_received'
   | 'entity_created'
-  | 'twitter_lookup';
+  | 'twitter_lookup'
+  | 'social_analyzer_lookup';
 
 export type AuditSource = 'user' | 'system' | 'vizesepetim';
 
-export type AuditTargetType = 'entity' | 'document' | 'case' | 'applicant' | 'alert';
+export type AuditTargetType = 'entity' | 'document' | 'case' | 'applicant' | 'alert' | 'username';
 
 interface LogOptions {
   action: AuditAction;
