@@ -263,6 +263,26 @@ export function SocialIntelligencePanel() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [twitterData, setTwitterData] = useState<Record<string, any>>({});
   const [twitterLoading, setTwitterLoading] = useState<string | null>(null);
+  const [lookupUsername, setLookupUsername] = useState('');
+  const [lookupRunning, setLookupRunning] = useState(false);
+  const [lookupResult, setLookupResult] = useState<{
+    username: string;
+    totalPlatforms: number;
+    platforms: Array<{
+      platform: string;
+      link: string;
+      title: string;
+      username: string;
+      country: string;
+      language: string;
+      type: string;
+      text: string;
+    }>;
+    riskIndicators: string[];
+    countries: string[];
+    scannedAt: string;
+  } | null>(null);
+  const [lookupError, setLookupError] = useState<string | null>(null);
 
   // Sync with PlatformContext selectedEntityId
   useEffect(() => {
@@ -517,6 +537,38 @@ export function SocialIntelligencePanel() {
     setTwitterLoading(null);
   }, [selectedEntity, log]);
 
+  const runUsernameLookup = useCallback(async () => {
+    if (!lookupUsername.trim()) return;
+    setLookupRunning(true);
+    setLookupError(null);
+    setLookupResult(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('social-analyzer', {
+        body: { username: lookupUsername.trim() },
+      });
+      if (error || data?.error) {
+        setLookupError(data?.error || error?.message || 'Unknown error');
+        toast.error(`Social Analyzer failed: ${data?.error || error?.message}`);
+      } else {
+        setLookupResult(data);
+        toast.success(`Found ${data.totalPlatforms} platforms for @${data.username}`);
+        log({
+          action: 'social_analyzer_lookup',
+          source: 'system',
+          targetId: data.username,
+          targetType: 'username',
+          context: { totalPlatforms: data.totalPlatforms, countries: data.countries },
+        });
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      setLookupError(msg);
+      toast.error('Social Analyzer error');
+    }
+    setLookupRunning(false);
+  }, [lookupUsername, log]);
+
   const handleConnectionClick = (conn: SocialConnection) => {
     if (conn.entityId) {
       navigateToEntity(conn.entityId);
@@ -730,6 +782,10 @@ export function SocialIntelligencePanel() {
               <TabsTrigger value="history" className="flex-1 data-[state=active]:bg-secondary rounded-sm text-xs gap-1">
                 <History className="w-3 h-3" />
                 {t('scanHistory')}
+              </TabsTrigger>
+              <TabsTrigger value="lookup" className="flex-1 data-[state=active]:bg-secondary rounded-sm text-xs gap-1">
+                <Search className="w-3 h-3" />
+                Username Lookup
               </TabsTrigger>
             </TabsList>
 
@@ -1170,6 +1226,150 @@ export function SocialIntelligencePanel() {
                     </div>
                   );
                 })
+              )}
+            </TabsContent>
+
+            {/* Username Lookup Tab */}
+            <TabsContent value="lookup" className="flex-1 overflow-auto p-5 space-y-4 m-0">
+              <div className="flex items-center gap-2 mb-1">
+                <Search className="w-4 h-4 text-accent" />
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">SOCIAL ANALYZER — USERNAME LOOKUP</p>
+              </div>
+
+              {/* Search Input */}
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={lookupUsername}
+                    onChange={(e) => setLookupUsername(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && !lookupRunning && runUsernameLookup()}
+                    placeholder="Enter username (e.g. john_doe)"
+                    className="w-full pl-10 pr-4 py-2.5 bg-secondary/30 border border-border rounded-lg text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent"
+                  />
+                </div>
+                <Button
+                  onClick={runUsernameLookup}
+                  disabled={lookupRunning || !lookupUsername.trim()}
+                  className="gap-2 shrink-0"
+                  size="default"
+                >
+                  {lookupRunning ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Scanning...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="w-4 h-4" />
+                      Scan
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {lookupRunning && (
+                <div className="flex flex-col items-center justify-center py-12 gap-3">
+                  <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                  <p className="text-sm text-muted-foreground">Scanning 1000+ platforms for <span className="font-mono text-foreground">@{lookupUsername}</span>...</p>
+                  <p className="text-xs text-muted-foreground">This may take 1–3 minutes</p>
+                </div>
+              )}
+
+              {lookupError && !lookupRunning && (
+                <div className="p-4 border border-destructive/30 bg-destructive/10 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-destructive" />
+                    <p className="text-sm text-destructive">{lookupError}</p>
+                  </div>
+                </div>
+              )}
+
+              {lookupResult && !lookupRunning && (
+                <div className="space-y-4">
+                  {/* Summary */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-4 border border-border rounded-lg text-center bg-secondary/10">
+                      <p className="text-2xl font-mono text-foreground">{lookupResult.totalPlatforms}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Platforms Found</p>
+                    </div>
+                    <div className="p-4 border border-border rounded-lg text-center bg-secondary/10">
+                      <p className="text-2xl font-mono text-foreground">{lookupResult.countries.length}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Countries</p>
+                    </div>
+                    <div className="p-4 border border-border rounded-lg text-center bg-secondary/10">
+                      <p className={`text-2xl font-mono ${lookupResult.riskIndicators.length > 0 ? 'text-destructive' : 'text-accent'}`}>
+                        {lookupResult.riskIndicators.length}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider mt-1">Risk Indicators</p>
+                    </div>
+                  </div>
+
+                  {/* Risk Indicators */}
+                  {lookupResult.riskIndicators.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Risk Indicators</p>
+                      {lookupResult.riskIndicators.map((indicator, idx) => (
+                        <div key={idx} className="p-3 border border-destructive/30 bg-destructive/5 rounded-lg flex items-start gap-2">
+                          <AlertTriangle className="w-3.5 h-3.5 text-destructive mt-0.5 shrink-0" />
+                          <p className="text-sm text-muted-foreground">{indicator}</p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Detected Platforms */}
+                  {lookupResult.platforms.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                        Detected Platforms ({lookupResult.platforms.length})
+                      </p>
+                      <div className="space-y-1.5 max-h-[400px] overflow-auto">
+                        {lookupResult.platforms.map((p, idx) => (
+                          <div key={idx} className="p-3 border border-border rounded-lg flex items-center justify-between hover:bg-secondary/20 transition-colors">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">{p.platform}</p>
+                                {p.title && <p className="text-[10px] text-muted-foreground truncate">{p.title}</p>}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              {p.country !== 'unavailable' && (
+                                <span className="text-[10px] px-1.5 py-0.5 bg-secondary rounded text-muted-foreground">{p.country}</span>
+                              )}
+                              {p.link && (
+                                <a href={p.link} target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {lookupResult.totalPlatforms === 0 && (
+                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground gap-2">
+                      <Shield className="w-8 h-8 opacity-40" />
+                      <p className="text-sm">No platforms detected for this username</p>
+                    </div>
+                  )}
+
+                  <p className="text-[10px] text-muted-foreground text-right">
+                    Scanned at {new Date(lookupResult.scannedAt).toLocaleString()}
+                  </p>
+                </div>
+              )}
+
+              {!lookupResult && !lookupRunning && !lookupError && (
+                <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-3">
+                  <Search className="w-10 h-10 opacity-30" />
+                  <p className="text-sm">Enter a username to scan across 1000+ platforms</p>
+                  <p className="text-xs">Identifies social media presence, risk indicators, and geographic footprint</p>
+                </div>
               )}
             </TabsContent>
           </Tabs>
