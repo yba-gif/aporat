@@ -15,6 +15,7 @@ import { AlertPanel } from '@/components/platform/AlertPanel';
 import { MarisPanel } from '@/components/platform/MarisPanel';
 import { MeridianPanel } from '@/components/platform/MeridianPanel';
 import { SocialIntelligencePanel } from '@/components/platform/SocialIntelligencePanel';
+import { GeopoliticalPanel } from '@/components/platform/GeopoliticalPanel';
 import { EntityDossier } from '@/components/platform/nautica/EntityDossier';
 import { VizesepetimPanel } from '@/components/platform/external/VizesepetimPanel';
 import { DemoControlsPanel } from '@/components/platform/admin/DemoControlsPanel';
@@ -31,6 +32,7 @@ import { useRealtimeAlerts } from '@/hooks/useRealtimeAlerts';
 import { usePlatformKeyboard } from '@/hooks/usePlatformKeyboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSearchParams } from 'react-router-dom';
+import { MapIcon } from 'lucide-react';
 import { 
   Network, 
   FileSearch, 
@@ -64,7 +66,7 @@ import {
 } from '@/components/ui/popover';
 import { useState, useEffect } from 'react';
 
-type NauticaView = 'graph' | 'social'; // kept for local reference
+type NauticaView = 'graph' | 'social' | 'geopolitical'; // kept for local reference
 
 const navItems = [
   { id: 'maris' as const, label: 'Maris', sublabel: 'Evidence', icon: Database },
@@ -143,7 +145,12 @@ function PlatformContent() {
   const getModuleTitle = () => {
     switch (activeModule) {
       case 'maris': return { title: 'Evidence Ingestion', subtitle: 'Document processing & chain-of-custody' };
-      case 'nautica': return { title: 'Fraud Network Analysis', subtitle: nauticaView === 'graph' ? 'Entity resolution & integrity verification' : 'OSINT & social intelligence' };
+      case 'nautica': return { 
+        title: 'Fraud Network Analysis', 
+        subtitle: nauticaView === 'graph' ? 'Entity resolution & integrity verification' 
+          : nauticaView === 'social' ? 'OSINT & social intelligence' 
+          : 'Real-time geopolitical context' 
+      };
       case 'meridian': return { title: 'Policy Governance', subtitle: 'Compliance & decision workflows' };
     }
   };
@@ -197,7 +204,7 @@ function PlatformContent() {
           {activeModule === 'nautica' && (
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                {nauticaView === 'graph' ? 'Network Graph' : 'Social Intel'}
+                {nauticaView === 'graph' ? 'Network Graph' : nauticaView === 'social' ? 'Social Intel' : 'Geopolitical'}
                 <ChevronDown className="w-3 h-3" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
@@ -211,6 +218,10 @@ function PlatformContent() {
                 >
                   <Globe className="w-4 h-4 mr-2" />
                   Social Intelligence
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setNauticaView('geopolitical')}>
+                  <MapIcon className="w-4 h-4 mr-2" />
+                  Geopolitical Context
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -310,9 +321,13 @@ function PlatformContent() {
                   </div>
                 )}
               </>
-            ) : (
+            ) : nauticaView === 'social' ? (
               <div data-tour="social-panel" className="flex-1">
                 <SocialIntelligencePanel />
+              </div>
+            ) : (
+              <div className="flex-1">
+                <GeopoliticalPanel />
               </div>
             )}
           </>
