@@ -18,8 +18,11 @@ import {
   Users,
   Briefcase,
   Route,
-  Target
+  Target,
+  TrendingUp,
+  Shield
 } from 'lucide-react';
+import { useCountryRisk } from '@/hooks/useCountryRisk';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -89,6 +92,10 @@ export function EntityDossier() {
   const [documents, setDocuments] = useState<LinkedDocument[]>([]);
   const [connections, setConnections] = useState<ConnectedEntity[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Geopolitical risk enrichment
+  const nationality = entity?.metadata?.nationality as string | undefined;
+  const { countryRisk, isHighRisk, riskBoost, isLoading: isLoadingRisk } = useCountryRisk(nationality);
 
   const fetchEntityData = useCallback(async () => {
     if (!selectedEntityId) {
@@ -326,6 +333,15 @@ export function EntityDossier() {
       });
     }
 
+    // Geopolitical risk enrichment
+    if (isHighRisk && countryRisk) {
+      factors.push({
+        factor: `Nationality: ${countryRisk.country} (instability ${countryRisk.instabilityScore})`,
+        weight: riskBoost,
+        source: 'Geopolitical Intelligence',
+      });
+    }
+
     return factors;
   };
 
@@ -396,6 +412,59 @@ export function EntityDossier() {
             flags={(entity.metadata?.flags as string[]) || []}
             metadata={entity.metadata}
           />
+        )}
+
+        {/* Geopolitical Country Risk */}
+        {entity.nodeType === 'applicant' && nationality && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-accent" />
+              <span className="text-sm font-medium">Country Risk</span>
+              {isLoadingRisk && <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />}
+            </div>
+            {countryRisk ? (
+              <div className={`p-3 rounded-lg border ${
+                isHighRisk ? 'border-destructive/50 bg-destructive/10' : 'border-border bg-secondary/20'
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium">{countryRisk.country}</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {countryRisk.trend === 'rising' && <TrendingUp className="w-3 h-3 text-destructive" />}
+                    {countryRisk.trend === 'declining' && <TrendingUp className="w-3 h-3 text-accent rotate-180" />}
+                    <span className={`text-lg font-bold font-mono ${
+                      countryRisk.instabilityScore >= 80 ? 'text-destructive' :
+                      countryRisk.instabilityScore >= 60 ? 'text-yellow-500' : 'text-accent'
+                    }`}>
+                      {countryRisk.instabilityScore}
+                    </span>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-wider">Events</span>
+                    <span className="font-mono">{countryRisk.conflictEvents}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[10px] uppercase tracking-wider">Fatalities</span>
+                    <span className="font-mono">{countryRisk.fatalities}</span>
+                  </div>
+                </div>
+                {isHighRisk && (
+                  <div className="mt-2 flex items-center gap-1.5 text-xs text-destructive">
+                    <AlertTriangle className="w-3 h-3" />
+                    <span>Risk boost: +{riskBoost} from geopolitical instability</span>
+                  </div>
+                )}
+              </div>
+            ) : !isLoadingRisk ? (
+              <p className="text-xs text-muted-foreground p-2 bg-secondary/20 rounded">
+                No geopolitical risk data for nationality: {nationality}
+              </p>
+            ) : null}
+          </div>
         )}
 
         {/* Risk Factors Section (fallback for entities without flags) */}
