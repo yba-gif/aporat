@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.geopolitical-data]
 verify_jwt = false
+
+[functions.social-analyzer]
+verify_jwt = false
