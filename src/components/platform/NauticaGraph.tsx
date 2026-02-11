@@ -21,6 +21,7 @@ export interface GraphNode extends NodeObject {
   caseId?: string | null;
   metadata: Record<string, unknown>;
   cluster?: string;
+  geoRisk?: number; // instability score from geopolitical data
 }
 
 export interface GraphLink extends LinkObject {
@@ -56,6 +57,18 @@ const NODE_COLORS: Record<string, string> = {
 
 const FLAGGED_RING_COLOR = '#ef4444';
 const SELECTED_COLOR = '#22d3ee';
+const GEO_RISK_COLOR = '#f97316'; // Orange for geopolitical risk
+const GEO_RISK_THRESHOLD = 60;
+
+// ISO 2-letter to country name for matching geopolitical data
+const ISO_TO_COUNTRY: Record<string, string> = {
+  IR: 'Iran', RU: 'Russia', UA: 'Ukraine', CN: 'China', KR: 'South Korea',
+  EG: 'Egypt', CZ: 'Czech Republic', SY: 'Syria', AF: 'Afghanistan',
+  IQ: 'Iraq', PK: 'Pakistan', NG: 'Nigeria', SO: 'Somalia', YE: 'Yemen',
+  LY: 'Libya', SD: 'Sudan', MM: 'Myanmar', VE: 'Venezuela', CD: 'Congo',
+  ET: 'Ethiopia', ML: 'Mali', BF: 'Burkina Faso', MZ: 'Mozambique',
+  CM: 'Cameroon', TD: 'Chad', NE: 'Niger', CF: 'Central African Republic',
+};
 
 const NETWORK_PATTERNS: Record<string, string[]> = {
   'Visa Mill': ['agent-1', 'app-1', 'app-2', 'app-3', 'app-4', 'app-5', 'app-6', 'app-7', 'app-8', 'doc-1', 'addr-1'],
@@ -98,20 +111,39 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     async function fetchGraphData() {
       setLoading(true);
       
-      const [nodesRes, edgesRes] = await Promise.all([
+      const [nodesRes, edgesRes, geoRes] = await Promise.all([
         supabase.from('demo_fraud_nodes').select('*'),
         supabase.from('demo_fraud_edges').select('*'),
+        supabase.functions.invoke('geopolitical-data', {
+          body: { sources: ['acled', 'gdelt'] },
+        }).catch(() => ({ data: null, error: null })),
       ]);
+
+      // Build country risk lookup
+      const countryRiskMap = new Map<string, number>();
+      if (geoRes?.data?.countryRisks) {
+        for (const cr of geoRes.data.countryRisks) {
+          countryRiskMap.set(cr.country.toLowerCase(), cr.instabilityScore);
+        }
+      }
 
       if (nodesRes.data && edgesRes.data) {
         const nodes: GraphNode[] = nodesRes.data.map((n) => {
-          // Detect cluster based on node_id patterns
           let cluster: string | undefined;
           for (const [network, ids] of Object.entries(NETWORK_PATTERNS)) {
             if (ids.some(id => n.node_id.startsWith(id.split('-')[0]))) {
               cluster = network;
               break;
             }
+          }
+
+          // Resolve geo-risk from nationality
+          let geoRisk: number | undefined;
+          const meta = (n.metadata as Record<string, unknown>) || {};
+          const nationality = meta.nationality as string | undefined;
+          if (nationality) {
+            const countryName = ISO_TO_COUNTRY[nationality.toUpperCase()] || nationality;
+            geoRisk = countryRiskMap.get(countryName.toLowerCase());
           }
           
           return {
@@ -121,8 +153,9 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
             flagged: n.flagged || false,
             riskScore: n.risk_score || 0,
             caseId: n.case_id || null,
-            metadata: (n.metadata as Record<string, unknown>) || {},
+            metadata: meta,
             cluster,
+            geoRisk,
           };
         });
 
@@ -311,8 +344,43 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
     const isHovered = hoveredNode === node.id;
     const isInPath = pathAnalysis.isNodeInPath(node.id);
     const isPathEndpoint = pathAnalysis.sourceNode === node.id || pathAnalysis.targetNode === node.id;
+    const hasGeoRisk = (node.geoRisk ?? 0) >= GEO_RISK_THRESHOLD;
     const x = node.x || 0;
     const y = node.y || 0;
+
+    // Geo-risk indicator — outer orange ring (drawn first, behind everything)
+    if (hasGeoRisk) {
+      ctx.beginPath();
+      ctx.arc(x, y, size + 6, 0, 2 * Math.PI);
+      ctx.strokeStyle = GEO_RISK_COLOR;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+      
+      // Small globe marker at top-right of node
+      const markerX = x + size * 0.7;
+      const markerY = y - size * 0.7;
+      const markerSize = Math.max(3.5, 5 / globalScale);
+      ctx.beginPath();
+      ctx.arc(markerX, markerY, markerSize, 0, 2 * Math.PI);
+      ctx.fillStyle = GEO_RISK_COLOR;
+      ctx.fill();
+      ctx.strokeStyle = '#00000066';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+      
+      // Globe lines inside marker
+      ctx.beginPath();
+      ctx.ellipse(markerX, markerY, markerSize * 0.6, markerSize, 0, 0, 2 * Math.PI);
+      ctx.strokeStyle = '#ffffff88';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(markerX - markerSize, markerY);
+      ctx.lineTo(markerX + markerSize, markerY);
+      ctx.strokeStyle = '#ffffff88';
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    }
 
     // Flagged indicator - pulsing outer ring
     if (node.flagged) {
@@ -614,6 +682,15 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
           />
           <span className="text-[10px] font-mono text-cyan-400">
             selected
+          </span>
+        </div>
+        <div className="flex items-center gap-2 mt-1.5">
+          <span 
+            className="w-3 h-3 rounded-full border-2" 
+            style={{ borderColor: GEO_RISK_COLOR }}
+          />
+          <span className="text-[10px] font-mono" style={{ color: GEO_RISK_COLOR }}>
+            geo-risk
           </span>
         </div>
       </div>
