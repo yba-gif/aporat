@@ -321,42 +321,6 @@ export type Database = {
         }
         Relationships: []
       }
-      social_analyzer_results: {
-        Row: {
-          countries: Json
-          created_at: string
-          id: string
-          platforms: Json
-          risk_indicators: Json
-          scanned_at: string
-          scanned_by: string | null
-          total_platforms: number
-          username: string
-        }
-        Insert: {
-          countries?: Json
-          created_at?: string
-          id?: string
-          platforms?: Json
-          risk_indicators?: Json
-          scanned_at?: string
-          scanned_by?: string | null
-          total_platforms?: number
-          username: string
-        }
-        Update: {
-          countries?: Json
-          created_at?: string
-          id?: string
-          platforms?: Json
-          risk_indicators?: Json
-          scanned_at?: string
-          scanned_by?: string | null
-          total_platforms?: number
-          username?: string
-        }
-        Relationships: []
-      }
       user_roles: {
         Row: {
           created_at: string

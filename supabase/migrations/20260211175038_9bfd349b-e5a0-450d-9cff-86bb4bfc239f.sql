@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS public.social_analyzer_results;
