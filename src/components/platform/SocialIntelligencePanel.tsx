@@ -284,6 +284,26 @@ export function SocialIntelligencePanel() {
   } | null>(null);
   const [lookupError, setLookupError] = useState<string | null>(null);
 
+  const [lookupHistory, setLookupHistory] = useState<any[]>([]);
+  const [lookupHistoryLoading, setLookupHistoryLoading] = useState(false);
+
+  const fetchLookupHistory = useCallback(async () => {
+    setLookupHistoryLoading(true);
+    const { data, error } = await supabase
+      .from('social_analyzer_results')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    if (!error && data) {
+      setLookupHistory(data);
+    }
+    setLookupHistoryLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchLookupHistory();
+  }, [fetchLookupHistory]);
+
   // Sync with PlatformContext selectedEntityId
   useEffect(() => {
     if (selectedEntityId) {
@@ -560,6 +580,23 @@ export function SocialIntelligencePanel() {
           targetType: 'username',
           context: { totalPlatforms: data.totalPlatforms, countries: data.countries },
         });
+
+        // Persist to database for audit trail
+        const { error: dbError } = await supabase
+          .from('social_analyzer_results')
+          .insert([{
+            username: data.username,
+            total_platforms: data.totalPlatforms,
+            platforms: data.platforms,
+            risk_indicators: data.riskIndicators,
+            countries: data.countries,
+            scanned_at: data.scannedAt,
+          }]);
+        if (dbError) {
+          console.error('Failed to persist Social Analyzer result:', dbError);
+        } else {
+          fetchLookupHistory();
+        }
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Unknown error';
@@ -1369,6 +1406,61 @@ export function SocialIntelligencePanel() {
                   <Search className="w-10 h-10 opacity-30" />
                   <p className="text-sm">Enter a username to scan across 1000+ platforms</p>
                   <p className="text-xs">Identifies social media presence, risk indicators, and geographic footprint</p>
+                </div>
+              )}
+
+              {/* Lookup History */}
+              {lookupHistory.length > 0 && (
+                <div className="space-y-2 border-t border-border pt-4 mt-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <History className="w-4 h-4 text-accent" />
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Previous Lookups</p>
+                    <span className="text-[10px] text-muted-foreground ml-auto">{lookupHistory.length} records</span>
+                  </div>
+                  {lookupHistoryLoading ? (
+                    <div className="flex items-center justify-center py-4 text-muted-foreground gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-sm">Loading...</span>
+                    </div>
+                  ) : (
+                    lookupHistory.map((record) => {
+                      const risks = Array.isArray(record.risk_indicators) ? record.risk_indicators : [];
+                      const countries = Array.isArray(record.countries) ? record.countries : [];
+                      return (
+                        <div
+                          key={record.id}
+                          className="p-3 border border-border rounded-lg flex items-center justify-between hover:bg-secondary/20 transition-colors cursor-pointer"
+                          onClick={() => {
+                            setLookupUsername(record.username);
+                            setLookupResult({
+                              username: record.username,
+                              totalPlatforms: record.total_platforms,
+                              platforms: Array.isArray(record.platforms) ? record.platforms : [],
+                              riskIndicators: risks,
+                              countries,
+                              scannedAt: record.scanned_at || record.created_at,
+                            });
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <User className="w-3.5 h-3.5 text-muted-foreground" />
+                            <div>
+                              <p className="text-sm font-mono">@{record.username}</p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {new Date(record.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs">
+                            <span className="font-mono">{record.total_platforms} platforms</span>
+                            {risks.length > 0 && (
+                              <span className="text-destructive font-mono">{risks.length} risks</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               )}
             </TabsContent>
