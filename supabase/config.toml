@@ -2,3 +2,6 @@ project_id = "aszoekuhxvywxlthmivs"
 
 [functions.instagram-osint]
 verify_jwt = false
+
+[functions.geopolitical-data]
+verify_jwt = false

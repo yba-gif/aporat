@@ -32,7 +32,7 @@ export interface PlatformDocument {
 }
 
 type ActiveModule = 'maris' | 'nautica' | 'meridian';
-export type NauticaView = 'graph' | 'social';
+export type NauticaView = 'graph' | 'social' | 'geopolitical';
 
 interface PlatformContextValue {
   // Active module
