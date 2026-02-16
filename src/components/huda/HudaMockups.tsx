@@ -80,22 +80,22 @@ export function HudaMockups() {
 
         <div className="border border-border bg-card">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="border-b border-border px-4">
-              <TabsList className="bg-transparent h-12">
-                <TabsTrigger value="dashboard" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent">
+            <div className="border-b border-border px-4 overflow-x-auto">
+              <TabsList className="bg-transparent h-12 w-max min-w-full sm:w-auto">
+                <TabsTrigger value="dashboard" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-xs sm:text-sm whitespace-nowrap">
                   Kontrol Paneli
                 </TabsTrigger>
-                <TabsTrigger value="outreach" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent">
+                <TabsTrigger value="outreach" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-xs sm:text-sm whitespace-nowrap">
                   Erişim Motoru
                 </TabsTrigger>
-                <TabsTrigger value="field" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent">
+                <TabsTrigger value="field" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-xs sm:text-sm whitespace-nowrap">
                   Saha Operasyonları
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            <TabsContent value="dashboard" className="p-6 mt-0">
-              <div className="grid grid-cols-3 gap-4 mb-6">
+            <TabsContent value="dashboard" className="p-4 sm:p-6 mt-0">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
                 {[
                   { label: 'Toplam Erişim', value: '127.900', change: '+12,4% bu hafta' },
                   { label: 'Etkileşim Oranı', value: '%34,2', change: '+5,1% bu hafta' },
@@ -172,8 +172,8 @@ export function HudaMockups() {
               </div>
             </TabsContent>
 
-            <TabsContent value="outreach" className="p-6 mt-0">
-              <div className="grid md:grid-cols-3 gap-6">
+            <TabsContent value="outreach" className="p-4 sm:p-6 mt-0">
+              <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
                 <div className="md:col-span-2 space-y-4">
                   <div className="p-4 bg-background border border-border">
                     <p className="text-sm font-medium mb-3">Mesaj Oluşturucu</p>
@@ -245,9 +245,10 @@ export function HudaMockups() {
               </div>
             </TabsContent>
 
-            <TabsContent value="field" className="p-6 mt-0">
+            <TabsContent value="field" className="p-4 sm:p-6 mt-0">
               <div className="space-y-3">
-                <div className="grid grid-cols-5 gap-4 text-sm font-medium text-muted-foreground px-4 pb-2 border-b border-border">
+                {/* Desktop header */}
+                <div className="hidden sm:grid grid-cols-5 gap-4 text-sm font-medium text-muted-foreground px-4 pb-2 border-b border-border">
                   <span>Ekip</span>
                   <span>İlçe</span>
                   <span>Ziyaret</span>
@@ -258,20 +259,40 @@ export function HudaMockups() {
                   <div key={team.team}>
                     <div
                       onClick={() => setExpandedTeam(expandedTeam === team.team ? null : team.team)}
-                      className={`grid grid-cols-5 gap-4 items-center p-4 bg-background border transition-all duration-200 cursor-pointer ${
+                      className={`p-4 bg-background border transition-all duration-200 cursor-pointer ${
                         expandedTeam === team.team ? 'border-accent bg-accent/5' : 'border-border hover:border-accent/30'
                       }`}
                     >
-                      <p className="text-sm font-medium">{team.team}</p>
-                      <p className="text-sm text-muted-foreground">{team.district}</p>
-                      <p className="text-sm">{team.visits}</p>
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-accent rounded-full transition-all duration-700" style={{ width: `${team.coverage}%` }} />
+                      {/* Mobile layout */}
+                      <div className="sm:hidden space-y-2">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium">{team.team}</p>
+                          <p className="text-xs text-muted-foreground">{team.lastUpdate}</p>
                         </div>
-                        <span className="text-xs text-muted-foreground w-8">%{team.coverage}</span>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <span>{team.district}</span>
+                          <span>{team.visits} ziyaret</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-accent rounded-full transition-all duration-700" style={{ width: `${team.coverage}%` }} />
+                          </div>
+                          <span className="text-xs text-muted-foreground w-8">%{team.coverage}</span>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted-foreground">{team.lastUpdate}</p>
+                      {/* Desktop layout */}
+                      <div className="hidden sm:grid grid-cols-5 gap-4 items-center">
+                        <p className="text-sm font-medium">{team.team}</p>
+                        <p className="text-sm text-muted-foreground">{team.district}</p>
+                        <p className="text-sm">{team.visits}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                            <div className="h-full bg-accent rounded-full transition-all duration-700" style={{ width: `${team.coverage}%` }} />
+                          </div>
+                          <span className="text-xs text-muted-foreground w-8">%{team.coverage}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{team.lastUpdate}</p>
+                      </div>
                     </div>
                     {expandedTeam === team.team && (
                       <div className="p-4 bg-accent/5 border border-t-0 border-accent/20 animate-fade-up">
