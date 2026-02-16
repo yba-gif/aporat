@@ -31,13 +31,6 @@ export function HudaProblem() {
   return (
     <section className="section-padding bg-surface-elevated border-t border-border">
       <div className="container-wide">
-        <div className="flex items-center gap-3 mb-4">
-          <AlertTriangle className="w-5 h-5 text-destructive" />
-          <p className="text-label text-destructive">Sorun</p>
-        </div>
-        <h2 className="text-headline mb-12 max-w-2xl">
-          Mevcut kampanya araçları dağınık ve manuel
-        </h2>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {problems.map((problem) => (
