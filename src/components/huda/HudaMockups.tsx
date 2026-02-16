@@ -5,16 +5,16 @@ import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Resp
 import { Monitor, MousePointerClick, Send, CheckCircle2 } from 'lucide-react';
 
 const segmentData = [
-  { name: '18-25 Yas', value: 22, voters: '31,240' },
-  { name: '26-35 Yas', value: 28, voters: '39,760' },
-  { name: '36-50 Yas', value: 30, voters: '42,600' },
-  { name: '50+ Yas', value: 20, voters: '28,400' },
+  { name: '18-25 Yaş', value: 22, voters: '31.240' },
+  { name: '26-35 Yaş', value: 28, voters: '39.760' },
+  { name: '36-50 Yaş', value: 30, voters: '42.600' },
+  { name: '50+ Yaş', value: 20, voters: '28.400' },
 ];
 
 const performanceData = [
   { gun: 'Pzt', erisim: 12400, etkilesim: 3200 },
   { gun: 'Sal', erisim: 15800, etkilesim: 4100 },
-  { gun: 'Car', erisim: 18200, etkilesim: 5300 },
+  { gun: 'Çar', erisim: 18200, etkilesim: 5300 },
   { gun: 'Per', erisim: 21000, etkilesim: 6800 },
   { gun: 'Cum', erisim: 24500, etkilesim: 7200 },
   { gun: 'Cmt', erisim: 19800, etkilesim: 5900 },
@@ -24,18 +24,18 @@ const performanceData = [
 const COLORS = ['hsl(174, 62%, 32%)', 'hsl(174, 62%, 45%)', 'hsl(0, 0%, 45%)', 'hsl(0, 0%, 70%)'];
 
 const channels = [
-  { name: 'SMS', status: 'Aktif', reach: '34,200', icon: '📱' },
-  { name: 'WhatsApp', status: 'Aktif', reach: '28,100', icon: '💬' },
-  { name: 'Sosyal Medya', status: 'Aktif', reach: '52,400', icon: '📢' },
-  { name: 'Cagri Merkezi', status: 'Beklemede', reach: '12,800', icon: '📞' },
-  { name: 'Saha Ekibi', status: 'Aktif', reach: '8,600', icon: '🚶' },
+  { name: 'SMS', status: 'Aktif', reach: '34.200', icon: '📱' },
+  { name: 'WhatsApp', status: 'Aktif', reach: '28.100', icon: '💬' },
+  { name: 'Sosyal Medya', status: 'Aktif', reach: '52.400', icon: '📢' },
+  { name: 'Çağrı Merkezi', status: 'Beklemede', reach: '12.800', icon: '📞' },
+  { name: 'Saha Ekibi', status: 'Aktif', reach: '8.600', icon: '🚶' },
 ];
 
 const fieldTeams = [
-  { team: 'Ekip Alfa', district: 'Kadikoy', visits: 142, coverage: 78, lastUpdate: '2 dk once' },
-  { team: 'Ekip Beta', district: 'Besiktas', visits: 98, coverage: 62, lastUpdate: '5 dk once' },
-  { team: 'Ekip Gama', district: 'Uskudar', visits: 167, coverage: 85, lastUpdate: '1 dk once' },
-  { team: 'Ekip Delta', district: 'Bakirkoy', visits: 73, coverage: 41, lastUpdate: '12 dk once' },
+  { team: 'Ekip Alfa', district: 'Kadıköy', visits: 142, coverage: 78, lastUpdate: '2 dk önce' },
+  { team: 'Ekip Beta', district: 'Beşiktaş', visits: 98, coverage: 62, lastUpdate: '5 dk önce' },
+  { team: 'Ekip Gama', district: 'Üsküdar', visits: 167, coverage: 85, lastUpdate: '1 dk önce' },
+  { team: 'Ekip Delta', district: 'Bakırköy', visits: 73, coverage: 41, lastUpdate: '12 dk önce' },
 ];
 
 export function HudaMockups() {
@@ -45,7 +45,6 @@ export function HudaMockups() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [expandedTeam, setExpandedTeam] = useState<string | null>(null);
 
-  // Animated KPI counter
   const [kpiAnimated, setKpiAnimated] = useState(false);
   useEffect(() => {
     if (activeTab === 'dashboard') {
@@ -69,14 +68,14 @@ export function HudaMockups() {
       <div className="container-wide">
         <div className="flex items-center gap-3 mb-4">
           <Monitor className="w-5 h-5 text-accent" />
-          <p className="text-label text-accent">Platform Goruntuleri</p>
+          <p className="text-label text-accent">Platform Görüntüleri</p>
         </div>
         <h2 className="text-headline mb-2 max-w-2xl">
-          Tek ekrandan tum kampanya yonetimi
+          Tek ekrandan tüm kampanya yönetimi
         </h2>
         <p className="text-sm text-muted-foreground mb-8 flex items-center gap-2">
           <MousePointerClick className="w-4 h-4" />
-          Interaktif demo: grafiklere tiklayin, mesaj gonderin, ekipleri inceleyin
+          İnteraktif demo: grafiklere tıklayın, mesaj gönderin, ekipleri inceleyin
         </p>
 
         <div className="border border-border bg-card">
@@ -87,21 +86,20 @@ export function HudaMockups() {
                   Kontrol Paneli
                 </TabsTrigger>
                 <TabsTrigger value="outreach" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent">
-                  Erisim Motoru
+                  Erişim Motoru
                 </TabsTrigger>
                 <TabsTrigger value="field" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent">
-                  Saha Operasyonlari
+                  Saha Operasyonları
                 </TabsTrigger>
               </TabsList>
             </div>
 
             <TabsContent value="dashboard" className="p-6 mt-0">
-              {/* KPI Cards with animation */}
               <div className="grid grid-cols-3 gap-4 mb-6">
                 {[
-                  { label: 'Toplam Erisim', value: '127,900', change: '+12.4% bu hafta' },
-                  { label: 'Etkilesim Orani', value: '%34.2', change: '+5.1% bu hafta' },
-                  { label: 'Donusum', value: '%8.7', change: '+2.3% bu hafta' },
+                  { label: 'Toplam Erişim', value: '127.900', change: '+12,4% bu hafta' },
+                  { label: 'Etkileşim Oranı', value: '%34,2', change: '+5,1% bu hafta' },
+                  { label: 'Dönüşüm', value: '%8,7', change: '+2,3% bu hafta' },
                 ].map((kpi, i) => (
                   <div
                     key={kpi.label}
@@ -117,11 +115,10 @@ export function HudaMockups() {
                 ))}
               </div>
 
-              {/* Charts Row - interactive */}
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="p-4 bg-background border border-border">
-                  <p className="text-sm font-medium mb-2">Secmen Segmentasyonu</p>
-                  <p className="text-xs text-muted-foreground mb-4">Bir dilime tiklayin</p>
+                  <p className="text-sm font-medium mb-2">Seçmen Segmentasyonu</p>
+                  <p className="text-xs text-muted-foreground mb-4">Bir dilime tıklayın</p>
                   <ResponsiveContainer width="100%" height={200}>
                     <PieChart>
                       <Pie
@@ -150,26 +147,26 @@ export function HudaMockups() {
                   {selectedSegment !== null && (
                     <div className="mt-3 p-3 bg-accent/5 border border-accent/20 animate-fade-up text-sm">
                       <p className="font-medium">{segmentData[selectedSegment].name}</p>
-                      <p className="text-muted-foreground">{segmentData[selectedSegment].voters} secmen, toplamin %{segmentData[selectedSegment].value}'i</p>
-                      <p className="text-xs text-accent mt-1">Bu segmente kampanya baslatmak icin Erisim Motoru'na gecin →</p>
+                      <p className="text-muted-foreground">{segmentData[selectedSegment].voters} seçmen, toplamın %{segmentData[selectedSegment].value}'i</p>
+                      <p className="text-xs text-accent mt-1">Bu segmente kampanya başlatmak için Erişim Motoru'na geçin →</p>
                     </div>
                   )}
                 </div>
                 <div className="p-4 bg-background border border-border">
-                  <p className="text-sm font-medium mb-4">Haftalik Performans</p>
+                  <p className="text-sm font-medium mb-4">Haftalık Performans</p>
                   <ResponsiveContainer width="100%" height={200}>
                     <LineChart data={performanceData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(0, 0%, 90%)" />
                       <XAxis dataKey="gun" tick={{ fontSize: 12 }} />
                       <YAxis tick={{ fontSize: 12 }} />
                       <Tooltip />
-                      <Line type="monotone" dataKey="erisim" name="Erisim" stroke="hsl(174, 62%, 32%)" strokeWidth={2} dot={{ r: 4, cursor: 'pointer' }} activeDot={{ r: 6 }} />
-                      <Line type="monotone" dataKey="etkilesim" name="Etkilesim" stroke="hsl(0, 0%, 45%)" strokeWidth={2} dot={{ r: 4, cursor: 'pointer' }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="erisim" name="Erişim" stroke="hsl(174, 62%, 32%)" strokeWidth={2} dot={{ r: 4, cursor: 'pointer' }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="etkilesim" name="Etkileşim" stroke="hsl(0, 0%, 45%)" strokeWidth={2} dot={{ r: 4, cursor: 'pointer' }} activeDot={{ r: 6 }} />
                     </LineChart>
                   </ResponsiveContainer>
                   <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-accent inline-block" /> Erisim</span>
-                    <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-muted-foreground inline-block" /> Etkilesim</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-accent inline-block" /> Erişim</span>
+                    <span className="flex items-center gap-1"><span className="w-3 h-0.5 bg-muted-foreground inline-block" /> Etkileşim</span>
                   </div>
                 </div>
               </div>
@@ -179,27 +176,26 @@ export function HudaMockups() {
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-4">
                   <div className="p-4 bg-background border border-border">
-                    <p className="text-sm font-medium mb-3">Mesaj Olusturucu</p>
+                    <p className="text-sm font-medium mb-3">Mesaj Oluşturucu</p>
                     <div className="p-3 bg-muted border border-border text-sm text-muted-foreground min-h-[100px]">
-                      Sayin <span className="text-accent font-medium">Ahmet Yilmaz</span>, <span className="text-accent font-medium">Kadikoy</span> bolgesindeki yeni projelerimiz hakkinda bilgi almak ister misiniz? Detaylar icin: <span className="text-accent font-medium underline">huda.app/k/2847</span>
+                      Sayın <span className="text-accent font-medium">Ahmet Yılmaz</span>, <span className="text-accent font-medium">Kadıköy</span> bölgesindeki yeni projelerimiz hakkında bilgi almak ister misiniz? Detaylar için: <span className="text-accent font-medium underline">huda.app/k/2847</span>
                     </div>
                     <div className="flex gap-2 mt-3">
-                      <Badge variant="outline" className="text-xs">{'{secmen_adi}'}</Badge>
-                      <Badge variant="outline" className="text-xs">{'{ilce}'}</Badge>
+                      <Badge variant="outline" className="text-xs">{'{seçmen_adı}'}</Badge>
+                      <Badge variant="outline" className="text-xs">{'{ilçe}'}</Badge>
                       <Badge variant="outline" className="text-xs">{'{link}'}</Badge>
                     </div>
                   </div>
                   <div className="p-4 bg-background border border-border">
                     <p className="text-sm font-medium mb-3">Hedef Kitle Filtreleri</p>
                     <div className="flex flex-wrap gap-2 mb-4">
-                      <Badge className="bg-accent/10 text-accent border-accent/20">Yas: 26-50</Badge>
-                      <Badge className="bg-accent/10 text-accent border-accent/20">Bolge: Istanbul</Badge>
-                      <Badge className="bg-accent/10 text-accent border-accent/20">Segment: Kararsiz</Badge>
+                      <Badge className="bg-accent/10 text-accent border-accent/20">Yaş: 26-50</Badge>
+                      <Badge className="bg-accent/10 text-accent border-accent/20">Bölge: İstanbul</Badge>
+                      <Badge className="bg-accent/10 text-accent border-accent/20">Segment: Kararsız</Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">Tahmini erisim: <strong className="text-foreground">38,000</strong> secmen</p>
+                    <p className="text-xs text-muted-foreground">Tahmini erişim: <strong className="text-foreground">38.000</strong> seçmen</p>
                   </div>
 
-                  {/* Send button */}
                   <button
                     onClick={handleSendMessage}
                     disabled={sendingAnimation || messageSent}
@@ -214,17 +210,17 @@ export function HudaMockups() {
                     {sendingAnimation ? (
                       <>
                         <div className="w-4 h-4 border-2 border-accent-foreground/30 border-t-accent-foreground rounded-full animate-spin" />
-                        Gonderiliyor...
+                        Gönderiliyor...
                       </>
                     ) : messageSent ? (
                       <>
                         <CheckCircle2 className="w-4 h-4" />
-                        38,000 secmene gonderildi!
+                        38.000 seçmene gönderildi!
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        Kampanya Baslat (Demo)
+                        Kampanya Başlat (Demo)
                       </>
                     )}
                   </button>
@@ -237,7 +233,7 @@ export function HudaMockups() {
                         <span className="text-base">{ch.icon}</span>
                         <div>
                           <p className="text-sm font-medium">{ch.name}</p>
-                          <p className="text-xs text-muted-foreground">{ch.reach} erisim</p>
+                          <p className="text-xs text-muted-foreground">{ch.reach} erişim</p>
                         </div>
                       </div>
                       <Badge variant={ch.status === 'Aktif' ? 'default' : 'secondary'} className={ch.status === 'Aktif' ? 'bg-accent text-accent-foreground' : ''}>
@@ -253,10 +249,10 @@ export function HudaMockups() {
               <div className="space-y-3">
                 <div className="grid grid-cols-5 gap-4 text-sm font-medium text-muted-foreground px-4 pb-2 border-b border-border">
                   <span>Ekip</span>
-                  <span>Ilce</span>
+                  <span>İlçe</span>
                   <span>Ziyaret</span>
                   <span>Kapsam</span>
-                  <span>Son Guncelleme</span>
+                  <span>Son Güncelleme</span>
                 </div>
                 {fieldTeams.map((team) => (
                   <div key={team.team}>
@@ -281,7 +277,7 @@ export function HudaMockups() {
                       <div className="p-4 bg-accent/5 border border-t-0 border-accent/20 animate-fade-up">
                         <div className="grid grid-cols-3 gap-4 text-sm">
                           <div>
-                            <p className="text-xs text-muted-foreground mb-1">Bugun Ziyaret</p>
+                            <p className="text-xs text-muted-foreground mb-1">Bugün Ziyaret</p>
                             <p className="font-semibold">{Math.floor(team.visits * 0.15)}</p>
                           </div>
                           <div>

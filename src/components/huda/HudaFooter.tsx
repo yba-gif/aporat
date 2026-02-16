@@ -11,7 +11,7 @@ export function HudaFooter() {
           <h2 className="text-2xl font-semibold mb-2">HUDA</h2>
           <p className="text-background/70 mb-1 text-sm">by Portolan Labs</p>
           <p className="text-background/50 mb-8 text-sm">
-            Yerel secimler icin kampanya istihbarat platformu
+            Yerel seçimler için kampanya istihbarat platformu
           </p>
 
           <div className="flex items-center gap-8 mb-12">
@@ -21,7 +21,7 @@ export function HudaFooter() {
             </div>
             <div className="flex items-center gap-2 text-sm text-background/70">
               <Lock className="w-4 h-4" />
-              <span>Veri Egemenligini</span>
+              <span>Veri Egemenliği</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-background/70">
               <Globe className="w-4 h-4" />
@@ -30,10 +30,10 @@ export function HudaFooter() {
           </div>
 
           <div className="text-xs text-background/50 font-mono">
-            Belge Siniflandirmasi: Is Gizliligi
+            Belge Sınıflandırması: İş Gizliliği
           </div>
           <div className="text-xs text-background/50 mt-2">
-            © {new Date().getFullYear()} Portolan Labs. Tum haklari saklidir.
+            © {new Date().getFullYear()} Portolan Labs. Tüm hakları saklıdır.
           </div>
         </div>
       </div>

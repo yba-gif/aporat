@@ -2,28 +2,28 @@ import { X, AlertTriangle } from 'lucide-react';
 
 const problems = [
   {
-    title: 'Yapay zeka segmentasyonu yok',
-    description: 'Secmen kitleleri demografik veriye gore otomatik segmente edilemiyor.',
+    title: 'Yapay zekâ segmentasyonu yok',
+    description: 'Seçmen kitleleri demografik veriye göre otomatik segmente edilemiyor.',
   },
   {
-    title: 'Kanallararasi kopukluk',
-    description: 'SMS, WhatsApp, sosyal medya ve saha ekipleri birbirinden bagimsiz calisiyor.',
+    title: 'Kanallar arası kopukluk',
+    description: 'SMS, WhatsApp, sosyal medya ve saha ekipleri birbirinden bağımsız çalışıyor.',
   },
   {
-    title: 'Geri bildirim dongusu yok',
-    description: 'Kampanya mesajlarinin etkisi olculemiyor, strateji korukorune yurutuluyor.',
+    title: 'Geri bildirim döngüsü yok',
+    description: 'Kampanya mesajlarının etkisi ölçülemiyor, strateji körükörüne yürütülüyor.',
   },
   {
     title: 'Saha takibi manuel',
-    description: 'Kapi kapi ziyaretler kagit uzerinde takip ediliyor, veri kaybi yuksek.',
+    description: 'Kapı kapı ziyaretler kâğıt üzerinde takip ediliyor, veri kaybı yüksek.',
   },
   {
     title: 'Duygu analizi yok',
-    description: 'Secmen tepkileri ve kamuoyu egilimi anlik olarak izlenemiyor.',
+    description: 'Seçmen tepkileri ve kamuoyu eğilimi anlık olarak izlenemiyor.',
   },
   {
-    title: 'Demografik kor noktalar',
-    description: 'Hangi bolge ve kitleye odaklanilacagi sezgisel kararlara birakiliyor.',
+    title: 'Demografik kör noktalar',
+    description: 'Hangi bölge ve kitleye odaklanılacağı sezgisel kararlara bırakılıyor.',
   },
 ];
 
@@ -36,7 +36,7 @@ export function HudaProblem() {
           <p className="text-label text-destructive">Sorun</p>
         </div>
         <h2 className="text-headline mb-12 max-w-2xl">
-          Mevcut kampanya araclari daginik ve manuel
+          Mevcut kampanya araçları dağınık ve manuel
         </h2>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">

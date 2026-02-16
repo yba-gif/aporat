@@ -8,13 +8,13 @@ const steps = [
     id: 1,
     icon: Database,
     label: 'Veri Toplama',
-    title: 'Secmen veritabani olusturuluyor',
-    narrative: 'Kadikoy ilcesi icin 142,000 kayitli secmen verisi sisteme yuklendi. Demografik profiller cikariliyor...',
+    title: 'Seçmen veritabanı oluşturuluyor',
+    narrative: 'Kadıköy ilçesi için 142.000 kayıtlı seçmen verisi sisteme yüklendi. Demografik profiller çıkarılıyor...',
     detail: {
       type: 'stats' as const,
       data: [
-        { label: 'Toplam Secmen', value: '142,000' },
-        { label: 'Yas Grubu Sayisi', value: '4' },
+        { label: 'Toplam Seçmen', value: '142.000' },
+        { label: 'Yaş Grubu Sayısı', value: '4' },
         { label: 'Mahalle', value: '28' },
         { label: 'Veri Kalitesi', value: '%94' },
       ],
@@ -24,15 +24,15 @@ const steps = [
     id: 2,
     icon: Users,
     label: 'Segmentasyon',
-    title: 'Yapay zeka secmen segmentasyonu',
-    narrative: 'TensorFlow modeli 142,000 secmeni 6 davranissal segmente ayirdi. En buyuk firsat: 38,000 kararsiz secmen.',
+    title: 'Yapay zekâ seçmen segmentasyonu',
+    narrative: 'TensorFlow modeli 142.000 seçmeni 6 davranışsal segmente ayırdı. En büyük fırsat: 38.000 kararsız seçmen.',
     detail: {
       type: 'chart' as const,
       data: [
-        { name: 'Sadik', value: 42000, color: 'hsl(174, 62%, 32%)' },
-        { name: 'Kararsiz', value: 38000, color: 'hsl(174, 62%, 45%)' },
+        { name: 'Sadık', value: 42000, color: 'hsl(174, 62%, 32%)' },
+        { name: 'Kararsız', value: 38000, color: 'hsl(174, 62%, 45%)' },
         { name: 'Muhalif', value: 31000, color: 'hsl(0, 0%, 60%)' },
-        { name: 'Ilk Secmen', value: 18000, color: 'hsl(0, 0%, 75%)' },
+        { name: 'İlk Seçmen', value: 18000, color: 'hsl(0, 0%, 75%)' },
         { name: 'Pasif', value: 13000, color: 'hsl(0, 0%, 85%)' },
       ],
     },
@@ -40,9 +40,9 @@ const steps = [
   {
     id: 3,
     icon: Send,
-    label: 'Erisim',
-    title: 'Cok kanalli kampanya baslatildi',
-    narrative: 'Kararsiz segmente ozellesmis mesajlar 3 kanaldan es zamanli gonderiliyor. A/B testi aktif.',
+    label: 'Erişim',
+    title: 'Çok kanallı kampanya başlatıldı',
+    narrative: 'Kararsız segmente özelleşmiş mesajlar 3 kanaldan eş zamanlı gönderiliyor. A/B testi aktif.',
     detail: {
       type: 'channels' as const,
       data: [
@@ -56,15 +56,15 @@ const steps = [
     id: 4,
     icon: BarChart3,
     label: 'Analiz',
-    title: 'Kampanya sonuclari',
-    narrative: '72 saat sonra: %34 etkilesim orani, %8.7 donusum. Kadikoy\'de kararsiz segment %12 olumlu kaydi.',
+    title: 'Kampanya sonuçları',
+    narrative: '72 saat sonra: %34 etkileşim oranı, %8,7 dönüşüm. Kadıköy\'de kararsız segment %12 olumlu kaydı.',
     detail: {
       type: 'results' as const,
       data: [
-        { metric: 'Erisim', value: '38,000', change: '+100%' },
-        { metric: 'Etkilesim', value: '%34.2', change: '+18%' },
-        { metric: 'Donusum', value: '%8.7', change: '+5.2%' },
-        { metric: 'Maliyet/Erisim', value: '₺0.12', change: '-42%' },
+        { metric: 'Erişim', value: '38.000', change: '+100%' },
+        { metric: 'Etkileşim', value: '%34,2', change: '+18%' },
+        { metric: 'Dönüşüm', value: '%8,7', change: '+5,2%' },
+        { metric: 'Maliyet/Erişim', value: '₺0,12', change: '-42%' },
       ],
     },
   },
@@ -141,19 +141,18 @@ export function HudaScenario() {
               </div>
               <div className="grid grid-cols-3 gap-2 text-xs">
                 <div>
-                  <p className="text-muted-foreground">Gonderilen</p>
+                  <p className="text-muted-foreground">Gönderilen</p>
                   <p className="font-medium">{ch.sent.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Ulasan</p>
+                  <p className="text-muted-foreground">Ulaşan</p>
                   <p className="font-medium">{ch.delivered.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-muted-foreground">Acilan</p>
+                  <p className="text-muted-foreground">Açılan</p>
                   <p className="font-medium text-accent">{ch.opened.toLocaleString()}</p>
                 </div>
               </div>
-              {/* Progress bar */}
               <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
                   className="h-full bg-accent rounded-full transition-all duration-1000 ease-out"
@@ -186,13 +185,13 @@ export function HudaScenario() {
       <div className="container-wide">
         <div className="flex items-center gap-3 mb-4">
           <Play className="w-5 h-5 text-accent" />
-          <p className="text-label text-accent">Ornek Kullanim</p>
+          <p className="text-label text-accent">Örnek Kullanım</p>
         </div>
         <h2 className="text-headline mb-4 max-w-2xl">
-          Kadikoy ilcesi: kampanya senaryosu
+          Kadıköy ilçesi: kampanya senaryosu
         </h2>
         <p className="text-muted-foreground mb-8 max-w-xl">
-          Gercekci bir yerel secim kampanyasinin HUDA uzerinde 4 adimda nasil yurutuldugunu inceleyin.
+          Gerçekçi bir yerel seçim kampanyasının HUDA üzerinde 4 adımda nasıl yürütüldüğünü inceleyin.
         </p>
 
         {/* Step indicators */}
@@ -231,7 +230,6 @@ export function HudaScenario() {
 
         {/* Active step content */}
         <div className="grid md:grid-cols-2 gap-6">
-          {/* Narrative */}
           <div className="p-6 bg-card border border-border" key={activeStep}>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 flex items-center justify-center bg-accent text-accent-foreground font-semibold text-sm">
@@ -250,18 +248,17 @@ export function HudaScenario() {
                 onClick={() => setActiveStep(activeStep + 1)}
                 className="flex items-center gap-2 text-sm text-accent hover:text-accent/80 transition-colors"
               >
-                Sonraki adim <ArrowRight className="w-4 h-4" />
+                Sonraki adım <ArrowRight className="w-4 h-4" />
               </button>
             )}
             {activeStep === steps.length - 1 && (
               <div className="flex items-center gap-2 text-sm text-accent">
                 <CheckCircle2 className="w-4 h-4" />
-                Kampanya tamamlandi
+                Kampanya tamamlandı
               </div>
             )}
           </div>
 
-          {/* Data visualization */}
           <div key={`detail-${activeStep}`}>
             {renderDetail()}
           </div>

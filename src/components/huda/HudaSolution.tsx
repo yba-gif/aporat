@@ -3,23 +3,23 @@ import { Check, Users, Send, MapPin, BarChart3 } from 'lucide-react';
 const modules = [
   {
     icon: Users,
-    title: 'Secmen Istihbarati',
-    description: 'Yapay zeka destekli demografik ve davranissal segmentasyon. Her ilce icin ozel profiller.',
+    title: 'Seçmen İstihbaratı',
+    description: 'Yapay zekâ destekli demografik ve davranışsal segmentasyon. Her ilçe için özel profiller.',
   },
   {
     icon: Send,
-    title: 'Erisim Motoru',
-    description: 'SMS, WhatsApp, sosyal medya, cagri merkezi ve saha ekiplerini tek panelden yonetin.',
+    title: 'Erişim Motoru',
+    description: 'SMS, WhatsApp, sosyal medya, çağrı merkezi ve saha ekiplerini tek panelden yönetin.',
   },
   {
     icon: MapPin,
-    title: 'Saha Operasyonlari',
-    description: 'Kapi kapi ziyaret takibi, ekip atamalari ve cevrimdisi mobil destek.',
+    title: 'Saha Operasyonları',
+    description: 'Kapı kapı ziyaret takibi, ekip atamaları ve çevrimdışı mobil destek.',
   },
   {
     icon: BarChart3,
     title: 'Analitik Paneli',
-    description: 'Anlik kampanya performansi, duygu analizi ve donusum metrikleri.',
+    description: 'Anlık kampanya performansı, duygu analizi ve dönüşüm metrikleri.',
   },
 ];
 
@@ -29,10 +29,10 @@ export function HudaSolution() {
       <div className="container-wide">
         <div className="flex items-center gap-3 mb-4">
           <Check className="w-5 h-5 text-accent" />
-          <p className="text-label text-accent">Cozum</p>
+          <p className="text-label text-accent">Çözüm</p>
         </div>
         <h2 className="text-headline mb-12 max-w-2xl">
-          Butunlesik kampanya istihbarati
+          Bütünleşik kampanya istihbaratı
         </h2>
 
         <div className="grid md:grid-cols-2 gap-6">
