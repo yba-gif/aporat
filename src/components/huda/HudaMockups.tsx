@@ -80,16 +80,16 @@ export function HudaMockups() {
 
         <div className="border border-border bg-card">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="border-b border-border px-4 overflow-x-auto">
-              <TabsList className="bg-transparent h-12 w-max min-w-full sm:w-auto">
-                <TabsTrigger value="dashboard" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-xs sm:text-sm whitespace-nowrap">
-                  Kontrol Paneli
+            <div className="border-b border-border px-2 sm:px-4 overflow-x-auto">
+              <TabsList className="bg-transparent h-12 w-full sm:w-auto">
+                <TabsTrigger value="dashboard" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-[11px] sm:text-sm px-2 sm:px-3">
+                  Panel
                 </TabsTrigger>
-                <TabsTrigger value="outreach" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-xs sm:text-sm whitespace-nowrap">
-                  Erişim Motoru
+                <TabsTrigger value="outreach" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-[11px] sm:text-sm px-2 sm:px-3">
+                  Erişim
                 </TabsTrigger>
-                <TabsTrigger value="field" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-xs sm:text-sm whitespace-nowrap">
-                  Saha Operasyonları
+                <TabsTrigger value="field" className="data-[state=active]:bg-accent/10 data-[state=active]:text-accent text-[11px] sm:text-sm px-2 sm:px-3">
+                  Saha
                 </TabsTrigger>
               </TabsList>
             </div>
