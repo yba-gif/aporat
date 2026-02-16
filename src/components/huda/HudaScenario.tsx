@@ -195,33 +195,35 @@ export function HudaScenario() {
         </p>
 
         {/* Step indicators */}
-        <div className="flex items-center gap-2 mb-8">
-          {steps.map((step, i) => {
-            const Icon = step.icon;
-            const isActive = i === activeStep;
-            const isDone = i < activeStep;
-            return (
-              <button
-                key={step.id}
-                onClick={() => { setActiveStep(i); setIsPlaying(false); }}
-                className="flex items-center gap-2 group"
-              >
-                <div className={`flex items-center gap-2 px-3 py-2 border transition-all duration-300 cursor-pointer ${
-                  isActive ? 'border-accent bg-accent/10 text-accent' : isDone ? 'border-accent/30 bg-accent/5 text-accent/70' : 'border-border bg-background text-muted-foreground hover:border-accent/50'
-                }`}>
-                  {isDone ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
-                  <span className="text-xs font-medium hidden sm:inline">{step.label}</span>
-                </div>
-                {i < steps.length - 1 && (
-                  <ChevronRight className={`w-3 h-3 ${isDone ? 'text-accent/50' : 'text-border'}`} />
-                )}
-              </button>
-            );
-          })}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-2 mb-8">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
+            {steps.map((step, i) => {
+              const Icon = step.icon;
+              const isActive = i === activeStep;
+              const isDone = i < activeStep;
+              return (
+                <button
+                  key={step.id}
+                  onClick={() => { setActiveStep(i); setIsPlaying(false); }}
+                  className="flex items-center gap-2 group shrink-0"
+                >
+                  <div className={`flex items-center gap-2 px-3 py-2 border transition-all duration-300 cursor-pointer ${
+                    isActive ? 'border-accent bg-accent/10 text-accent' : isDone ? 'border-accent/30 bg-accent/5 text-accent/70' : 'border-border bg-background text-muted-foreground hover:border-accent/50'
+                  }`}>
+                    {isDone ? <CheckCircle2 className="w-4 h-4" /> : <Icon className="w-4 h-4" />}
+                    <span className="text-xs font-medium hidden sm:inline">{step.label}</span>
+                  </div>
+                  {i < steps.length - 1 && (
+                    <ChevronRight className={`w-3 h-3 ${isDone ? 'text-accent/50' : 'text-border'}`} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
 
           <button
             onClick={() => { setActiveStep(0); setIsPlaying(true); }}
-            className="ml-auto flex items-center gap-2 px-4 py-2 bg-accent text-accent-foreground text-xs font-medium hover:bg-accent/90 transition-colors"
+            className="sm:ml-auto flex items-center justify-center gap-2 px-4 py-2 bg-accent text-accent-foreground text-xs font-medium hover:bg-accent/90 transition-colors shrink-0"
           >
             <Play className="w-3 h-3" />
             Otomatik Oynat
