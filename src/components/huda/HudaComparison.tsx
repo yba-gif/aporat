@@ -23,23 +23,29 @@ export function HudaComparison() {
           Manuel kampanyalar vs. HUDA
         </h2>
 
-        <div className="border border-border bg-card overflow-hidden">
-          <div className="grid grid-cols-3 gap-0 border-b border-border bg-muted">
-            <div className="p-4 text-sm font-medium">Özellik</div>
-            <div className="p-4 text-sm font-medium text-center border-l border-border">Manuel</div>
-            <div className="p-4 text-sm font-medium text-center border-l border-border text-accent">HUDA</div>
-          </div>
-          {rows.map((row, i) => (
-            <div key={row.feature} className={`grid grid-cols-3 gap-0 ${i < rows.length - 1 ? 'border-b border-border' : ''}`}>
-              <div className="p-4 text-sm">{row.feature}</div>
-              <div className="p-4 flex justify-center border-l border-border">
-                <X className="w-4 h-4 text-destructive" />
-              </div>
-              <div className="p-4 flex justify-center border-l border-border">
-                <Check className="w-4 h-4 text-accent" />
-              </div>
-            </div>
-          ))}
+        <div className="border border-border bg-card overflow-x-auto">
+          <table className="w-full min-w-[320px]">
+            <thead>
+              <tr className="border-b border-border bg-muted">
+                <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-left">Özellik</th>
+                <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-center border-l border-border">Manuel</th>
+                <th className="p-3 sm:p-4 text-xs sm:text-sm font-medium text-center border-l border-border text-accent">HUDA</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr key={row.feature} className={i < rows.length - 1 ? 'border-b border-border' : ''}>
+                  <td className="p-3 sm:p-4 text-xs sm:text-sm">{row.feature}</td>
+                  <td className="p-3 sm:p-4 border-l border-border text-center">
+                    <X className="w-4 h-4 text-destructive inline-block" />
+                  </td>
+                  <td className="p-3 sm:p-4 border-l border-border text-center">
+                    <Check className="w-4 h-4 text-accent inline-block" />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>
