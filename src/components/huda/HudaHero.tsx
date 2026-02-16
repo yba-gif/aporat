@@ -1,4 +1,4 @@
-import { Shield, Building2, BarChart3, Lock } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
 export function HudaHero() {
   return (
@@ -37,20 +37,6 @@ export function HudaHero() {
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-8 mt-16 text-muted-foreground">
-          <div className="flex items-center gap-2 text-sm">
-            <Shield className="w-4 h-4" />
-            <span>KVKK uyumlu</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Building2 className="w-4 h-4" />
-            <span>Yerinde kurulum</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm">
-            <BarChart3 className="w-4 h-4" />
-            <span>Anlik analitik</span>
-          </div>
-        </div>
       </div>
     </section>
   );
