@@ -14,12 +14,6 @@ const phases = [
     items: ['WhatsApp entegrasyonu', 'Sosyal medya modülü', 'Saha operasyonları', 'Mobil uygulama'],
   },
   {
-    phase: 'Faz 3',
-    period: '6-8 ay',
-    title: 'Yapay Zekâ',
-    items: ['Gelişmiş segmentasyon', 'Duygu analizi', 'A/B test motoru', 'Tahminleme modelleri'],
-  },
-  {
     phase: 'Faz 4',
     period: '9-12 ay',
     title: 'Tam Platform',
