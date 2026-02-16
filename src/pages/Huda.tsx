@@ -11,7 +11,7 @@ import { HudaTechnology } from '@/components/huda/HudaTechnology';
 import { HudaComparison } from '@/components/huda/HudaComparison';
 import { HudaTimeline } from '@/components/huda/HudaTimeline';
 import { HudaFooter } from '@/components/huda/HudaFooter';
-import { HudaTour } from '@/components/huda/HudaTour';
+
 
 export default function Huda() {
   return (
@@ -45,7 +45,7 @@ export default function Huda() {
         <HudaFooter />
       </main>
 
-      <HudaTour />
+      
     </div>
   );
 }
