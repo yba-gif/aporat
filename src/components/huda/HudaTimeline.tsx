@@ -46,9 +46,8 @@ export function HudaTimeline() {
                 <div className="hidden md:block absolute top-8 left-full w-6 h-px bg-border z-10" />
               )}
               <div className="p-6 bg-card border border-border h-full">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="mb-1">
                   <span className="text-xs font-mono text-accent">{phase.phase}</span>
-                  <span className="text-xs text-muted-foreground">({phase.period})</span>
                 </div>
                 <h3 className="font-semibold mb-4">{phase.title}</h3>
                 <ul className="space-y-2">
