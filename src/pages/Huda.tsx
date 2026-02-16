@@ -2,7 +2,7 @@ import { CompassLogo } from '@/components/CompassLogo';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { HudaHero } from '@/components/huda/HudaHero';
-import { HudaMarketContext } from '@/components/huda/HudaMarketContext';
+
 
 import { HudaSolution } from '@/components/huda/HudaSolution';
 import { HudaScenario } from '@/components/huda/HudaScenario';
@@ -34,7 +34,7 @@ export default function Huda() {
 
       <main className="pt-14">
         <div data-tour="hero"><HudaHero /></div>
-        <HudaMarketContext />
+        
         
         <div data-tour="solution"><HudaSolution /></div>
         <div data-tour="scenario"><HudaScenario /></div>
