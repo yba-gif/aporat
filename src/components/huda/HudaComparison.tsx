@@ -1,9 +1,9 @@
 import { Check, X, Scale } from 'lucide-react';
 
 const rows = [
-  { feature: 'Secmen segmentasyonu', manual: false, huda: true },
-  { feature: 'Cok kanal senkronizasyonu', manual: false, huda: true },
-  { feature: 'Anlik analitik', manual: false, huda: true },
+  { feature: 'Seçmen segmentasyonu', manual: false, huda: true },
+  { feature: 'Çok kanal senkronizasyonu', manual: false, huda: true },
+  { feature: 'Anlık analitik', manual: false, huda: true },
   { feature: 'Saha takibi', manual: false, huda: true },
   { feature: 'Duygu analizi', manual: false, huda: true },
   { feature: 'KVKK uyumu', manual: false, huda: true },
@@ -17,7 +17,7 @@ export function HudaComparison() {
       <div className="container-wide">
         <div className="flex items-center gap-3 mb-4">
           <Scale className="w-5 h-5 text-accent" />
-          <p className="text-label text-accent">Karsilastirma</p>
+          <p className="text-label text-accent">Karşılaştırma</p>
         </div>
         <h2 className="text-headline mb-12 max-w-2xl">
           Manuel kampanyalar vs. HUDA
@@ -25,7 +25,7 @@ export function HudaComparison() {
 
         <div className="border border-border bg-card overflow-hidden">
           <div className="grid grid-cols-3 gap-0 border-b border-border bg-muted">
-            <div className="p-4 text-sm font-medium">Ozellik</div>
+            <div className="p-4 text-sm font-medium">Özellik</div>
             <div className="p-4 text-sm font-medium text-center border-l border-border">Manuel</div>
             <div className="p-4 text-sm font-medium text-center border-l border-border text-accent">HUDA</div>
           </div>

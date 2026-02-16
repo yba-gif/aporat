@@ -1,17 +1,17 @@
 import { Cpu, Wifi, Layers, Smartphone } from 'lucide-react';
 
 const capabilities = [
-  { icon: Cpu, title: 'Yapay Zeka Segmentasyonu', description: 'Demografik ve davranissal verilerle otomatik secmen profilleme.' },
-  { icon: Wifi, title: 'Anlik Duygu Takibi', description: 'Sosyal medya ve saha verilerinden canli kamuoyu egilimi.' },
-  { icon: Layers, title: 'Cok Kanalli Orkestrasyon', description: 'Tum iletisim kanallari tek platformdan koordineli yonetim.' },
-  { icon: Smartphone, title: 'Cevrimdisi Mobil', description: 'Internet olmadan saha calismasi, otomatik senkronizasyon.' },
+  { icon: Cpu, title: 'Yapay Zekâ Segmentasyonu', description: 'Demografik ve davranışsal verilerle otomatik seçmen profilleme.' },
+  { icon: Wifi, title: 'Anlık Duygu Takibi', description: 'Sosyal medya ve saha verilerinden canlı kamuoyu eğilimi.' },
+  { icon: Layers, title: 'Çok Kanallı Orkestrasyon', description: 'Tüm iletişim kanalları tek platformdan koordineli yönetim.' },
+  { icon: Smartphone, title: 'Çevrimdışı Mobil', description: 'İnternet olmadan saha çalışması, otomatik senkronizasyon.' },
 ];
 
 const metrics = [
-  { value: '<2sn', label: 'Segmentasyon suresi' },
+  { value: '<2sn', label: 'Segmentasyon süresi' },
   { value: '5', label: 'Entegre kanal' },
-  { value: '81', label: 'Il kapsami' },
-  { value: 'Anlik', label: 'Veri senkronizasyonu' },
+  { value: '81', label: 'İl kapsamı' },
+  { value: 'Anlık', label: 'Veri senkronizasyonu' },
 ];
 
 export function HudaTechnology() {
@@ -20,10 +20,10 @@ export function HudaTechnology() {
       <div className="container-wide">
         <div className="flex items-center gap-3 mb-4">
           <Cpu className="w-5 h-5 text-accent" />
-          <p className="text-label text-accent">Teknik Altyapi</p>
+          <p className="text-label text-accent">Teknik Altyapı</p>
         </div>
         <h2 className="text-headline mb-12 max-w-2xl">
-          Siyasi operasyonlar icin olceklenebilir altyapi
+          Siyasi operasyonlar için ölçeklenebilir altyapı
         </h2>
 
         <div className="grid md:grid-cols-2 gap-6 mb-12">

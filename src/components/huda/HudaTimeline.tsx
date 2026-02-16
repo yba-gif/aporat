@@ -5,25 +5,25 @@ const phases = [
     phase: 'Faz 1',
     period: '1-2 ay',
     title: 'MVP',
-    items: ['Temel segmentasyon motoru', 'SMS entegrasyonu', 'Yonetim paneli', 'Secmen veritabani'],
+    items: ['Temel segmentasyon motoru', 'SMS entegrasyonu', 'Yönetim paneli', 'Seçmen veritabanı'],
   },
   {
     phase: 'Faz 2',
     period: '3-5 ay',
-    title: 'Cok Kanal',
-    items: ['WhatsApp entegrasyonu', 'Sosyal medya modulu', 'Saha operasyonlari', 'Mobil uygulama'],
+    title: 'Çok Kanal',
+    items: ['WhatsApp entegrasyonu', 'Sosyal medya modülü', 'Saha operasyonları', 'Mobil uygulama'],
   },
   {
     phase: 'Faz 3',
     period: '6-8 ay',
-    title: 'Yapay Zeka',
-    items: ['Gelismis segmentasyon', 'Duygu analizi', 'A/B test motoru', 'Tahminleme modelleri'],
+    title: 'Yapay Zekâ',
+    items: ['Gelişmiş segmentasyon', 'Duygu analizi', 'A/B test motoru', 'Tahminleme modelleri'],
   },
   {
     phase: 'Faz 4',
     period: '9-12 ay',
     title: 'Tam Platform',
-    items: ['Ileri analitik', 'Coklu kampanya yonetimi', 'API ekosistemi', 'Kurumsal ozellikler'],
+    items: ['İleri analitik', 'Çoklu kampanya yönetimi', 'API ekosistemi', 'Kurumsal özellikler'],
   },
 ];
 
@@ -33,16 +33,15 @@ export function HudaTimeline() {
       <div className="container-wide">
         <div className="flex items-center gap-3 mb-4">
           <Calendar className="w-5 h-5 text-accent" />
-          <p className="text-label text-accent">Yol Haritasi</p>
+          <p className="text-label text-accent">Yol Haritası</p>
         </div>
         <h2 className="text-headline mb-12 max-w-2xl">
-          12 aylik gelistirme plani
+          12 aylık geliştirme planı
         </h2>
 
         <div className="grid md:grid-cols-4 gap-6">
           {phases.map((phase, i) => (
             <div key={phase.phase} className="relative">
-              {/* Connector line */}
               {i < phases.length - 1 && (
                 <div className="hidden md:block absolute top-8 left-full w-6 h-px bg-border z-10" />
               )}

@@ -9,12 +9,12 @@ interface TourStep {
 }
 
 const tourSteps: TourStep[] = [
-  { target: 'hero', title: 'HUDA Nedir?', description: 'Yerel secimler icin yapay zeka destekli kampanya istihbarat platformu. Tum kampanya sureclerini tek panelden yonetin.', position: 'bottom' },
-  { target: 'problem', title: 'Mevcut Sorunlar', description: 'Turkiye\'de kampanya araclari daginik ve manuel. HUDA bu sorunu butunlesik bir platformla cozuyor.', position: 'bottom' },
-  { target: 'solution', title: '4 Ana Modul', description: 'Secmen Istihbarati, Erisim Motoru, Saha Operasyonlari ve Analitik Paneli. Her biri kampanyanin farkli bir boyutunu yonetiyor.', position: 'bottom' },
-  { target: 'scenario', title: 'Canli Senaryo', description: 'Kadikoy ilcesinde gercekci bir kampanya senaryosunu adim adim izleyin. "Otomatik Oynat" butonuna basin.', position: 'top' },
-  { target: 'mockups', title: 'Interaktif Demo', description: 'Grafiklere tiklayin, mesaj gonderin, saha ekiplerini inceleyin. Platformun gercek kullanim deneyimini yasayin.', position: 'top' },
-  { target: 'comparison', title: 'Fark Nerede?', description: 'Manuel kampanyalarla HUDA arasindaki farki tek tabloda gorun.', position: 'top' },
+  { target: 'hero', title: 'HUDA Nedir?', description: 'Yerel seçimler için yapay zekâ destekli kampanya istihbarat platformu. Tüm kampanya süreçlerini tek panelden yönetin.', position: 'bottom' },
+  { target: 'problem', title: 'Mevcut Sorunlar', description: 'Türkiye\'de kampanya araçları dağınık ve manuel. HUDA bu sorunu bütünleşik bir platformla çözüyor.', position: 'bottom' },
+  { target: 'solution', title: '4 Ana Modül', description: 'Seçmen İstihbaratı, Erişim Motoru, Saha Operasyonları ve Analitik Paneli. Her biri kampanyanın farklı bir boyutunu yönetiyor.', position: 'bottom' },
+  { target: 'scenario', title: 'Canlı Senaryo', description: 'Kadıköy ilçesinde gerçekçi bir kampanya senaryosunu adım adım izleyin. "Otomatik Oynat" butonuna basın.', position: 'top' },
+  { target: 'mockups', title: 'İnteraktif Demo', description: 'Grafiklere tıklayın, mesaj gönderin, saha ekiplerini inceleyin. Platformun gerçek kullanım deneyimini yaşayın.', position: 'top' },
+  { target: 'comparison', title: 'Fark Nerede?', description: 'Manuel kampanyalarla HUDA arasındaki farkı tek tabloda görün.', position: 'top' },
 ];
 
 export function HudaTour() {
@@ -24,7 +24,6 @@ export function HudaTour() {
   const handleStart = useCallback(() => {
     setCurrentStep(0);
     setIsOpen(true);
-    // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
@@ -50,7 +49,6 @@ export function HudaTour() {
 
   return (
     <>
-      {/* Floating launch button */}
       {!isOpen && (
         <button
           onClick={handleStart}
@@ -61,16 +59,12 @@ export function HudaTour() {
         </button>
       )}
 
-      {/* Tour overlay */}
       {isOpen && (
         <div className="fixed inset-0 z-[100] pointer-events-none">
-          {/* Semi-transparent backdrop */}
           <div className="absolute inset-0 bg-foreground/40 pointer-events-auto" onClick={() => setIsOpen(false)} />
 
-          {/* Tour card - fixed at bottom */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg pointer-events-auto animate-fade-up">
             <div className="mx-4 bg-card border border-border shadow-2xl">
-              {/* Progress bar */}
               <div className="h-1 bg-muted">
                 <div
                   className="h-full bg-accent transition-all duration-500"
@@ -102,7 +96,7 @@ export function HudaTour() {
                     className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors disabled:opacity-30"
                   >
                     <ChevronLeft className="w-4 h-4" />
-                    Onceki
+                    Önceki
                   </button>
                   <div className="flex gap-1">
                     {tourSteps.map((_, i) => (
