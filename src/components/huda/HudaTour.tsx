@@ -63,8 +63,8 @@ export function HudaTour() {
         <div className="fixed inset-0 z-[100] pointer-events-none">
           <div className="absolute inset-0 bg-foreground/40 pointer-events-auto" onClick={() => setIsOpen(false)} />
 
-          <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-full max-w-[calc(100%-2rem)] sm:max-w-lg pointer-events-auto animate-fade-up">
-            <div className="mx-2 sm:mx-4 bg-card border border-border shadow-2xl">
+          <div className="absolute bottom-0 sm:bottom-6 left-0 right-0 sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-lg pointer-events-auto animate-fade-up">
+            <div className="bg-card border-t sm:border border-border shadow-2xl sm:mx-4">
               <div className="h-1 bg-muted">
                 <div
                   className="h-full bg-accent transition-all duration-500"
