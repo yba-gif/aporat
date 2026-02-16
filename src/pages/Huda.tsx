@@ -5,11 +5,13 @@ import { HudaHero } from '@/components/huda/HudaHero';
 import { HudaMarketContext } from '@/components/huda/HudaMarketContext';
 import { HudaProblem } from '@/components/huda/HudaProblem';
 import { HudaSolution } from '@/components/huda/HudaSolution';
+import { HudaScenario } from '@/components/huda/HudaScenario';
 import { HudaMockups } from '@/components/huda/HudaMockups';
 import { HudaTechnology } from '@/components/huda/HudaTechnology';
 import { HudaComparison } from '@/components/huda/HudaComparison';
 import { HudaTimeline } from '@/components/huda/HudaTimeline';
 import { HudaFooter } from '@/components/huda/HudaFooter';
+import { HudaTour } from '@/components/huda/HudaTour';
 
 export default function Huda() {
   return (
@@ -31,16 +33,19 @@ export default function Huda() {
       </header>
 
       <main className="pt-14">
-        <HudaHero />
+        <div data-tour="hero"><HudaHero /></div>
         <HudaMarketContext />
-        <HudaProblem />
-        <HudaSolution />
-        <HudaMockups />
+        <div data-tour="problem"><HudaProblem /></div>
+        <div data-tour="solution"><HudaSolution /></div>
+        <div data-tour="scenario"><HudaScenario /></div>
+        <div data-tour="mockups"><HudaMockups /></div>
         <HudaTechnology />
-        <HudaComparison />
+        <div data-tour="comparison"><HudaComparison /></div>
         <HudaTimeline />
         <HudaFooter />
       </main>
+
+      <HudaTour />
     </div>
   );
 }
