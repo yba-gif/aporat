@@ -1,5 +1,3 @@
-import { Lock } from 'lucide-react';
-
 export function HudaHero() {
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
@@ -7,10 +5,6 @@ export function HudaHero() {
       <div className="absolute inset-0 bg-grid opacity-30" />
 
       <div className="container-wide relative z-10 py-20 text-center">
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-8 bg-muted border border-border text-muted-foreground text-xs font-mono uppercase tracking-wider">
-          <Lock className="w-3 h-3" />
-          <span>Gizli Ürün Dosyası</span>
-        </div>
 
         <h1 className="text-display max-w-4xl mx-auto mb-6">
           Yerel seçimler için yapay zekâ destekli kampanya istihbaratı
