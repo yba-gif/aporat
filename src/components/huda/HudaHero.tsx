@@ -20,22 +20,6 @@ export function HudaHero() {
           Seçmen segmentasyonu. Çok kanallı erişim. Anlık analitik. Tek platform.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-0 mb-12">
-          <div className="px-8 py-4 border border-border bg-card">
-            <p className="text-3xl font-semibold text-accent">81</p>
-            <p className="text-sm text-muted-foreground">İl</p>
-          </div>
-          <div className="hidden sm:block w-px h-16 bg-border" />
-          <div className="px-8 py-4 border border-border bg-card sm:border-l-0">
-            <p className="text-3xl font-semibold">973</p>
-            <p className="text-sm text-muted-foreground">İlçe</p>
-          </div>
-          <div className="hidden sm:block w-px h-16 bg-border" />
-          <div className="px-8 py-4 border border-border bg-card sm:border-l-0">
-            <p className="text-3xl font-semibold text-accent">5</p>
-            <p className="text-sm text-muted-foreground">Kanal</p>
-          </div>
-        </div>
 
       </div>
     </section>
