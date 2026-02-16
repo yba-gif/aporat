@@ -28,11 +28,6 @@ export function HudaMarketContext() {
           ))}
         </div>
 
-        <div className="p-6 bg-accent/5 border border-accent/20 text-center">
-          <p className="text-sm text-muted-foreground">
-            <strong className="text-foreground">Mevcut durum:</strong> Kampanya araçları dağınık, manuel ve birbirleriyle entegre değil. Partiler veriye dayalı karar alamıyor.
-          </p>
-        </div>
       </div>
     </section>
   );
