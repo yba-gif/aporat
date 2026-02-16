@@ -52,10 +52,10 @@ export function HudaTour() {
       {!isOpen && (
         <button
           onClick={handleStart}
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-accent text-accent-foreground shadow-lg hover:bg-accent/90 transition-all duration-300 hover:scale-105"
+          className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-3 py-2.5 sm:px-4 sm:py-3 bg-accent text-accent-foreground shadow-lg hover:bg-accent/90 transition-all duration-300 hover:scale-105"
         >
           <Lightbulb className="w-4 h-4" />
-          <span className="text-sm font-medium">Rehberli Tur</span>
+          <span className="text-sm font-medium hidden sm:inline">Rehberli Tur</span>
         </button>
       )}
 
@@ -63,8 +63,8 @@ export function HudaTour() {
         <div className="fixed inset-0 z-[100] pointer-events-none">
           <div className="absolute inset-0 bg-foreground/40 pointer-events-auto" onClick={() => setIsOpen(false)} />
 
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg pointer-events-auto animate-fade-up">
-            <div className="mx-4 bg-card border border-border shadow-2xl">
+          <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 w-full max-w-[calc(100%-2rem)] sm:max-w-lg pointer-events-auto animate-fade-up">
+            <div className="mx-2 sm:mx-4 bg-card border border-border shadow-2xl">
               <div className="h-1 bg-muted">
                 <div
                   className="h-full bg-accent transition-all duration-500"
@@ -72,20 +72,20 @@ export function HudaTour() {
                 />
               </div>
 
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <p className="text-xs text-accent font-mono mb-1">
                       {currentStep + 1} / {tourSteps.length}
                     </p>
-                    <h3 className="font-semibold text-lg">{step.title}</h3>
+                    <h3 className="font-semibold text-base sm:text-lg">{step.title}</h3>
                   </div>
                   <button onClick={() => setIsOpen(false)} className="p-1 text-muted-foreground hover:text-foreground transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed mb-4">
                   {step.description}
                 </p>
 
