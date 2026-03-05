@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import P2 from "./pages/P2";
+import P2Login from "./pages/P2Login";
 import Positions from "./pages/Positions";
 import PositionDetail from "./pages/PositionDetail";
 import Government from "./pages/Government";
@@ -26,6 +27,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/p2" element={<P2 />} />
+          <Route path="/p2/login" element={<P2Login />} />
           <Route path="/government" element={<Government />} />
           <Route path="/platform" element={<Platform />} />
           <Route path="/tanitim" element={<Tanitim />} />
