@@ -27,6 +27,7 @@ import Platform from "./pages/Platform";
 import Tanitim from "./pages/Tanitim";
 import Huda from "./pages/Huda";
 import P2Apply from "./pages/P2Apply";
+import P2ApplyStatus from "./pages/P2ApplyStatus";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,6 +48,7 @@ const App = () => (
             <Route path="/p2/register" element={<P2Register />} />
             <Route path="/p2/auth/mfa" element={<P2Mfa />} />
             <Route path="/p2/apply" element={<P2Apply />} />
+            <Route path="/p2/apply/status/:id" element={<P2ApplyStatus />} />
             {/* P2 protected dashboard */}
             <Route path="/p2/dashboard" element={<P2ProtectedRoute><P2DashboardLayout /></P2ProtectedRoute>}>
               <Route index element={<P2DashboardHome />} />
