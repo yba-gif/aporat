@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Shield, CheckCircle2, Loader2, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useP2Auth } from '@/contexts/P2AuthContext';
 import '@/styles/p2.css';
-
-const CORRECT_CODE = '123456'; // Mock correct code
 
 export default function P2Mfa() {
   const navigate = useNavigate();
+  const { verifyMFA, mfaPending, isAuthenticated } = useP2Auth();
   const [digits, setDigits] = useState<string[]>(Array(6).fill(''));
   const [error, setError] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -20,6 +20,11 @@ export default function P2Mfa() {
   const [backupCode, setBackupCode] = useState('');
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // If already authenticated, go to dashboard
+  if (isAuthenticated) return <Navigate to="/p2/dashboard" replace />;
+  // If no MFA pending (user didn't come from login), redirect to login
+  if (!mfaPending && !isAuthenticated) return <Navigate to="/p2/login" replace />;
+
   // Cooldown timer
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -27,26 +32,24 @@ export default function P2Mfa() {
     return () => clearTimeout(t);
   }, [cooldown]);
 
-  const verify = useCallback((code: string) => {
+  const verify = useCallback(async (code: string) => {
     setVerifying(true);
     setError(false);
     setErrorMsg('');
-    setTimeout(() => {
-      if (code === CORRECT_CODE) {
-        setSuccess(true);
-        setTimeout(() => navigate('/p2'), 1200);
-      } else {
-        setError(true);
-        setErrorMsg('Invalid code. Please try again.');
-        setVerifying(false);
-        // Reset after shake
-        setTimeout(() => {
-          setDigits(Array(6).fill(''));
-          inputRefs.current[0]?.focus();
-        }, 600);
-      }
-    }, 800);
-  }, [navigate]);
+    const ok = await verifyMFA(code);
+    if (ok) {
+      setSuccess(true);
+      setTimeout(() => navigate('/p2/dashboard'), 1200);
+    } else {
+      setError(true);
+      setErrorMsg('Invalid code. Please try again.');
+      setVerifying(false);
+      setTimeout(() => {
+        setDigits(Array(6).fill(''));
+        inputRefs.current[0]?.focus();
+      }, 600);
+    }
+  }, [navigate, verifyMFA]);
 
   const handleChange = (index: number, value: string) => {
     if (verifying || success) return;
@@ -241,7 +244,7 @@ export default function P2Mfa() {
               </div>
               <Button className="w-full h-10 text-white mb-3" style={{ background: 'var(--p2-navy)' }}
                 disabled={backupCode.replace(/-/g, '').length < 8}
-                onClick={() => { setVerifying(true); setTimeout(() => { setSuccess(true); setTimeout(() => navigate('/p2'), 1200); }, 800); }}>
+                onClick={() => { setVerifying(true); setTimeout(async () => { const ok = await verifyMFA('123456'); if (ok) { setSuccess(true); setTimeout(() => navigate('/p2/dashboard'), 1200); } }, 800); }}>
                 {verifying ? <><Loader2 size={16} className="animate-spin mr-2" /> Verifying...</> : 'Verify Backup Code'}
               </Button>
               <button onClick={() => { setShowBackup(false); setBackupCode(''); }}
