@@ -12,6 +12,9 @@ import { Progress } from '@/components/ui/progress';
 import { ScoreCircle } from '@/components/p2/ScoreCircle';
 import { StatusBadge } from '@/components/p2/StatusBadge';
 import { cn } from '@/lib/utils';
+import ReviewPanel from '@/components/p2/ReviewPanel';
+
+type ReviewDecision = 'approve' | 'deny' | 'escalate';
 
 // ── Types ──
 type Severity = 'INFO' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -202,7 +205,11 @@ export default function P2CaseDetail() {
   const { id } = useParams();
   const [noteText, setNoteText] = useState('');
   const [notes, setNotes] = useState(NOTES);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewDecision, setReviewDecision] = useState<ReviewDecision>('approve');
   const caseId = id || CASE.id;
+
+  const openReview = (d: ReviewDecision) => { setReviewDecision(d); setReviewOpen(true); };
 
   const addNote = () => {
     if (!noteText.trim()) return;
@@ -231,13 +238,13 @@ export default function P2CaseDetail() {
             <span className="text-xs text-[--p2-gray-400]">{caseId}</span>
           </div>
           <div className="flex items-center gap-2">
-            <Button size="sm" className="bg-[--p2-green] hover:bg-[--p2-green]/90 text-white text-xs h-8 gap-1.5">
+            <Button size="sm" onClick={() => openReview('approve')} className="bg-[--p2-green] hover:bg-[--p2-green]/90 text-white text-xs h-8 gap-1.5">
               <CheckCircle size={13} /> Approve
             </Button>
-            <Button size="sm" className="bg-[--p2-red] hover:bg-[--p2-red]/90 text-white text-xs h-8 gap-1.5">
+            <Button size="sm" onClick={() => openReview('deny')} className="bg-[--p2-red] hover:bg-[--p2-red]/90 text-white text-xs h-8 gap-1.5">
               <XCircle size={13} /> Deny
             </Button>
-            <Button size="sm" variant="outline" className="border-[--p2-orange] text-[--p2-orange] hover:bg-[--p2-orange]/5 text-xs h-8 gap-1.5">
+            <Button size="sm" onClick={() => openReview('escalate')} variant="outline" className="border-[--p2-orange] text-[--p2-orange] hover:bg-[--p2-orange]/5 text-xs h-8 gap-1.5">
               <AlertTriangle size={13} /> Escalate
             </Button>
           </div>
@@ -427,6 +434,8 @@ export default function P2CaseDetail() {
           </motion.div>
         </div>
       </div>
+
+      <ReviewPanel open={reviewOpen} onClose={() => setReviewOpen(false)} applicantName={CASE.name} initialDecision={reviewDecision} />
     </div>
   );
 }
