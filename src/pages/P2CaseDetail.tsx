@@ -13,6 +13,7 @@ import { ScoreCircle } from '@/components/p2/ScoreCircle';
 import { StatusBadge } from '@/components/p2/StatusBadge';
 import { cn } from '@/lib/utils';
 import ReviewPanel from '@/components/p2/ReviewPanel';
+import CaseTimeline from '@/components/p2/CaseTimeline';
 
 type ReviewDecision = 'approve' | 'deny' | 'escalate';
 
@@ -350,27 +351,7 @@ export default function P2CaseDetail() {
 
               {/* Timeline Tab */}
               <TabsContent value="timeline" className="p-5 mt-0">
-                <div className="relative">
-                  <div className="absolute left-[11px] top-2 bottom-2 w-px bg-[--p2-gray-200]" />
-                  <div className="space-y-4">
-                    {TIMELINE.map((ev, i) => {
-                      const Icon = ev.icon;
-                      return (
-                        <motion.div key={ev.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}
-                          className="flex items-start gap-3 relative">
-                          <div className="z-10 w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: ev.color }}>
-                            <Icon size={12} className="text-white" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-[--p2-navy]">{ev.title}</p>
-                            <p className="text-[11px] text-[--p2-gray-500]">{ev.description}</p>
-                            <p className="text-[10px] text-[--p2-gray-400] mt-0.5">{ev.time}</p>
-                          </div>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
+                <CaseTimeline />
               </TabsContent>
 
               {/* Documents Tab */}
