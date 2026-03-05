@@ -37,6 +37,7 @@ const CONSULATES: Consulate[] = [
 
 function AddModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [autoKey, setAutoKey] = useState(true);
+
   if (!open) return null;
 
   return (
