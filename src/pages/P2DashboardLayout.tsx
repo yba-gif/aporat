@@ -14,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useP2Auth } from '@/contexts/P2AuthContext';
+import NotificationsDropdown from '@/components/p2/NotificationsDropdown';
 import '@/styles/p2.css';
 
 const NAV_ITEMS = [
@@ -222,15 +223,7 @@ export default function P2DashboardLayout() {
             </div>
 
             {/* Notifications */}
-            <button className="relative p-1.5 rounded-md hover:bg-[--p2-gray-100] transition-colors">
-              <Bell size={18} style={{ color: 'var(--p2-gray-500)' }} />
-              {MOCK_NOTIFICATION_COUNT > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full text-[10px] font-bold text-white flex items-center justify-center"
-                  style={{ background: 'var(--p2-red)' }}>
-                  {MOCK_NOTIFICATION_COUNT}
-                </span>
-              )}
-            </button>
+            <NotificationsDropdown />
 
             {/* User menu */}
             <DropdownMenu>
