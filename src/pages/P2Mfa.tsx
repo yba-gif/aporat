@@ -20,11 +20,6 @@ export default function P2Mfa() {
   const [backupCode, setBackupCode] = useState('');
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // If already authenticated, go to dashboard
-  if (isAuthenticated) return <Navigate to="/p2/dashboard" replace />;
-  // If no MFA pending (user didn't come from login), redirect to login
-  if (!mfaPending && !isAuthenticated) return <Navigate to="/p2/login" replace />;
-
   // Cooldown timer
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -50,6 +45,11 @@ export default function P2Mfa() {
       }, 600);
     }
   }, [navigate, verifyMFA]);
+
+  // If already authenticated, go to dashboard
+  if (isAuthenticated) return <Navigate to="/p2/dashboard" replace />;
+  // If no MFA pending (user didn't come from login), redirect to login
+  if (!mfaPending && !isAuthenticated) return <Navigate to="/p2/login" replace />;
 
   const handleChange = (index: number, value: string) => {
     if (verifying || success) return;
