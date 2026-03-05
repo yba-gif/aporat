@@ -7,6 +7,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import Index from "./pages/Index";
 import P2 from "./pages/P2";
 import P2Login from "./pages/P2Login";
+import P2Register from "./pages/P2Register";
 import Positions from "./pages/Positions";
 import PositionDetail from "./pages/PositionDetail";
 import Government from "./pages/Government";
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/p2" element={<P2 />} />
           <Route path="/p2/login" element={<P2Login />} />
+          <Route path="/p2/register" element={<P2Register />} />
           <Route path="/government" element={<Government />} />
           <Route path="/platform" element={<Platform />} />
           <Route path="/tanitim" element={<Tanitim />} />
