@@ -32,6 +32,9 @@ import P2Certificate from "./pages/P2Certificate";
 import P2Verify from "./pages/P2Verify";
 import P2ApplyDashboard from "./pages/P2ApplyDashboard";
 import P2Support from "./pages/P2Support";
+import P2AdminLayout from "./pages/P2AdminLayout";
+import P2AdminDashboard from "./pages/P2AdminDashboard";
+import { AdminUsers, AdminConsulates, AdminApi, AdminBilling, AdminConfig } from "./pages/P2AdminPlaceholders";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -69,6 +72,15 @@ const App = () => (
               <Route path="analytics" element={<P2Analytics />} />
               <Route path="reports" element={<P2ReportsPage />} />
               <Route path="settings" element={<P2SettingsPage />} />
+            </Route>
+            {/* Admin panel */}
+            <Route path="/p2/admin" element={<P2ProtectedRoute><P2AdminLayout /></P2ProtectedRoute>}>
+              <Route index element={<P2AdminDashboard />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="consulates" element={<AdminConsulates />} />
+              <Route path="api" element={<AdminApi />} />
+              <Route path="billing" element={<AdminBilling />} />
+              <Route path="config" element={<AdminConfig />} />
             </Route>
             {/* Other routes */}
             <Route path="/government" element={<Government />} />
