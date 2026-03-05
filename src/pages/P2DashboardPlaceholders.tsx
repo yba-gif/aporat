@@ -7,9 +7,7 @@ export function P2Queue() {
 export function P2Cases() {
   return <EmptyState icon={Folder} title="Cases" description="All case files and their statuses." />;
 }
-export function P2Graph() {
-  return <EmptyState icon={GitBranch} title="Network Graph" description="Entity relationship visualization coming soon." />;
-}
+export { default as P2Graph } from './P2NetworkGraph';
 export function P2Analytics() {
   return <EmptyState icon={BarChart3} title="Analytics" description="Insights and trend reports will be displayed here." />;
 }
