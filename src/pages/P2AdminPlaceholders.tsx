@@ -14,7 +14,7 @@ function Placeholder({ title }: { title: string }) {
   );
 }
 
-export const AdminUsers = () => <Placeholder title="User Management" />;
+export { default as AdminUsers } from './P2AdminUsers';
 export const AdminConsulates = () => <Placeholder title="Consulate Management" />;
 export const AdminApi = () => <Placeholder title="API Monitoring" />;
 export const AdminBilling = () => <Placeholder title="Billing & Subscriptions" />;
