@@ -13,7 +13,8 @@ import P2Register from "./pages/P2Register";
 import P2Mfa from "./pages/P2Mfa";
 import P2DashboardLayout from "./pages/P2DashboardLayout";
 import P2DashboardHome from "./pages/P2DashboardHome";
-import { P2Queue, P2Cases, P2Graph, P2Analytics, P2Reports, P2Settings } from "./pages/P2DashboardPlaceholders";
+import { P2Cases, P2Graph, P2Analytics, P2Reports, P2Settings } from "./pages/P2DashboardPlaceholders";
+import P2RiskQueue from "./pages/P2RiskQueue";
 import Positions from "./pages/Positions";
 import PositionDetail from "./pages/PositionDetail";
 import Government from "./pages/Government";
@@ -42,7 +43,7 @@ const App = () => (
             {/* P2 protected dashboard */}
             <Route path="/p2/dashboard" element={<P2ProtectedRoute><P2DashboardLayout /></P2ProtectedRoute>}>
               <Route index element={<P2DashboardHome />} />
-              <Route path="queue" element={<P2Queue />} />
+              <Route path="queue" element={<P2RiskQueue />} />
               <Route path="cases" element={<P2Cases />} />
               <Route path="graph" element={<P2Graph />} />
               <Route path="analytics" element={<P2Analytics />} />
