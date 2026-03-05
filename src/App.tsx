@@ -16,6 +16,7 @@ import P2DashboardHome from "./pages/P2DashboardHome";
 import { P2Cases, P2Graph, P2Analytics, P2Reports, P2Settings } from "./pages/P2DashboardPlaceholders";
 import P2RiskQueue from "./pages/P2RiskQueue";
 import P2CaseDetail from "./pages/P2CaseDetail";
+import P2CaseGraph from "./pages/P2CaseGraph";
 import Positions from "./pages/Positions";
 import PositionDetail from "./pages/PositionDetail";
 import Government from "./pages/Government";
@@ -47,6 +48,7 @@ const App = () => (
               <Route path="queue" element={<P2RiskQueue />} />
               <Route path="cases" element={<P2Cases />} />
               <Route path="cases/:id" element={<P2CaseDetail />} />
+              <Route path="cases/:id/graph" element={<P2CaseGraph />} />
               <Route path="graph" element={<P2Graph />} />
               <Route path="analytics" element={<P2Analytics />} />
               <Route path="reports" element={<P2Reports />} />
