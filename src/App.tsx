@@ -49,8 +49,8 @@ const App = () => (
           <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
-            {/* P2 public routes */}
-            <Route path="/p2" element={<P2 />} />
+            {/* P2 entry - redirect to login */}
+            <Route path="/p2" element={<P2ProtectedRoute><P2 /></P2ProtectedRoute>} />
             <Route path="/p2/login" element={<P2Login />} />
             <Route path="/p2/register" element={<P2Register />} />
             <Route path="/p2/auth/mfa" element={<P2Mfa />} />
