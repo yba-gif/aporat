@@ -30,6 +30,7 @@ import P2Apply from "./pages/P2Apply";
 import P2ApplyStatus from "./pages/P2ApplyStatus";
 import P2Certificate from "./pages/P2Certificate";
 import P2Verify from "./pages/P2Verify";
+import P2ApplyDashboard from "./pages/P2ApplyDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/p2/auth/mfa" element={<P2Mfa />} />
             <Route path="/p2/apply" element={<P2Apply />} />
             <Route path="/p2/apply/status/:id" element={<P2ApplyStatus />} />
+            <Route path="/p2/apply/dashboard" element={<P2ApplyDashboard />} />
             <Route path="/p2/apply/certificate/:id" element={<P2Certificate />} />
             <Route path="/verify/:certId" element={<P2Verify />} />
             <Route path="/verify" element={<P2Verify />} />
