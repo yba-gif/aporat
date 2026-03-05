@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, Eye, EyeOff, Building2, Loader2 } from 'lucide-react';
+import { useP2Auth } from '@/contexts/P2AuthContext';
 import '@/styles/p2.css';
 
 export default function P2Login() {
   const navigate = useNavigate();
+  const { login, isAuthenticated } = useP2Auth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +15,8 @@ export default function P2Login() {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
   const [touched, setTouched] = useState<{ email?: boolean; password?: boolean }>({});
+
+  if (isAuthenticated) return <Navigate to="/p2/dashboard" replace />;
 
   const validate = () => {
     const e: typeof errors = {};
@@ -22,12 +26,16 @@ export default function P2Login() {
     return Object.keys(e).length === 0;
   };
 
-  const handleSubmit = (ev: React.FormEvent) => {
+  const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     setTouched({ email: true, password: true });
     if (!validate()) return;
     setLoading(true);
-    setTimeout(() => navigate('/p2'), 1500);
+    const ok = await login(email, password);
+    if (ok) {
+      navigate('/p2/auth/mfa');
+    }
+    setLoading(false);
   };
 
   return (

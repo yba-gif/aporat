@@ -13,6 +13,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useP2Auth } from '@/contexts/P2AuthContext';
 import '@/styles/p2.css';
 
 const NAV_ITEMS = [
@@ -79,6 +80,7 @@ function NavItem({ item, active, collapsed }: { item: typeof NAV_ITEMS[0]; activ
 
 export default function P2DashboardLayout() {
   const location = useLocation();
+  const { user, logout } = useP2Auth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -235,13 +237,13 @@ export default function P2DashboardLayout() {
               <DropdownMenuTrigger asChild>
                 <button className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
                   style={{ background: 'var(--p2-navy)' }}>
-                  {MOCK_USER.initials}
+                  {user?.name?.split(' ').map(n => n[0]).join('').slice(0, 2) || 'U'}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
-                  <p className="text-sm font-medium">{MOCK_USER.name}</p>
-                  <p className="text-xs text-muted-foreground">{MOCK_USER.email}</p>
+                  <p className="text-sm font-medium">{user?.name || 'User'}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email || ''}</p>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
@@ -255,10 +257,8 @@ export default function P2DashboardLayout() {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link to="/p2/login" className="cursor-pointer text-[--p2-red]">
+                <DropdownMenuItem onClick={logout} className="cursor-pointer text-[--p2-red]">
                     <LogOut size={14} className="mr-2" /> Sign Out
-                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
