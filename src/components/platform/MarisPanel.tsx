@@ -144,15 +144,15 @@ export function MarisPanel() {
           </button>
 
           <button
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${
+            className={`flex items-center gap-2 md:gap-3 px-3 py-2 md:py-2.5 rounded text-left transition-colors whitespace-nowrap md:whitespace-normal md:w-full ${
               activeView === 'integrity' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'
             }`}
             onClick={() => setActiveView('integrity')}
           >
-            <Shield className="w-4 h-4" />
+            <Shield className="w-4 h-4 shrink-0" />
             <div>
               <p className="text-sm font-medium">Integrity</p>
-              <p className="text-[10px] text-destructive">4 alerts</p>
+              <p className="text-[10px] text-destructive hidden md:block">4 alerts</p>
             </div>
           </button>
         </div>
