@@ -75,9 +75,16 @@ const navItems = [
 ];
 
 function PlatformSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const { activeModule, setActiveModule } = usePlatform();
   const collapsed = state === 'collapsed';
+
+  const handleModuleSelect = (moduleId: typeof activeModule) => {
+    setActiveModule(moduleId);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar className="border-r border-border bg-sidebar">
@@ -108,7 +115,7 @@ function PlatformSidebar() {
                             ? 'bg-accent text-accent-foreground' 
                             : 'hover:bg-sidebar-accent'
                         }`}
-                        onClick={() => setActiveModule(item.id)}
+                        onClick={() => handleModuleSelect(item.id)}
                       >
                         <span className="text-sm font-medium">{item.label}</span>
                       </SidebarMenuButton>

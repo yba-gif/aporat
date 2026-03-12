@@ -522,9 +522,9 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
         <ViewToggle view={viewMode} onChange={setViewMode} />
       </div>
 
-      {/* Enhanced Graph controls */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        <div className="flex flex-col gap-1 bg-surface-elevated border border-border rounded p-1.5">
+      {/* Enhanced Graph controls — compact on mobile */}
+      <div className="absolute top-4 left-3 sm:left-4 z-10 flex flex-col gap-2">
+        <div className="flex flex-col gap-1 bg-surface-elevated border border-border rounded p-1 sm:p-1.5">
           <button 
             onClick={handleZoomIn}
             className="p-2 hover:bg-secondary rounded transition-colors"
@@ -533,8 +533,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
             <ZoomIn className="w-4 h-4" />
           </button>
           
-          {/* Zoom slider */}
-          <div className="px-2 py-3">
+          {/* Zoom slider — hidden on mobile */}
+          <div className="px-2 py-3 hidden sm:block">
             <Slider
               orientation="vertical"
               value={[zoomLevel]}
@@ -596,8 +596,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
           </button>
         </div>
         
-        {/* Zoom percentage */}
-        <div className="bg-surface-elevated border border-border rounded px-2 py-1 text-center">
+        {/* Zoom percentage — hidden on mobile */}
+        <div className="bg-surface-elevated border border-border rounded px-2 py-1 text-center hidden sm:block">
           <span className="text-[10px] font-mono text-muted-foreground">
             {Math.round(zoomLevel * 100)}%
           </span>
