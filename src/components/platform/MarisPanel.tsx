@@ -131,15 +131,15 @@ export function MarisPanel() {
           </button>
 
           <button
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${
+            className={`flex items-center gap-2 md:gap-3 px-3 py-2 md:py-2.5 rounded text-left transition-colors whitespace-nowrap md:whitespace-normal md:w-full ${
               activeView === 'vault' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'
             }`}
             onClick={() => setActiveView('vault')}
           >
-            <Database className="w-4 h-4" />
+            <Database className="w-4 h-4 shrink-0" />
             <div>
-              <p className="text-sm font-medium">Evidence Vault</p>
-              <p className="text-[10px] text-muted-foreground">847 documents</p>
+              <p className="text-sm font-medium">Vault</p>
+              <p className="text-[10px] text-muted-foreground hidden md:block">847 documents</p>
             </div>
           </button>
 
