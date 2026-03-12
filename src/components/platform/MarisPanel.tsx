@@ -116,7 +116,7 @@ export function MarisPanel() {
           <p className="text-xs text-muted-foreground">Document lifecycle</p>
         </div>
 
-        <div className="p-2 space-y-1">
+        <div className="flex md:flex-col md:p-2 md:space-y-1 overflow-x-auto md:overflow-x-visible gap-1 p-2">
           <button
             className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${
               activeView === 'ingest' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'
