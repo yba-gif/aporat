@@ -560,7 +560,7 @@ export default function P2NetworkGraph() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 400, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="absolute top-0 right-0 w-80 h-full bg-[#0c1220]/95 backdrop-blur-xl border-l border-white/10 z-20 overflow-y-auto"
+            className="absolute top-0 right-0 w-full sm:w-80 h-full bg-[#0c1220]/95 backdrop-blur-xl border-l border-white/10 z-20 overflow-y-auto"
           >
             <div className="p-5 space-y-5">
               {/* Header */}
