@@ -633,18 +633,18 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
       />
 
       {/* Stats overlay */}
-      <div className="absolute bottom-4 left-4 z-10 flex gap-4">
-        <div className="bg-surface-elevated border border-border rounded px-3 py-2">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Nodes</p>
-          <p className="text-lg font-mono font-semibold">{stats.nodes}</p>
+      <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-10 flex gap-2 sm:gap-4">
+        <div className="bg-surface-elevated border border-border rounded px-2 sm:px-3 py-1.5 sm:py-2">
+          <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider">Nodes</p>
+          <p className="text-sm sm:text-lg font-mono font-semibold">{stats.nodes}</p>
         </div>
-        <div className="bg-surface-elevated border border-border rounded px-3 py-2">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Edges</p>
-          <p className="text-lg font-mono font-semibold">{stats.edges}</p>
+        <div className="bg-surface-elevated border border-border rounded px-2 sm:px-3 py-1.5 sm:py-2">
+          <p className="text-[9px] sm:text-[10px] text-muted-foreground uppercase tracking-wider">Edges</p>
+          <p className="text-sm sm:text-lg font-mono font-semibold">{stats.edges}</p>
         </div>
-        <div className="bg-surface-elevated border border-destructive/50 rounded px-3 py-2">
-          <p className="text-[10px] text-destructive uppercase tracking-wider">Flagged</p>
-          <p className="text-lg font-mono font-semibold text-destructive">{stats.flagged}</p>
+        <div className="bg-surface-elevated border border-destructive/50 rounded px-2 sm:px-3 py-1.5 sm:py-2">
+          <p className="text-[9px] sm:text-[10px] text-destructive uppercase tracking-wider">Flagged</p>
+          <p className="text-sm sm:text-lg font-mono font-semibold text-destructive">{stats.flagged}</p>
         </div>
       </div>
 
