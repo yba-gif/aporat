@@ -32,7 +32,8 @@ const NODE_TYPES = [
 ];
 
 export function FilterPanel({ filters, onChange, networks }: FilterPanelProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(!isMobile);
 
   const toggleNodeType = (type: string) => {
     const newTypes = filters.nodeTypes.includes(type)
