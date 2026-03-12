@@ -111,7 +111,7 @@ export function MarisPanel() {
     <div className="flex-1 flex flex-col md:flex-row min-w-0">
       {/* Left Navigation — horizontal on mobile, vertical on md+ */}
       <div className="md:w-56 border-b md:border-b-0 md:border-r border-border flex md:flex-col shrink-0">
-        <div className="p-4 border-b border-border">
+        <div className="p-3 md:p-4 md:border-b border-border hidden md:block">
           <p className="text-label mb-1">Evidence Management</p>
           <p className="text-xs text-muted-foreground">Document lifecycle</p>
         </div>
