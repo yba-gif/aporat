@@ -118,15 +118,15 @@ export function MarisPanel() {
 
         <div className="flex md:flex-col md:p-2 md:space-y-1 overflow-x-auto md:overflow-x-visible gap-1 p-2">
           <button
-            className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${
+            className={`flex items-center gap-2 md:gap-3 px-3 py-2 md:py-2.5 rounded text-left transition-colors whitespace-nowrap md:whitespace-normal md:w-full ${
               activeView === 'ingest' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'
             }`}
             onClick={() => setActiveView('ingest')}
           >
-            <Upload className="w-4 h-4" />
+            <Upload className="w-4 h-4 shrink-0" />
             <div>
               <p className="text-sm font-medium">Ingest</p>
-              <p className="text-[10px] text-muted-foreground">Upload & process</p>
+              <p className="text-[10px] text-muted-foreground hidden md:block">Upload & process</p>
             </div>
           </button>
 
