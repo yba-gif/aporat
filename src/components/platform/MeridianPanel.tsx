@@ -79,14 +79,14 @@ export function MeridianPanel() {
 
       {/* Main Content */}
       {selectedTab === 'cases' && (
-        <>
-          <div className="w-96 border-r border-border" data-tour="case-management">
+        <div className="flex-1 flex flex-col md:flex-row min-w-0">
+          <div className="md:w-80 lg:w-96 border-b md:border-b-0 md:border-r border-border shrink-0 max-h-[40vh] md:max-h-none overflow-auto" data-tour="case-management">
             <CaseManagement onCaseSelect={setSelectedCaseId} selectedCaseId={selectedCaseId} />
           </div>
-          <div className="flex-1" data-tour="decision-workflow">
+          <div className="flex-1 min-w-0" data-tour="decision-workflow">
             <DecisionWorkflow caseId={selectedCaseId} />
           </div>
-        </>
+        </div>
       )}
 
       {selectedTab === 'workflow' && (
