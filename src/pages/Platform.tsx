@@ -185,17 +185,17 @@ function PlatformContent() {
   const moduleInfo = getModuleTitle();
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col min-w-0">
       {/* Top bar */}
-      <header className="h-12 border-b border-border flex items-center justify-between px-4 bg-surface-elevated">
-        <div className="flex items-center gap-4">
+      <header className="h-12 border-b border-border flex items-center justify-between px-3 sm:px-4 bg-surface-elevated shrink-0">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <SidebarTrigger />
-          <div className="flex items-center gap-2">
-            {activeModule === 'maris' && <Database className="w-4 h-4 text-accent" />}
-            {activeModule === 'nautica' && <Network className="w-4 h-4 text-accent" />}
-            {activeModule === 'meridian' && <Scale className="w-4 h-4 text-accent" />}
-            <span className="text-sm font-medium">{moduleInfo.title}</span>
-            <span className="text-xs font-mono text-muted-foreground px-2 py-0.5 bg-secondary rounded">
+          <div className="flex items-center gap-2 min-w-0">
+            {activeModule === 'maris' && <Database className="w-4 h-4 text-accent shrink-0" />}
+            {activeModule === 'nautica' && <Network className="w-4 h-4 text-accent shrink-0" />}
+            {activeModule === 'meridian' && <Scale className="w-4 h-4 text-accent shrink-0" />}
+            <span className="text-sm font-medium truncate">{moduleInfo.title}</span>
+            <span className="text-xs font-mono text-muted-foreground px-2 py-0.5 bg-secondary rounded hidden sm:inline">
               DEMO
             </span>
           </div>
@@ -203,8 +203,8 @@ function PlatformContent() {
           {/* Nautica sub-view toggle */}
           {activeModule === 'nautica' && (
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                {nauticaView === 'graph' ? 'Network Graph' : nauticaView === 'social' ? 'Social Intel' : 'Geopolitical'}
+              <DropdownMenuTrigger className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                <span className="hidden sm:inline">{nauticaView === 'graph' ? 'Network Graph' : nauticaView === 'social' ? 'Social Intel' : 'Geopolitical'}</span>
                 <ChevronDown className="w-3 h-3" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
@@ -228,22 +228,22 @@ function PlatformContent() {
           )}
         </div>
         
-        <div className="flex items-center gap-2">
-          {/* Presentation Mode Launcher */}
-          <PresentationLauncher />
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          {/* Presentation Mode Launcher — hidden on mobile */}
+          <div className="hidden md:block"><PresentationLauncher /></div>
           
-          {/* Guided Tour Launcher */}
-          <TourLauncher />
+          {/* Guided Tour Launcher — hidden on mobile */}
+          <div className="hidden md:block"><TourLauncher /></div>
           
           {/* Unified Command Palette */}
           <UnifiedCommandPalette />
           
-          {/* Demo Alert Trigger */}
+          {/* Demo Alert Trigger — hidden on mobile */}
           <Tooltip>
             <TooltipTrigger asChild>
               <button 
                 onClick={handleTriggerDemoAlert}
-                className="p-2 hover:bg-accent/20 rounded transition-colors group"
+                className="hidden sm:block p-2 hover:bg-accent/20 rounded transition-colors group"
               >
                 <Zap className="w-4 h-4 text-accent group-hover:text-accent" />
               </button>
@@ -253,10 +253,10 @@ function PlatformContent() {
             </TooltipContent>
           </Tooltip>
           
-          {/* Keyboard Shortcuts */}
+          {/* Keyboard Shortcuts — hidden on mobile */}
           <Popover>
             <PopoverTrigger asChild>
-              <button className="p-2 hover:bg-secondary rounded transition-colors">
+              <button className="hidden md:block p-2 hover:bg-secondary rounded transition-colors">
                 <Keyboard className="w-4 h-4 text-muted-foreground" />
               </button>
             </PopoverTrigger>
@@ -266,17 +266,17 @@ function PlatformContent() {
             </PopoverContent>
           </Popover>
           
-          {/* Language Toggle */}
-          <LanguageToggle />
+          {/* Language Toggle — hidden on mobile */}
+          <div className="hidden sm:block"><LanguageToggle /></div>
           
-          {/* Role Badge */}
-          <RoleBadge />
+          {/* Role Badge — hidden on mobile */}
+          <div className="hidden lg:block"><RoleBadge /></div>
           
           <button className="p-2 hover:bg-secondary rounded transition-colors relative">
             <Bell className="w-4 h-4 text-muted-foreground" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
           </button>
-          <button className="p-2 hover:bg-secondary rounded transition-colors">
+          <button className="hidden sm:block p-2 hover:bg-secondary rounded transition-colors">
             <Settings2 className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
