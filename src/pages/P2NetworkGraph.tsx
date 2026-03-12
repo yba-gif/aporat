@@ -429,13 +429,13 @@ export default function P2NetworkGraph() {
       />
 
       {/* Top bar */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+      <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pointer-events-none z-10">
         <div className="pointer-events-auto flex items-center gap-3">
-          <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 flex items-center gap-3">
-            <Network size={16} className="text-blue-400" />
-            <div>
-              <h2 className="text-sm font-bold text-white">Ahmad Rezaee — Fraud Network</h2>
-              <p className="text-[10px] text-white/40">{graphData.nodes.length} entities · {graphData.links.length} connections · Risk Score: 94</p>
+          <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 flex items-center gap-2 sm:gap-3">
+            <Network size={16} className="text-blue-400 flex-shrink-0" />
+            <div className="min-w-0">
+              <h2 className="text-xs sm:text-sm font-bold text-white truncate">Ahmad Rezaee — Fraud Network</h2>
+              <p className="text-[9px] sm:text-[10px] text-white/40">{graphData.nodes.length} entities · {graphData.links.length} connections</p>
             </div>
           </div>
         </div>
@@ -447,8 +447,8 @@ export default function P2NetworkGraph() {
               <Input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search entities..."
-                className="bg-transparent border-none text-xs text-white pl-7 h-9 w-48 placeholder:text-white/30 focus-visible:ring-0"
+                placeholder="Search..."
+                className="bg-transparent border-none text-xs text-white pl-7 h-8 sm:h-9 w-36 sm:w-48 placeholder:text-white/30 focus-visible:ring-0"
               />
             </div>
           </div>
