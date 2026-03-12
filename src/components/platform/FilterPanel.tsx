@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Filter, X, ChevronDown, Calendar } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
