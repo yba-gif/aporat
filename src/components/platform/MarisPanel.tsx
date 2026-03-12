@@ -271,7 +271,7 @@ export function MarisPanel() {
           
           {/* Document Detail */}
           {selectedDoc && (
-            <div className="flex-1 overflow-auto p-6">
+            <div className="flex-1 overflow-auto p-4 sm:p-6">
               <div className="max-w-2xl space-y-6">
                 <div className="flex items-start justify-between">
                   <div>
