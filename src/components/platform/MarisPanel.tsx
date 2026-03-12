@@ -183,7 +183,7 @@ export function MarisPanel() {
 
       {/* Main Content */}
       {activeView === 'ingest' && (
-        <div className="flex-1 p-6 overflow-auto">
+        <div className="flex-1 p-4 sm:p-6 overflow-auto">
           <div className="max-w-2xl mx-auto space-y-6">
             <div>
               <h3 className="text-lg font-semibold mb-2">Document Ingestion</h3>
