@@ -533,8 +533,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
             <ZoomIn className="w-4 h-4" />
           </button>
           
-          {/* Zoom slider */}
-          <div className="px-2 py-3">
+          {/* Zoom slider — hidden on mobile */}
+          <div className="px-2 py-3 hidden sm:block">
             <Slider
               orientation="vertical"
               value={[zoomLevel]}
