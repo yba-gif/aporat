@@ -596,8 +596,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
           </button>
         </div>
         
-        {/* Zoom percentage */}
-        <div className="bg-surface-elevated border border-border rounded px-2 py-1 text-center">
+        {/* Zoom percentage — hidden on mobile */}
+        <div className="bg-surface-elevated border border-border rounded px-2 py-1 text-center hidden sm:block">
           <span className="text-[10px] font-mono text-muted-foreground">
             {Math.round(zoomLevel * 100)}%
           </span>
