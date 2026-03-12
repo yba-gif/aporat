@@ -194,7 +194,7 @@ export function MarisPanel() {
 
             {/* Upload Zone */}
             <div 
-              className="border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-accent/50 transition-colors cursor-pointer"
+              className="border-2 border-dashed border-border rounded-lg p-6 sm:p-12 text-center hover:border-accent/50 transition-colors cursor-pointer"
               onClick={() => !isUploading && simulateUpload()}
             >
               <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
