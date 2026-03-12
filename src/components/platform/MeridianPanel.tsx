@@ -90,7 +90,7 @@ export function MeridianPanel() {
       )}
 
       {selectedTab === 'workflow' && (
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <DecisionWorkflow caseId={selectedCaseId || 'case-001'} />
         </div>
       )}
