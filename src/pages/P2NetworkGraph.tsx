@@ -455,9 +455,9 @@ export default function P2NetworkGraph() {
         </div>
       </div>
 
-      {/* Left filter panel */}
-      <div className="absolute left-4 top-20 pointer-events-auto z-10">
-        <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl p-3 space-y-3 w-48">
+      {/* Left filter panel — hidden on small mobile, shown on sm+ */}
+      <div className="absolute left-3 sm:left-4 top-[88px] sm:top-20 pointer-events-auto z-10 hidden sm:block">
+        <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl p-3 space-y-3 w-44 sm:w-48">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40 flex items-center gap-1.5">
             <Filter size={10} /> Entity Types
           </p>
