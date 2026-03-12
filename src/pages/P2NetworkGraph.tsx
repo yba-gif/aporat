@@ -674,7 +674,7 @@ export default function P2NetworkGraph() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 20, opacity: 0 }}
-            className="absolute bottom-16 left-4 pointer-events-auto z-10"
+            className="absolute bottom-14 left-3 sm:bottom-16 sm:left-4 pointer-events-auto z-10"
           >
             <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl p-3 w-64">
               <div className="flex items-center justify-between mb-1.5">
