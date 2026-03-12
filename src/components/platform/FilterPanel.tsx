@@ -92,7 +92,7 @@ export function FilterPanel({ filters, onChange, networks }: FilterPanelProps) {
     filters.dateRange !== null;
 
   return (
-    <div className="absolute top-4 left-16 z-10 w-56">
+    <div className="absolute top-14 left-3 sm:top-4 sm:left-16 z-10 w-48 sm:w-56">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
           <button className="flex items-center justify-between w-full px-3 py-2 bg-surface-elevated border border-border rounded-t hover:bg-secondary/50 transition-colors">

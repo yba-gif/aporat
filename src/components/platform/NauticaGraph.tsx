@@ -522,9 +522,9 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
         <ViewToggle view={viewMode} onChange={setViewMode} />
       </div>
 
-      {/* Enhanced Graph controls */}
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
-        <div className="flex flex-col gap-1 bg-surface-elevated border border-border rounded p-1.5">
+      {/* Enhanced Graph controls — compact on mobile */}
+      <div className="absolute top-4 left-3 sm:left-4 z-10 flex flex-col gap-2">
+        <div className="flex flex-col gap-1 bg-surface-elevated border border-border rounded p-1 sm:p-1.5">
           <button 
             onClick={handleZoomIn}
             className="p-2 hover:bg-secondary rounded transition-colors"
