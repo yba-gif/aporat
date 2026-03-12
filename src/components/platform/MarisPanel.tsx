@@ -248,7 +248,7 @@ export function MarisPanel() {
             )}
 
             {/* Supported Formats */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {['Passports', 'Bank Statements', 'Employment Letters', 'Travel Documents'].map((type) => (
                 <div key={type} className="p-4 bg-secondary/30 rounded-lg text-center">
                   <FileText className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
