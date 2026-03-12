@@ -648,8 +648,8 @@ export function NauticaGraph({ onNodeSelect, selectedNode }: NauticaGraphProps) 
         </div>
       </div>
 
-      {/* Legend with node types */}
-      <div className="absolute bottom-4 right-32 z-10 bg-surface-elevated border border-border rounded p-3">
+      {/* Legend — hidden on small mobile */}
+      <div className="absolute bottom-4 right-32 z-10 bg-surface-elevated border border-border rounded p-3 hidden sm:block">
         <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Entity Types</p>
         <div className="flex flex-col gap-1.5">
           {Object.entries(NODE_COLORS).map(([type, color]) => (

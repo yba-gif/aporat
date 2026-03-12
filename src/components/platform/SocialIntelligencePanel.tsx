@@ -672,9 +672,9 @@ export function SocialIntelligencePanel() {
         </div>
       )}
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Entity List */}
-        <div className="w-64 border-r border-border overflow-auto shrink-0">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden min-w-0">
+        {/* Entity List — horizontal scroll on mobile, vertical on md+ */}
+        <div className="md:w-64 border-b md:border-b-0 md:border-r border-border overflow-auto shrink-0 max-h-[30vh] md:max-h-none">
           <div className="p-3 border-b border-border">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">{t('entitiesUnderAnalysis')}</p>
           </div>
