@@ -429,13 +429,13 @@ export default function P2NetworkGraph() {
       />
 
       {/* Top bar */}
-      <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+      <div className="absolute top-3 left-3 right-3 sm:top-4 sm:left-4 sm:right-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pointer-events-none z-10">
         <div className="pointer-events-auto flex items-center gap-3">
-          <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2.5 flex items-center gap-3">
-            <Network size={16} className="text-blue-400" />
-            <div>
-              <h2 className="text-sm font-bold text-white">Ahmad Rezaee — Fraud Network</h2>
-              <p className="text-[10px] text-white/40">{graphData.nodes.length} entities · {graphData.links.length} connections · Risk Score: 94</p>
+          <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl px-3 py-2 sm:px-4 sm:py-2.5 flex items-center gap-2 sm:gap-3">
+            <Network size={16} className="text-blue-400 flex-shrink-0" />
+            <div className="min-w-0">
+              <h2 className="text-xs sm:text-sm font-bold text-white truncate">Ahmad Rezaee — Fraud Network</h2>
+              <p className="text-[9px] sm:text-[10px] text-white/40">{graphData.nodes.length} entities · {graphData.links.length} connections</p>
             </div>
           </div>
         </div>
@@ -447,17 +447,17 @@ export default function P2NetworkGraph() {
               <Input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                placeholder="Search entities..."
-                className="bg-transparent border-none text-xs text-white pl-7 h-9 w-48 placeholder:text-white/30 focus-visible:ring-0"
+                placeholder="Search..."
+                className="bg-transparent border-none text-xs text-white pl-7 h-8 sm:h-9 w-36 sm:w-48 placeholder:text-white/30 focus-visible:ring-0"
               />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Left filter panel */}
-      <div className="absolute left-4 top-20 pointer-events-auto z-10">
-        <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl p-3 space-y-3 w-48">
+      {/* Left filter panel — hidden on small mobile, shown on sm+ */}
+      <div className="absolute left-3 sm:left-4 top-[88px] sm:top-20 pointer-events-auto z-10 hidden sm:block">
+        <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl p-3 space-y-3 w-44 sm:w-48">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40 flex items-center gap-1.5">
             <Filter size={10} /> Entity Types
           </p>
@@ -496,7 +496,7 @@ export default function P2NetworkGraph() {
       </div>
 
       {/* Right controls */}
-      <div className="absolute right-4 top-20 pointer-events-auto z-10 flex flex-col gap-1.5">
+      <div className="absolute right-3 sm:right-4 top-[88px] sm:top-20 pointer-events-auto z-10 flex flex-col gap-1.5">
         {[
           { icon: ZoomIn, action: zoomIn, tip: 'Zoom in' },
           { icon: ZoomOut, action: zoomOut, tip: 'Zoom out' },
@@ -513,8 +513,8 @@ export default function P2NetworkGraph() {
         ))}
       </div>
 
-      {/* Bottom legend */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-auto z-10">
+      {/* Bottom legend — hidden on mobile, visible on md+ */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-auto z-10 hidden md:block">
         <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2 flex items-center gap-5">
           {[
             { label: 'KNOWS', color: '#9CA3AF' },
@@ -533,7 +533,7 @@ export default function P2NetworkGraph() {
       </div>
 
       {/* Stats overlay */}
-      <div className="absolute bottom-4 right-4 pointer-events-auto z-10">
+      <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 pointer-events-auto z-10">
         <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl px-3 py-2 flex items-center gap-4">
           <div className="text-center">
             <div className="text-sm font-bold text-red-400">{NODES.filter(n => n.flagged).length}</div>
@@ -560,7 +560,7 @@ export default function P2NetworkGraph() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 400, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="absolute top-0 right-0 w-80 h-full bg-[#0c1220]/95 backdrop-blur-xl border-l border-white/10 z-20 overflow-y-auto"
+            className="absolute top-0 right-0 w-full sm:w-80 h-full bg-[#0c1220]/95 backdrop-blur-xl border-l border-white/10 z-20 overflow-y-auto"
           >
             <div className="p-5 space-y-5">
               {/* Header */}
@@ -674,7 +674,7 @@ export default function P2NetworkGraph() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 20, opacity: 0 }}
-            className="absolute bottom-16 left-4 pointer-events-auto z-10"
+            className="absolute bottom-14 left-3 sm:bottom-16 sm:left-4 pointer-events-auto z-10"
           >
             <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl p-3 w-64">
               <div className="flex items-center justify-between mb-1.5">
