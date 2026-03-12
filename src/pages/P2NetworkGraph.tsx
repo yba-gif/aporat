@@ -513,8 +513,8 @@ export default function P2NetworkGraph() {
         ))}
       </div>
 
-      {/* Bottom legend */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-auto z-10">
+      {/* Bottom legend — hidden on mobile, visible on md+ */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-auto z-10 hidden md:block">
         <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2 flex items-center gap-5">
           {[
             { label: 'KNOWS', color: '#9CA3AF' },
