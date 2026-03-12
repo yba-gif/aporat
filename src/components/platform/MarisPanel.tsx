@@ -261,8 +261,8 @@ export function MarisPanel() {
       )}
 
       {activeView === 'vault' && (
-        <>
-          <div className="w-96 border-r border-border" data-tour="document-vault">
+        <div className="flex-1 flex flex-col md:flex-row min-w-0">
+          <div className="md:w-80 lg:w-96 border-b md:border-b-0 md:border-r border-border shrink-0 max-h-[40vh] md:max-h-none overflow-auto" data-tour="document-vault">
             <DocumentVault
               onDocumentSelect={(doc) => setSelectedDoc(doc)}
               selectedDocId={selectedDoc?.id || null}
