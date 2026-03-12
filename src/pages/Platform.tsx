@@ -75,9 +75,16 @@ const navItems = [
 ];
 
 function PlatformSidebar() {
-  const { state } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const { activeModule, setActiveModule } = usePlatform();
   const collapsed = state === 'collapsed';
+
+  const handleModuleSelect = (moduleId: typeof activeModule) => {
+    setActiveModule(moduleId);
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar className="border-r border-border bg-sidebar">
