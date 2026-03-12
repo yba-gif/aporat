@@ -341,7 +341,7 @@ export function MarisPanel() {
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
 
       {activeView === 'integrity' && (
