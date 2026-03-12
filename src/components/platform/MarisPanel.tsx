@@ -157,8 +157,8 @@ export function MarisPanel() {
           </button>
         </div>
 
-        {/* Stats */}
-        <div className="mt-auto p-4 border-t border-border space-y-3">
+        {/* Stats — hidden on mobile */}
+        <div className="mt-auto p-4 border-t border-border space-y-3 hidden md:block">
           <p className="text-label">Vault Statistics</p>
           <div className="space-y-2">
             <div className="flex justify-between text-xs">
