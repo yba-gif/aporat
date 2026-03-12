@@ -533,7 +533,7 @@ export default function P2NetworkGraph() {
       </div>
 
       {/* Stats overlay */}
-      <div className="absolute bottom-4 right-4 pointer-events-auto z-10">
+      <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 pointer-events-auto z-10">
         <div className="bg-[#0f1524]/90 backdrop-blur-md border border-white/10 rounded-xl px-3 py-2 flex items-center gap-4">
           <div className="text-center">
             <div className="text-sm font-bold text-red-400">{NODES.filter(n => n.flagged).length}</div>
