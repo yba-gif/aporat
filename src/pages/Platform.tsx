@@ -283,7 +283,7 @@ function PlatformContent() {
       </header>
 
       {/* Main content area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden min-w-0">
         {/* Maris Module */}
         {activeModule === 'maris' && <MarisPanel />}
 
@@ -292,14 +292,14 @@ function PlatformContent() {
           <>
             {nauticaView === 'graph' ? (
               <>
-                <div className="flex-1 relative" data-tour="graph-container">
+                <div className="flex-1 relative min-w-0" data-tour="graph-container">
                   <NauticaGraph 
                     onNodeSelect={(nodeId) => selectEntity(nodeId)} 
                     selectedNode={selectedEntityId}
                   />
                 </div>
                 {showEntityPanel && (
-                  <div className="w-96 border-l border-border bg-surface-elevated flex flex-col" data-tour="entity-dossier">
+                  <div className="hidden md:flex w-80 lg:w-96 border-l border-border bg-surface-elevated flex-col shrink-0" data-tour="entity-dossier">
                     <Tabs defaultValue="alerts" className="flex flex-col h-full">
                       <TabsList className="w-full rounded-none border-b border-border bg-transparent px-2 py-0 h-10">
                         <TabsTrigger value="alerts" className="flex-1 data-[state=active]:bg-secondary rounded-sm text-xs">
@@ -322,11 +322,11 @@ function PlatformContent() {
                 )}
               </>
             ) : nauticaView === 'social' ? (
-              <div data-tour="social-panel" className="flex-1">
+              <div data-tour="social-panel" className="flex-1 min-w-0">
                 <SocialIntelligencePanel />
               </div>
             ) : (
-              <div className="flex-1">
+              <div className="flex-1 min-w-0">
                 <GeopoliticalPanel />
               </div>
             )}
