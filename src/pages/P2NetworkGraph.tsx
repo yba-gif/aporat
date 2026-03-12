@@ -496,7 +496,7 @@ export default function P2NetworkGraph() {
       </div>
 
       {/* Right controls */}
-      <div className="absolute right-4 top-20 pointer-events-auto z-10 flex flex-col gap-1.5">
+      <div className="absolute right-3 sm:right-4 top-[88px] sm:top-20 pointer-events-auto z-10 flex flex-col gap-1.5">
         {[
           { icon: ZoomIn, action: zoomIn, tip: 'Zoom in' },
           { icon: ZoomOut, action: zoomOut, tip: 'Zoom out' },
