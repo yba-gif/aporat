@@ -33,7 +33,7 @@ const NODE_TYPES = [
 
 export function FilterPanel({ filters, onChange, networks }: FilterPanelProps) {
   const isMobile = useIsMobile();
-  const [isOpen, setIsOpen] = useState(!isMobile);
+  const [isOpen, setIsOpen] = useState(() => typeof window !== 'undefined' ? window.innerWidth >= 768 : true);
 
   const toggleNodeType = (type: string) => {
     const newTypes = filters.nodeTypes.includes(type)
