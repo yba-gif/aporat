@@ -115,7 +115,7 @@ function PlatformSidebar() {
                             ? 'bg-accent text-accent-foreground' 
                             : 'hover:bg-sidebar-accent'
                         }`}
-                        onClick={() => setActiveModule(item.id)}
+                        onClick={() => handleModuleSelect(item.id)}
                       >
                         <span className="text-sm font-medium">{item.label}</span>
                       </SidebarMenuButton>
