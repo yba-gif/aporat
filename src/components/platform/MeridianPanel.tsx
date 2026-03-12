@@ -44,30 +44,30 @@ export function MeridianPanel() {
   };
 
   return (
-    <div className="flex-1 flex">
-      {/* Left Nav */}
-      <div className="w-56 border-r border-border flex flex-col">
-        <div className="p-4 border-b border-border">
+    <div className="flex-1 flex flex-col md:flex-row min-w-0">
+      {/* Left Nav — horizontal on mobile */}
+      <div className="md:w-56 border-b md:border-b-0 md:border-r border-border flex md:flex-col shrink-0">
+        <div className="p-3 md:p-4 md:border-b border-border hidden md:block">
           <p className="text-label mb-1">Governance</p>
           <p className="text-xs text-muted-foreground">Policy & compliance</p>
         </div>
 
-        <div className="p-2 space-y-1">
-          <button className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${selectedTab === 'cases' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'}`} onClick={() => setSelectedTab('cases')}>
-            <Briefcase className="w-4 h-4" />
-            <div><p className="text-sm font-medium">Cases</p><p className="text-[10px] text-muted-foreground">3 active</p></div>
+        <div className="flex md:flex-col md:p-2 md:space-y-1 overflow-x-auto md:overflow-x-visible gap-1 p-2">
+          <button className={`flex items-center gap-2 md:gap-3 px-3 py-2 md:py-2.5 rounded text-left transition-colors whitespace-nowrap md:whitespace-normal md:w-full ${selectedTab === 'cases' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'}`} onClick={() => setSelectedTab('cases')}>
+            <Briefcase className="w-4 h-4 shrink-0" />
+            <div><p className="text-sm font-medium">Cases</p><p className="text-[10px] text-muted-foreground hidden md:block">3 active</p></div>
           </button>
-          <button className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${selectedTab === 'workflow' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'}`} onClick={() => setSelectedTab('workflow')}>
-            <GitBranch className="w-4 h-4" />
-            <div><p className="text-sm font-medium">Workflows</p><p className="text-[10px] text-muted-foreground">Decision trails</p></div>
+          <button className={`flex items-center gap-2 md:gap-3 px-3 py-2 md:py-2.5 rounded text-left transition-colors whitespace-nowrap md:whitespace-normal md:w-full ${selectedTab === 'workflow' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'}`} onClick={() => setSelectedTab('workflow')}>
+            <GitBranch className="w-4 h-4 shrink-0" />
+            <div><p className="text-sm font-medium">Workflows</p><p className="text-[10px] text-muted-foreground hidden md:block">Decision trails</p></div>
           </button>
-          <button className={`w-full flex items-center gap-3 px-3 py-2.5 rounded text-left transition-colors ${selectedTab === 'policies' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'}`} onClick={() => setSelectedTab('policies')}>
-            <Shield className="w-4 h-4" />
-            <div><p className="text-sm font-medium">Policy Rules</p><p className="text-[10px] text-muted-foreground">{rules.filter(r => r.enabled).length} active</p></div>
+          <button className={`flex items-center gap-2 md:gap-3 px-3 py-2 md:py-2.5 rounded text-left transition-colors whitespace-nowrap md:whitespace-normal md:w-full ${selectedTab === 'policies' ? 'bg-accent/10 text-accent' : 'hover:bg-secondary'}`} onClick={() => setSelectedTab('policies')}>
+            <Shield className="w-4 h-4 shrink-0" />
+            <div><p className="text-sm font-medium">Policies</p><p className="text-[10px] text-muted-foreground hidden md:block">{rules.filter(r => r.enabled).length} active</p></div>
           </button>
         </div>
 
-        <div className="mt-auto p-4 border-t border-border space-y-2">
+        <div className="mt-auto p-4 border-t border-border space-y-2 hidden md:block">
           <p className="text-label">Today's Stats</p>
           <div className="space-y-1 text-xs">
             <div className="flex justify-between"><span className="text-muted-foreground">Rules triggered</span><span className="font-mono">127</span></div>
@@ -79,24 +79,24 @@ export function MeridianPanel() {
 
       {/* Main Content */}
       {selectedTab === 'cases' && (
-        <>
-          <div className="w-96 border-r border-border" data-tour="case-management">
+        <div className="flex-1 flex flex-col md:flex-row min-w-0">
+          <div className="md:w-80 lg:w-96 border-b md:border-b-0 md:border-r border-border shrink-0 max-h-[40vh] md:max-h-none overflow-auto" data-tour="case-management">
             <CaseManagement onCaseSelect={setSelectedCaseId} selectedCaseId={selectedCaseId} />
           </div>
-          <div className="flex-1" data-tour="decision-workflow">
+          <div className="flex-1 min-w-0" data-tour="decision-workflow">
             <DecisionWorkflow caseId={selectedCaseId} />
           </div>
-        </>
+        </div>
       )}
 
       {selectedTab === 'workflow' && (
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <DecisionWorkflow caseId={selectedCaseId || 'case-001'} />
         </div>
       )}
 
       {selectedTab === 'policies' && (
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 overflow-auto p-4 sm:p-6">
           <div className="max-w-3xl space-y-4">
             <h3 className="text-lg font-semibold">Policy Rules</h3>
             <div className="space-y-3">
