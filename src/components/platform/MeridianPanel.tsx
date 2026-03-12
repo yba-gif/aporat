@@ -96,7 +96,7 @@ export function MeridianPanel() {
       )}
 
       {selectedTab === 'policies' && (
-        <div className="flex-1 overflow-auto p-6">
+        <div className="flex-1 overflow-auto p-4 sm:p-6">
           <div className="max-w-3xl space-y-4">
             <h3 className="text-lg font-semibold">Policy Rules</h3>
             <div className="space-y-3">
