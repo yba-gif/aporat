@@ -13,11 +13,6 @@ import { Shield, Eye, Lock } from 'lucide-react';
  * The decode ripples left to right.
  */
 
-const proofChips = [
-  { icon: Eye, label: 'Full audit chain' },
-  { icon: Shield, label: 'Sovereign deployment' },
-  { icon: Lock, label: 'Zero data export' },
-];
 
 const stats = [
   { value: '4.2hrs', label: 'Fraud ring resolution' },
