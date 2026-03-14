@@ -71,11 +71,6 @@ export function Hero() {
               ))}
             </div>
           </div>
-
-          {/* Right: Interactive Graph */}
-          <div className="relative h-[350px] md:h-[400px] lg:h-[450px] animate-fade-in delay-300">
-            <HeroGraph />
-          </div>
         </div>
 
         {/* Stats bar */}
