@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { HeroVariantA } from './HeroVariantA';
 import { HeroVariantB } from './HeroVariantB';
 import { HeroVariantC } from './HeroVariantC';
+import { HeroVariantD } from './HeroVariantD';
 
 const variants = [
-  { id: 'a', label: 'A: Declassification', description: 'Scan-line reveals content with blur-to-sharp transition' },
-  { id: 'b', label: 'B: Signal Acquisition', description: 'Targeting reticle contracts and locks onto headline' },
-  { id: 'c', label: 'C: Horizon Split', description: 'Horizontal line splits viewport, content assembles in the gap' },
+  { id: 'a', label: 'A: Declassification', description: 'Scan-line reveals content with blur-to-sharp' },
+  { id: 'b', label: 'B: Typography', description: 'Words slide in from scattered positions and lock into place' },
+  { id: 'c', label: 'C: Depth Field', description: 'Parallax layers at different scroll speeds create z-depth' },
+  { id: 'd', label: 'D: Wipe', description: 'Vertical edge sweeps left-to-right revealing content' },
 ] as const;
 
 type VariantId = typeof variants[number]['id'];
@@ -25,7 +27,7 @@ export function HeroSelector() {
               setActive(v.id);
               window.scrollTo({ top: 0 });
             }}
-            className={`px-4 py-2 text-xs font-mono uppercase tracking-wider transition-colors ${
+            className={`px-3 py-2 text-[10px] md:text-xs font-mono uppercase tracking-wider transition-colors ${
               active === v.id
                 ? 'bg-accent text-accent-foreground'
                 : 'text-background/70 hover:text-background'
@@ -41,6 +43,7 @@ export function HeroSelector() {
       {active === 'a' && <HeroVariantA />}
       {active === 'b' && <HeroVariantB />}
       {active === 'c' && <HeroVariantC />}
+      {active === 'd' && <HeroVariantD />}
     </div>
   );
 }

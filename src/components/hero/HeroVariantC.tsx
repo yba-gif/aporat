@@ -5,12 +5,11 @@ import { analytics } from '@/lib/analytics';
 import { Shield, Eye, Lock } from 'lucide-react';
 
 /**
- * VARIANT C: "Horizon Split"
+ * VARIANT C: "Depth Field"
  * 
- * A single horizontal line sits at the vertical center of the viewport.
- * As you scroll, it splits — the top half slides up, the bottom half slides down,
- * revealing the headline in the gap. Architectural. Minimal. Precise.
- * The line then fades and content assembles with surgical stagger.
+ * Multiple parallax layers at different scroll speeds create real depth.
+ * Background grid crawls. Mid-layer data fragments drift. 
+ * Foreground content moves fastest. Scroll controls the z-axis.
  */
 
 const proofChips = [
@@ -26,6 +25,16 @@ const stats = [
   { value: '0', label: 'Data leaves your jurisdiction' },
 ];
 
+// Floating data fragments for mid-layer
+const fragments = [
+  { text: 'SHA-256', x: '75%', y: '20%', speed: 0.3 },
+  { text: 'VERIFIED', x: '85%', y: '45%', speed: 0.5 },
+  { text: '0x7f3a...', x: '70%', y: '65%', speed: 0.2 },
+  { text: 'AUDIT::OK', x: '82%', y: '80%', speed: 0.4 },
+  { text: 'NODE:7', x: '90%', y: '30%', speed: 0.35 },
+  { text: 'POLICY:ACTIVE', x: '65%', y: '50%', speed: 0.25 },
+];
+
 export function HeroVariantC() {
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -33,37 +42,27 @@ export function HeroVariantC() {
     offset: ['start start', 'end start'],
   });
 
-  // Horizon line splits
-  const topLineY = useTransform(scrollYProgress, [0, 0.12], ['0%', '-50vh']);
-  const bottomLineY = useTransform(scrollYProgress, [0, 0.12], ['0%', '50vh']);
-  const lineOpacity = useTransform(scrollYProgress, [0, 0.05, 0.15, 0.2], [0, 1, 1, 0]);
-  const lineWidth = useTransform(scrollYProgress, [0, 0.06], ['0%', '100%']);
+  // Layer speeds (background slowest, foreground fastest)
+  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
+  const bgScale = useTransform(scrollYProgress, [0, 0.5], [1.05, 1]);
+  const bgOpacity = useTransform(scrollYProgress, [0, 0.3], [0.15, 0.4]);
 
-  // Curtain panels that slide away
-  const topCurtainY = useTransform(scrollYProgress, [0.05, 0.18], ['0%', '-100%']);
-  const bottomCurtainY = useTransform(scrollYProgress, [0.05, 0.18], ['0%', '100%']);
-  const curtainOpacity = useTransform(scrollYProgress, [0.05, 0.18], [1, 0]);
+  // Content (foreground) - appears and stays
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.08], [0, 1]);
+  const contentY = useTransform(scrollYProgress, [0, 0.15], [80, 0]);
+  const contentScale = useTransform(scrollYProgress, [0, 0.15], [0.95, 1]);
 
-  // Content reveal - staggered, precise
-  const kickerOpacity = useTransform(scrollYProgress, [0.1, 0.16], [0, 1]);
-  const kickerX = useTransform(scrollYProgress, [0.1, 0.16], [-20, 0]);
+  const kickerOpacity = useTransform(scrollYProgress, [0, 0.06], [0, 1]);
+  const subOpacity = useTransform(scrollYProgress, [0.1, 0.18], [0, 1]);
+  const ctaOpacity = useTransform(scrollYProgress, [0.16, 0.22], [0, 1]);
+  const chipsOpacity = useTransform(scrollYProgress, [0.2, 0.26], [0, 1]);
+  const statsOpacity = useTransform(scrollYProgress, [0.24, 0.32], [0, 1]);
+  const statsY = useTransform(scrollYProgress, [0.24, 0.32], [20, 0]);
 
-  const headlineOpacity = useTransform(scrollYProgress, [0.13, 0.2], [0, 1]);
-  const headlineScale = useTransform(scrollYProgress, [0.13, 0.2], [0.97, 1]);
-
-  const subOpacity = useTransform(scrollYProgress, [0.18, 0.25], [0, 1]);
-
-  const ctaOpacity = useTransform(scrollYProgress, [0.22, 0.28], [0, 1]);
-  const ctaY = useTransform(scrollYProgress, [0.22, 0.28], [15, 0]);
-
-  const chipsOpacity = useTransform(scrollYProgress, [0.26, 0.32], [0, 1]);
-
-  const statsOpacity = useTransform(scrollYProgress, [0.3, 0.38], [0, 1]);
-  const statsY = useTransform(scrollYProgress, [0.3, 0.38], [20, 0]);
-
-  // Vertical accent lines that frame content
-  const frameLeftOpacity = useTransform(scrollYProgress, [0.15, 0.22], [0, 0.3]);
-  const frameLeftHeight = useTransform(scrollYProgress, [0.15, 0.35], ['0%', '60%']);
+  // Vertical depth lines
+  const depthLine1Height = useTransform(scrollYProgress, [0, 0.2], ['0%', '100%']);
+  const depthLine2Height = useTransform(scrollYProgress, [0.05, 0.25], ['0%', '80%']);
+  const depthLineOpacity = useTransform(scrollYProgress, [0, 0.05, 0.3, 0.4], [0, 0.15, 0.15, 0]);
 
   const handleRequestAccess = () => {
     analytics.trackCTA('request_access', 'hero');
@@ -73,57 +72,66 @@ export function HeroVariantC() {
   return (
     <section ref={containerRef} className="relative min-h-[200vh]">
       <div className="sticky top-0 min-h-screen flex items-center pt-20 pb-12 md:pb-0 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-fade pointer-events-none opacity-30" />
 
-        {/* Curtain panels - solid bg that splits apart */}
+        {/* Layer 0: Background grid - slowest */}
         <motion.div
-          className="absolute top-0 left-0 right-0 h-1/2 bg-background z-30 pointer-events-none"
-          style={{ y: topCurtainY, opacity: curtainOpacity }}
-        />
-        <motion.div
-          className="absolute bottom-0 left-0 right-0 h-1/2 bg-background z-30 pointer-events-none"
-          style={{ y: bottomCurtainY, opacity: curtainOpacity }}
+          className="absolute inset-0 bg-grid-fade pointer-events-none"
+          style={{ y: bgY, scale: bgScale, opacity: bgOpacity }}
         />
 
-        {/* Horizon lines - the split */}
+        {/* Layer 1: Depth lines */}
         <motion.div
-          className="absolute left-0 right-0 z-40 pointer-events-none flex justify-center"
-          style={{ top: '50%', y: topLineY, opacity: lineOpacity }}
+          className="absolute left-[20%] top-0 w-px bg-accent pointer-events-none origin-top hidden md:block"
+          style={{ height: depthLine1Height, opacity: depthLineOpacity }}
+        />
+        <motion.div
+          className="absolute right-[30%] bottom-0 w-px bg-accent pointer-events-none origin-bottom hidden md:block"
+          style={{ height: depthLine2Height, opacity: depthLineOpacity }}
+        />
+
+        {/* Layer 2: Mid-layer data fragments - medium speed */}
+        <div className="absolute inset-0 pointer-events-none hidden md:block">
+          {fragments.map((frag, i) => {
+            const fragY = useTransform(scrollYProgress, [0, 1], [0, -200 * frag.speed]);
+            const fragOpacity = useTransform(
+              scrollYProgress,
+              [0, 0.05, 0.35, 0.45],
+              [0, 0.25, 0.25, 0]
+            );
+
+            return (
+              <motion.span
+                key={i}
+                className="absolute text-[9px] font-mono text-accent/60 select-none"
+                style={{
+                  left: frag.x,
+                  top: frag.y,
+                  y: fragY,
+                  opacity: fragOpacity,
+                }}
+              >
+                {frag.text}
+              </motion.span>
+            );
+          })}
+        </div>
+
+        {/* Layer 3: Foreground content - fastest */}
+        <motion.div
+          className="container-wide relative z-10"
+          style={{ y: contentY, scale: contentScale }}
         >
-          <motion.div
-            className="h-px bg-accent"
-            style={{ width: lineWidth }}
-          />
-        </motion.div>
-        <motion.div
-          className="absolute left-0 right-0 z-40 pointer-events-none flex justify-center"
-          style={{ top: '50%', y: bottomLineY, opacity: lineOpacity }}
-        >
-          <motion.div
-            className="h-px bg-accent/50"
-            style={{ width: lineWidth }}
-          />
-        </motion.div>
-
-        {/* Left frame accent */}
-        <motion.div
-          className="absolute left-8 md:left-16 top-1/2 -translate-y-1/2 w-px bg-accent pointer-events-none hidden md:block"
-          style={{ opacity: frameLeftOpacity, height: frameLeftHeight }}
-        />
-
-        {/* Content */}
-        <div className="container-wide relative z-10">
           <div className="max-w-3xl">
             <motion.p
               className="text-[10px] font-mono uppercase tracking-[0.2em] text-accent mb-6"
-              style={{ opacity: kickerOpacity, x: kickerX }}
+              style={{ opacity: kickerOpacity }}
             >
               Sovereign Intelligence Infrastructure
             </motion.p>
 
             <motion.h1
               className="text-4xl md:text-display mb-4 md:mb-6"
-              style={{ opacity: headlineOpacity, scale: headlineScale }}
+              style={{ opacity: contentOpacity }}
             >
               Decision systems
               <br />
@@ -137,7 +145,7 @@ export function HeroVariantC() {
               Sovereign decision infrastructure. Full-spectrum audit coverage.
             </motion.p>
 
-            <motion.div className="mb-6 md:mb-8" style={{ opacity: ctaOpacity, y: ctaY }}>
+            <motion.div className="mb-6 md:mb-8" style={{ opacity: ctaOpacity }}>
               <Button
                 size="lg"
                 onClick={handleRequestAccess}
@@ -171,7 +179,7 @@ export function HeroVariantC() {
               </div>
             ))}
           </motion.div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

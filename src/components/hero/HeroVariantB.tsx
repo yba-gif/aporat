@@ -5,12 +5,11 @@ import { analytics } from '@/lib/analytics';
 import { Shield, Eye, Lock } from 'lucide-react';
 
 /**
- * VARIANT B: "Signal Acquisition"
+ * VARIANT B: "Typographic Assembly"
  * 
- * Crosshair/targeting reticle contracts from the edges of the viewport 
- * toward center as you scroll, "locking on" to the headline.
- * Content fades in only after the lock is acquired.
- * Military-grade targeting aesthetic.
+ * Each word of the headline slides in from scattered positions 
+ * and locks into place as you scroll. Words travel along different 
+ * axes at different rates. Controlled chaos to surgical precision.
  */
 
 const proofChips = [
@@ -33,27 +32,35 @@ export function HeroVariantB() {
     offset: ['start start', 'end start'],
   });
 
-  // Reticle animation - contracts inward
-  const reticleScale = useTransform(scrollYProgress, [0, 0.15], [3, 1]);
-  const reticleOpacity = useTransform(scrollYProgress, [0, 0.05, 0.2, 0.3], [0, 0.6, 0.6, 0]);
-  const reticleRotate = useTransform(scrollYProgress, [0, 0.15], [45, 0]);
+  // Word-level transforms for "Decision systems"
+  const word1X = useTransform(scrollYProgress, [0, 0.12], [-200, 0]);
+  const word1Opacity = useTransform(scrollYProgress, [0, 0.08], [0, 1]);
+  const word2X = useTransform(scrollYProgress, [0.02, 0.14], [300, 0]);
+  const word2Opacity = useTransform(scrollYProgress, [0.02, 0.1], [0, 1]);
 
-  // Corner brackets contract
-  const bracketOffset = useTransform(scrollYProgress, [0, 0.15], [120, 0]);
+  // Word-level transforms for "for critical operations."
+  const word3Y = useTransform(scrollYProgress, [0.06, 0.16], [60, 0]);
+  const word3Opacity = useTransform(scrollYProgress, [0.06, 0.12], [0, 1]);
+  const word4X = useTransform(scrollYProgress, [0.08, 0.18], [-150, 0]);
+  const word4Opacity = useTransform(scrollYProgress, [0.08, 0.14], [0, 1]);
+  const word5X = useTransform(scrollYProgress, [0.1, 0.2], [200, 0]);
+  const word5Opacity = useTransform(scrollYProgress, [0.1, 0.16], [0, 1]);
 
-  // Content reveals after lock
-  const contentOpacity = useTransform(scrollYProgress, [0.12, 0.2], [0, 1]);
-  const contentY = useTransform(scrollYProgress, [0.12, 0.2], [30, 0]);
+  // Underline that draws itself after words lock
+  const underlineWidth = useTransform(scrollYProgress, [0.18, 0.28], ['0%', '100%']);
+  const underlineOpacity = useTransform(scrollYProgress, [0.18, 0.22], [0, 1]);
 
-  const kickerOpacity = useTransform(scrollYProgress, [0.1, 0.15], [0, 1]);
-  const subOpacity = useTransform(scrollYProgress, [0.18, 0.25], [0, 1]);
-  const ctaOpacity = useTransform(scrollYProgress, [0.22, 0.3], [0, 1]);
-  const chipsOpacity = useTransform(scrollYProgress, [0.26, 0.34], [0, 1]);
-  const statsOpacity = useTransform(scrollYProgress, [0.3, 0.4], [0, 1]);
-  const statsY = useTransform(scrollYProgress, [0.3, 0.4], [20, 0]);
+  // Kicker
+  const kickerOpacity = useTransform(scrollYProgress, [0.14, 0.2], [0, 1]);
+  const kickerLetterSpacing = useTransform(scrollYProgress, [0.14, 0.22], [16, 3]);
 
-  // Lock indicator
-  const lockOpacity = useTransform(scrollYProgress, [0.14, 0.16, 0.25, 0.3], [0, 1, 1, 0]);
+  // Sub, CTA, chips
+  const subOpacity = useTransform(scrollYProgress, [0.22, 0.28], [0, 1]);
+  const subY = useTransform(scrollYProgress, [0.22, 0.28], [15, 0]);
+  const ctaOpacity = useTransform(scrollYProgress, [0.26, 0.32], [0, 1]);
+  const chipsOpacity = useTransform(scrollYProgress, [0.3, 0.36], [0, 1]);
+  const statsOpacity = useTransform(scrollYProgress, [0.34, 0.42], [0, 1]);
+  const statsY = useTransform(scrollYProgress, [0.34, 0.42], [20, 0]);
 
   const handleRequestAccess = () => {
     analytics.trackCTA('request_access', 'hero');
@@ -65,74 +72,66 @@ export function HeroVariantB() {
       <div className="sticky top-0 min-h-screen flex items-center pt-20 pb-12 md:pb-0 overflow-hidden">
         <div className="absolute inset-0 bg-grid-fade pointer-events-none" />
 
-        {/* Targeting Reticle - center of viewport */}
-        <motion.div
-          className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center"
-          style={{ opacity: reticleOpacity }}
-        >
-          <motion.div
-            className="relative w-40 h-40 md:w-64 md:h-64"
-            style={{ scale: reticleScale, rotate: reticleRotate }}
-          >
-            {/* Outer ring */}
-            <div className="absolute inset-0 border border-accent/40 rounded-full" />
-            {/* Inner ring */}
-            <div className="absolute inset-8 md:inset-12 border border-accent/60 rounded-full" />
-            {/* Crosshairs */}
-            <div className="absolute top-1/2 left-0 right-0 h-px bg-accent/30" />
-            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-accent/30" />
-            {/* Center dot */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-accent" />
-          </motion.div>
-        </motion.div>
-
-        {/* Corner brackets */}
-        <motion.div className="absolute z-20 pointer-events-none" style={{ top: bracketOffset, left: bracketOffset, opacity: reticleOpacity }}>
-          <div className="w-8 h-8 border-t-2 border-l-2 border-accent/50" />
-        </motion.div>
-        <motion.div className="absolute z-20 pointer-events-none" style={{ top: bracketOffset, right: bracketOffset, opacity: reticleOpacity }}>
-          <div className="w-8 h-8 border-t-2 border-r-2 border-accent/50" />
-        </motion.div>
-        <motion.div className="absolute z-20 pointer-events-none" style={{ bottom: bracketOffset, left: bracketOffset, opacity: reticleOpacity }}>
-          <div className="w-8 h-8 border-b-2 border-l-2 border-accent/50" />
-        </motion.div>
-        <motion.div className="absolute z-20 pointer-events-none" style={{ bottom: bracketOffset, right: bracketOffset, opacity: reticleOpacity }}>
-          <div className="w-8 h-8 border-b-2 border-r-2 border-accent/50" />
-        </motion.div>
-
-        {/* Lock acquired indicator */}
-        <motion.div
-          className="absolute top-24 right-8 z-20 pointer-events-none hidden md:block"
-          style={{ opacity: lockOpacity }}
-        >
-          <div className="flex items-center gap-2 px-3 py-1.5 border border-accent/50 bg-accent/10">
-            <div className="w-1.5 h-1.5 rounded-full bg-accent" />
-            <span className="text-[10px] font-mono text-accent uppercase tracking-wider">Signal Acquired</span>
-          </div>
-        </motion.div>
-
-        {/* Content */}
         <div className="container-wide relative z-10">
-          <div className="max-w-3xl">
+          <div className="max-w-4xl">
+            {/* Kicker with letter-spacing scrub */}
             <motion.p
-              className="text-[10px] font-mono uppercase tracking-[0.2em] text-accent mb-6"
-              style={{ opacity: kickerOpacity }}
+              className="text-[10px] font-mono uppercase text-accent mb-6 overflow-hidden"
+              style={{
+                opacity: kickerOpacity,
+                letterSpacing: useTransform(kickerLetterSpacing, (v) => `${v}px`),
+              }}
             >
               Sovereign Intelligence Infrastructure
             </motion.p>
 
-            <motion.h1
-              className="text-4xl md:text-display mb-4 md:mb-6"
-              style={{ opacity: contentOpacity, y: contentY }}
-            >
-              Decision systems
-              <br />
-              <span className="text-muted-foreground">for critical operations.</span>
-            </motion.h1>
+            {/* Headline - each word independently positioned */}
+            <h1 className="text-4xl md:text-display mb-4 md:mb-6">
+              <span className="block">
+                <motion.span
+                  className="inline-block mr-[0.3em]"
+                  style={{ x: word1X, opacity: word1Opacity }}
+                >
+                  Decision
+                </motion.span>
+                <motion.span
+                  className="inline-block"
+                  style={{ x: word2X, opacity: word2Opacity }}
+                >
+                  systems
+                </motion.span>
+              </span>
+              <span className="block text-muted-foreground">
+                <motion.span
+                  className="inline-block mr-[0.3em]"
+                  style={{ y: word3Y, opacity: word3Opacity }}
+                >
+                  for
+                </motion.span>
+                <motion.span
+                  className="inline-block mr-[0.3em]"
+                  style={{ x: word4X, opacity: word4Opacity }}
+                >
+                  critical
+                </motion.span>
+                <motion.span
+                  className="inline-block"
+                  style={{ x: word5X, opacity: word5Opacity }}
+                >
+                  operations.
+                </motion.span>
+              </span>
+            </h1>
+
+            {/* Drawn underline */}
+            <motion.div
+              className="h-px bg-accent mb-8 origin-left"
+              style={{ width: underlineWidth, opacity: underlineOpacity }}
+            />
 
             <motion.p
-              className="text-lg md:text-subhead mb-6 md:mb-8"
-              style={{ opacity: subOpacity }}
+              className="text-lg md:text-subhead mb-6 md:mb-8 max-w-2xl"
+              style={{ opacity: subOpacity, y: subY }}
             >
               Sovereign decision infrastructure. Full-spectrum audit coverage.
             </motion.p>
