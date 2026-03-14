@@ -45,7 +45,7 @@ export function Hero() {
             </h1>
             
             <p className="text-lg md:text-subhead mb-6 md:mb-8 animate-fade-up delay-100">
-              Intelligence infrastructure for governments and institutions operating at the edge of national security. Every decision logged. Every chain auditable. Every byte sovereign.
+              Sovereign decision infrastructure. Full-spectrum audit coverage.
             </p>
 
             {/* CTA */}
