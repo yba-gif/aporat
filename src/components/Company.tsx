@@ -1,4 +1,4 @@
-import { ArrowRight, Cpu, Zap, MapPin } from 'lucide-react';
+import { ArrowRight, MapPin } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Link } from 'react-router-dom';
@@ -29,29 +29,17 @@ export function Company() {
     <section id="company" className="section-padding bg-surface-elevated/50 border-y border-border">
       <div className="container-wide">
         <div className="grid lg:grid-cols-2 gap-16">
-          {/* Left: Türkiye */}
+          {/* Left: Company */}
           <div>
-            <p className="text-label mb-4">Türkiye</p>
+            <p className="text-label mb-4">Company</p>
             <h2 className="text-headline mb-6">
-              Yerli altyapı. Milli karar sistemleri.
+              Zurich, Switzerland.
             </h2>
             
             <div className="space-y-4 text-body max-w-lg">
               <p>
-                First sovereign intelligence platform for cross-border operations. Deploys on BTK/TÜBİTAK infrastructure. KVKK-native. White-label ready for ministry integration.
+                Sovereign intelligence infrastructure for governments and institutions. On-premise, sovereign cloud, and air-gapped deployment options.
               </p>
-            </div>
-
-            {/* Tech Stack Indicators */}
-            <div className="mt-8 flex items-center gap-6">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                <Cpu className="w-3 h-3 text-accent" />
-                <span>On-prem deployment</span>
-              </div>
-              <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
-                <Zap className="w-3 h-3 text-accent" />
-                <span>KVKK-native</span>
-              </div>
             </div>
           </div>
 
