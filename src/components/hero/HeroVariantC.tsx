@@ -45,20 +45,21 @@ function useDecodeText(text: string, scrollYProgress: MotionValue<number>, start
 }
 
 function DecodingChar({ char, isDecoded, opacity, isSpace }: { char: string; isDecoded: any; opacity: any; isSpace: boolean }) {
-  if (isSpace) return <span>&nbsp;</span>;
-
   const [resolved, setResolved] = useState(false);
 
   useEffect(() => {
+    if (isSpace) return;
     if (typeof isDecoded === 'number') {
       setResolved(isDecoded >= 0.5);
       return;
     }
     const unsub = isDecoded.on('change', (v: number) => {
-      if (v >= 0.5 && !resolved) setResolved(true);
+      if (v >= 0.5) setResolved(true);
     });
     return unsub;
-  }, [isDecoded, resolved]);
+  }, [isDecoded, isSpace]);
+
+  if (isSpace) return <span>&nbsp;</span>;
 
   return (
     <motion.span className="inline-block" style={{ opacity }}>
