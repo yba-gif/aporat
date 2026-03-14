@@ -29,19 +29,19 @@ export function Company() {
     <section id="company" className="section-padding bg-surface-elevated/50 border-y border-border">
       <div className="container-wide">
         <div className="grid lg:grid-cols-2 gap-16">
-          {/* Left: Mission */}
+          {/* Left: Türkiye */}
           <div>
-            <p className="text-label mb-4">Company</p>
+            <p className="text-label mb-4">Türkiye</p>
             <h2 className="text-headline mb-6">
-              Decision infrastructure for critical operations.
+              Yerli altyapi. Milli karar sistemleri.
             </h2>
             
             <div className="space-y-4 text-body max-w-lg">
               <p>
-                We solve the infrastructure gap: fragmented systems, inconsistent evidence, opaque processes.
+                Sovereign intelligence platform for cross-border operations. Deploys on local infrastructure. KVKK-native. White-label ready for ministry integration.
               </p>
               <p>
-                Built for organizations that cannot afford failure: border agencies, defense, consular networks, regulated enterprises.
+                No foreign dependency. No data leaves the border.
               </p>
             </div>
 
@@ -49,11 +49,11 @@ export function Company() {
             <div className="mt-8 flex items-center gap-6">
               <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
                 <Cpu className="w-3 h-3 text-accent" />
-                <span>High-performance systems</span>
+                <span>On-prem deployment</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
                 <Zap className="w-3 h-3 text-accent" />
-                <span>Real-time processing</span>
+                <span>KVKK-native</span>
               </div>
             </div>
           </div>
@@ -83,13 +83,11 @@ export function Company() {
                       to={`/positions/${position.id}`}
                       className="group relative flex items-center justify-between gap-4 p-4 border border-border bg-background hover:bg-secondary/50 transition-all duration-300 overflow-hidden"
                     >
-                      {/* Animated border effect */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent to-transparent" />
                         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
                       </div>
 
-                      {/* Index number */}
                       <div className="absolute top-2 right-2 text-[10px] font-mono text-muted-foreground/50">
                         {String(index + 1).padStart(2, '0')}
                       </div>
@@ -118,7 +116,6 @@ export function Company() {
                   ))}
                 </div>
               )}
-
             </div>
           </div>
         </div>

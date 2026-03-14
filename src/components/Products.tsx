@@ -17,8 +17,8 @@ interface Product {
 const products: Product[] = [
   {
     id: 'maris',
-    name: 'Portolan Maris',
-    tagline: 'The Truth Layer',
+    name: 'Maris',
+    tagline: 'Document Intelligence. Ingest, verify, certify. At scale, at speed, with full provenance.',
     icon: Database,
     capabilities: [
       'Multi-format document parsing with provenance tracking',
@@ -30,28 +30,28 @@ const products: Product[] = [
   },
   {
     id: 'nautica',
-    name: 'Portolan Nautica',
-    tagline: 'The Intelligence Nexus',
+    name: 'Nautica',
+    tagline: 'Relationship Intelligence. Graph-based entity resolution. See what flat databases hide.',
     icon: Compass,
     capabilities: [
       'Graph-based entity resolution across complex networks',
-      'Cross-consulate pattern matching and duplicate detection',
-      'Pre-Submission Risk signals from Vizesepetim data',
-      'Explainable scoring with legal Reason Codes',
+      'Cross-jurisdiction pattern matching and duplicate detection',
+      'Pre-submission threat signals from upstream intelligence',
+      'Explainable scoring with legal reason codes',
     ],
     artifacts: ['Entity Graph', 'Risk Scores', 'Cross-Border Reports'],
     demoLink: '/platform',
   },
   {
     id: 'meridian',
-    name: 'Portolan Meridian',
-    tagline: 'The Command Center',
+    name: 'Meridian',
+    tagline: 'Policy & Compliance. From rule change to enforcement in minutes. Every action traceable.',
     icon: Cpu,
     capabilities: [
-      'Real-time policy propagation to 250+ consulates',
-      'Case Management Workspace for consular officers',
-      'Offline/On-Prem capability for unstable connections',
-      'Sovereignty Engine for instant geopolitical response',
+      'Real-time policy propagation across all posts',
+      'Case management workspace for officers',
+      'Offline/on-prem capability for unstable connections',
+      'Sovereignty engine for instant geopolitical response',
     ],
     artifacts: ['Policy Registry', 'Officer Workspace', 'Admin Audit Trail'],
   },
@@ -75,11 +75,8 @@ export function Products() {
         <div className="max-w-2xl mb-16">
           <p className="text-label mb-4">Platform</p>
           <h2 className="text-headline mb-4">
-            Three platforms. One workflow.
+            Three modules. One decision surface.
           </h2>
-          <p className="text-body">
-            Infrastructure for organizations where evidence integrity determines mission success.
-          </p>
         </div>
 
         {/* Product Cards */}

@@ -27,10 +27,8 @@ export function Contact() {
     setIsSubmitting(true);
 
     try {
-      // Track form submission
       analytics.trackFormSubmit('contact', formData.requestPilot);
 
-      // Submit to database
       const { error } = await supabase.from('contact_submissions').insert({
         name: formData.name.trim(),
         email: formData.email.trim(),
@@ -94,13 +92,13 @@ export function Contact() {
           <div>
             <p className="text-label mb-4">Contact</p>
             <h2 className="text-headline mb-6">
-              Ready to deploy
+              Infrastructure built
               <br />
-              decision infrastructure?
+              for what's at stake.
             </h2>
             
             <p className="text-body mb-8 max-w-md">
-              Request platform access or schedule a technical briefing.
+              Request a briefing. Classified or unclassified.
             </p>
 
             {/* Alternative Contact */}
@@ -206,7 +204,7 @@ export function Contact() {
                     onChange={handleInputChange}
                     rows={4}
                     maxLength={1000}
-                    placeholder="Tell us about your use case..."
+                    placeholder="Describe your operational requirements..."
                     className="bg-background border-border focus:border-accent focus:ring-accent resize-none font-mono text-sm"
                   />
                 </div>
@@ -253,7 +251,7 @@ export function Contact() {
                       Processing...
                     </span>
                   ) : (
-                    'Submit request'
+                    'Request a briefing'
                   )}
                 </Button>
 

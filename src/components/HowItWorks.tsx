@@ -12,37 +12,37 @@ const steps: Step[] = [
   {
     id: 'ingest',
     label: 'Ingest',
-    input: 'Documents, signals, external data',
+    input: 'Documents, signals, external feeds',
     process: 'Multi-format parsing',
     output: 'Structured evidence objects',
   },
   {
-    id: 'normalize',
-    label: 'Normalize',
+    id: 'extract',
+    label: 'Extract',
     input: 'Evidence objects',
-    process: 'Schema alignment',
+    process: 'Entity & field extraction',
     output: 'Canonical data model',
   },
   {
-    id: 'verify',
-    label: 'Verify',
+    id: 'correlate',
+    label: 'Correlate',
     input: 'Canonical records',
-    process: 'Integrity checks',
+    process: 'Graph-based entity resolution',
+    output: 'Relationship map',
+  },
+  {
+    id: 'assess',
+    label: 'Assess',
+    input: 'Correlated data + policy',
+    process: 'Risk scoring & rule evaluation',
     output: 'Validated + risk-scored',
   },
   {
     id: 'decide',
     label: 'Decide',
-    input: 'Verified data + policy',
-    process: 'Rule evaluation',
-    output: 'Workflow resolution',
-  },
-  {
-    id: 'audit',
-    label: 'Audit',
     input: 'Decision events',
     process: 'Immutable logging',
-    output: 'Compliance archive',
+    output: 'Audit-ready resolution',
   },
 ];
 
@@ -83,13 +83,20 @@ export function HowItWorks() {
       <div className="container-wide">
         {/* Header */}
         <div className="max-w-2xl mb-16">
-          <p className="text-label mb-4">Workflow</p>
+          <p className="text-label mb-4">Pipeline</p>
           <h2 className="text-headline mb-4">
-            Evidence to audit-ready decision.
+            Five stages. Full provenance.
           </h2>
           <p className="text-body">
-            Five stages. Full provenance. Every decision logged.
+            Ingest. Extract. Correlate. Assess. Decide.
           </p>
+        </div>
+
+        {/* Case study callout */}
+        <div className="mb-12 p-6 border border-accent/30 bg-accent/5">
+          <p className="text-sm font-mono text-accent mb-1">Case Study</p>
+          <p className="text-foreground font-semibold">7-node threat network identified in 4.2 hours.</p>
+          <p className="text-sm text-muted-foreground">Industry average: 14 days.</p>
         </div>
 
         {/* Steps */}
