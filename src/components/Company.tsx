@@ -40,9 +40,6 @@ export function Company() {
               <p>
                 First sovereign intelligence platform for cross-border operations. Deploys on BTK/TÜBİTAK infrastructure. KVKK-native. White-label ready for ministry integration.
               </p>
-              <p>
-                No foreign dependency. No data leaves the border.
-              </p>
             </div>
 
             {/* Tech Stack Indicators */}
