@@ -31,9 +31,8 @@ export function Hero() {
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-surface-elevated/50 to-transparent pointer-events-none" />
 
       <div className="container-wide relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-8 items-center">
-          {/* Left: Content */}
-          <div className="max-w-xl">
+        <div className="max-w-3xl">
+          <div>
             <p className="text-label mb-4 animate-fade-up font-mono uppercase tracking-widest text-xs">
               Sovereign Intelligence Infrastructure
             </p>
