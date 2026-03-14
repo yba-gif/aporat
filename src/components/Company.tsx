@@ -33,15 +33,15 @@ export function Company() {
           <div>
             <p className="text-label mb-4">Türkiye</p>
             <h2 className="text-headline mb-6">
-              Yerli altyapi. Milli karar sistemleri.
+              Yerli altyapı. Milli karar sistemleri.
             </h2>
             
             <div className="space-y-4 text-body max-w-lg">
               <p>
-                Sovereign intelligence platform for cross-border operations. Deploys on local infrastructure. KVKK-native. White-label ready for ministry integration.
+                Sınır ötesi operasyonlar için egemen istihbarat platformu. BTK/TÜBİTAK altyapısında konuşlanır. KVKK-yerli. Bakanlık entegrasyonuna hazır.
               </p>
               <p>
-                No foreign dependency. No data leaves the border.
+                Dış bağımlılık yok. Veri sınırı geçmez.
               </p>
             </div>
 
@@ -49,11 +49,11 @@ export function Company() {
             <div className="mt-8 flex items-center gap-6">
               <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
                 <Cpu className="w-3 h-3 text-accent" />
-                <span>On-prem deployment</span>
+                <span>Yerinde kurulum</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
                 <Zap className="w-3 h-3 text-accent" />
-                <span>KVKK-native</span>
+                <span>KVKK-yerli</span>
               </div>
             </div>
           </div>
