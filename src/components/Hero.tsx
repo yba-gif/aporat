@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { HeroGraph } from './HeroGraph';
+import { analytics } from '@/lib/analytics';
 import { analytics } from '@/lib/analytics';
 import { Shield, Eye, Lock } from 'lucide-react';
 
