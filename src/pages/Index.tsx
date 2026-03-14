@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Navbar } from '@/components/Navbar';
-import { HeroSelector } from '@/components/hero/HeroSelector';
+import { HeroVariantC } from '@/components/hero/HeroVariantC';
 import { Products } from '@/components/Products';
 import { HowItWorks } from '@/components/HowItWorks';
 import { Solutions } from '@/components/Solutions';
