@@ -38,10 +38,10 @@ export function Company() {
             
             <div className="space-y-4 text-body max-w-lg">
               <p>
-                Sınır ötesi operasyonlar için egemen istihbarat platformu. BTK/TÜBİTAK altyapısında konuşlanır. KVKK-yerli. Bakanlık entegrasyonuna hazır.
+                First sovereign intelligence platform for cross-border operations. Deploys on BTK/TÜBİTAK infrastructure. KVKK-native. White-label ready for ministry integration.
               </p>
               <p>
-                Dış bağımlılık yok. Veri sınırı geçmez.
+                No foreign dependency. No data leaves the border.
               </p>
             </div>
 
@@ -49,11 +49,11 @@ export function Company() {
             <div className="mt-8 flex items-center gap-6">
               <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
                 <Cpu className="w-3 h-3 text-accent" />
-                <span>Yerinde kurulum</span>
+                <span>On-prem deployment</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-muted-foreground font-mono">
                 <Zap className="w-3 h-3 text-accent" />
-                <span>KVKK-yerli</span>
+                <span>KVKK-native</span>
               </div>
             </div>
           </div>
