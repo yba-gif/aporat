@@ -45,48 +45,45 @@ function useDecodeText(text: string, scrollYProgress: MotionValue<number>, start
 }
 
 function DecodingChar({ char, isDecoded, opacity, isSpace }: { char: string; isDecoded: any; opacity: any; isSpace: boolean }) {
-  const [resolved, setResolved] = useState(false);
-
-  useEffect(() => {
-    if (isSpace) return;
-    if (typeof isDecoded === 'number') {
-      setResolved(isDecoded >= 0.5);
-      return;
-    }
-    const unsub = isDecoded.on('change', (v: number) => {
-      if (v >= 0.5) setResolved(true);
-    });
-    return unsub;
-  }, [isDecoded, isSpace]);
-
   if (isSpace) return <span>&nbsp;</span>;
-
+  
   return (
-    <motion.span className="inline-block" style={{ opacity }}>
-      {resolved ? char : <CyclingChar decoded={isDecoded} />}
+    <motion.span
+      className="inline-block relative"
+      style={{ opacity }}
+    >
+      {/* Decoded (real) character */}
+      <motion.span
+        className="relative z-10"
+        style={{
+          opacity: isDecoded,
+        }}
+      >
+        {char}
+      </motion.span>
+      
+      {/* Encrypted character overlay */}
+      <motion.span
+        className="absolute inset-0 text-accent/70 font-mono"
+        style={{
+          opacity: useTransform(isDecoded, [0, 0.5, 1], [1, 0.5, 0]),
+        }}
+      >
+        <CyclingChar />
+      </motion.span>
     </motion.span>
   );
 }
 
-function CyclingChar({ decoded }: { decoded: any }) {
+function CyclingChar() {
   const [char, setChar] = useState(() => CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)]);
-  const [stopped, setStopped] = useState(false);
 
   useEffect(() => {
-    if (stopped) return;
     const interval = setInterval(() => {
       setChar(CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)]);
-    }, 50 + Math.random() * 70);
+    }, 60 + Math.random() * 80);
     return () => clearInterval(interval);
-  }, [stopped]);
-
-  // Stop cycling once decoded to save perf
-  useEffect(() => {
-    const unsub = decoded.on('change', (v: number) => {
-      if (v > 0.5) setStopped(true);
-    });
-    return unsub;
-  }, [decoded]);
+  }, []);
 
   return <>{char}</>;
 }
