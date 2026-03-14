@@ -76,8 +76,15 @@ function DecodingChar({ char, isDecoded, opacity, isSpace }: { char: string; isD
 }
 
 function CyclingChar() {
-  // Pick a random cipher character and hold it (no animation loop for perf)
-  const char = useMemo(() => CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)], []);
+  const [char, setChar] = useState(() => CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setChar(CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)]);
+    }, 60 + Math.random() * 80);
+    return () => clearInterval(interval);
+  }, []);
+
   return <>{char}</>;
 }
 
