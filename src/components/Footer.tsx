@@ -63,8 +63,11 @@ export function Footer() {
 
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t border-border text-center">
+          <p className="text-xs text-muted-foreground mb-1">
+            Sovereign intelligence infrastructure.
+          </p>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Portolan Labs. All rights reserved.
+            © {new Date().getFullYear()} Portolan Labs. Zurich, Switzerland.
           </p>
         </div>
       </div>

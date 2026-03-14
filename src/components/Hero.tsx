@@ -1,12 +1,19 @@
 import { Button } from '@/components/ui/button';
 import { HeroGraph } from './HeroGraph';
 import { analytics } from '@/lib/analytics';
-import { Shield, FileCheck, Settings } from 'lucide-react';
+import { Shield, Eye, Lock } from 'lucide-react';
 
 const proofChips = [
-  { icon: FileCheck, label: 'Audit-grade logs' },
-  { icon: Shield, label: 'Explainable checks' },
-  { icon: Settings, label: 'Policy rulesets' },
+  { icon: Eye, label: 'Full audit chain' },
+  { icon: Shield, label: 'Sovereign deployment' },
+  { icon: Lock, label: 'Zero data export' },
+];
+
+const stats = [
+  { value: '4.2hrs', label: 'Fraud ring resolution' },
+  { value: '40+', label: 'Countries' },
+  { value: '100%', label: 'Audit chain coverage' },
+  { value: '0', label: 'Data leaves your jurisdiction' },
 ];
 
 export function Hero() {
@@ -27,14 +34,18 @@ export function Hero() {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-8 items-center">
           {/* Left: Content */}
           <div className="max-w-xl">
+            <p className="text-label mb-4 animate-fade-up font-mono uppercase tracking-widest text-xs">
+              Sovereign Intelligence Infrastructure
+            </p>
+
             <h1 className="text-4xl md:text-display mb-4 md:mb-6 animate-fade-up">
-              Decision infrastructure
+              Decision systems
               <br />
               <span className="text-muted-foreground">for critical operations.</span>
             </h1>
             
             <p className="text-lg md:text-subhead mb-6 md:mb-8 animate-fade-up delay-100">
-              Unified evidence. Verified integrity. Audit-ready outcomes.
+              Intelligence infrastructure for governments and institutions operating at the edge of national security. Every decision logged. Every chain auditable. Every byte sovereign.
             </p>
 
             {/* CTA */}
@@ -44,7 +55,7 @@ export function Hero() {
                 onClick={handleRequestAccess}
                 className="bg-foreground text-background hover:bg-foreground/90 px-6 w-full sm:w-auto"
               >
-                Request access
+                Request a briefing
               </Button>
             </div>
 
@@ -66,6 +77,16 @@ export function Hero() {
           <div className="relative h-[350px] md:h-[400px] lg:h-[450px] animate-fade-in delay-300">
             <HeroGraph />
           </div>
+        </div>
+
+        {/* Stats bar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-12 border-t border-border">
+          {stats.map((stat) => (
+            <div key={stat.label}>
+              <p className="text-2xl md:text-3xl font-semibold">{stat.value}</p>
+              <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </div>
 

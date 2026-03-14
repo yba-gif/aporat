@@ -1,41 +1,26 @@
-import { Building2, Network, Briefcase, ShieldAlert } from 'lucide-react';
+import { Layers, ShieldOff, Globe } from 'lucide-react';
 
-interface Solution {
-  icon: typeof Building2;
+interface ProblemCard {
+  icon: typeof Layers;
   title: string;
-  problem: string;
-  solution: string;
-  outcome: string;
+  description: string;
 }
 
-const solutions: Solution[] = [
+const problems: ProblemCard[] = [
   {
-    icon: Building2,
-    title: 'Government & Consular',
-    problem: 'Fragmented systems delay high-volume citizen services.',
-    solution: 'Unified evidence intake, automated verification, decision workflows with audit trails.',
-    outcome: 'Processing time reduced 60-80%',
+    icon: Layers,
+    title: 'Fragmented Intelligence',
+    description: 'Operators toggle between disconnected systems. No unified view. No relationship awareness. Threats go undetected.',
   },
   {
-    icon: Network,
-    title: 'Defense & Intelligence',
-    problem: 'Multi-agency operations lack visibility and secure handoffs.',
-    solution: 'Verified handoff protocols, compartmentalized access, real-time operational awareness.',
-    outcome: 'Unified operational picture',
+    icon: ShieldOff,
+    title: 'Zero Provenance',
+    description: 'Decisions happen outside the system. When oversight arrives, the chain of custody doesn\'t exist.',
   },
   {
-    icon: Briefcase,
-    title: 'Enterprise Compliance',
-    problem: 'Decentralized vendors and regulatory fragmentation create blind spots.',
-    solution: 'Centralized audit trails, policy enforcement, evidence retention.',
-    outcome: 'Enterprise-wide compliance visibility',
-  },
-  {
-    icon: ShieldAlert,
-    title: 'Fraud & Integrity',
-    problem: 'Document fraud and network anomalies evade siloed systems.',
-    solution: 'Graph-based analysis surfaces coordinated patterns before materialization.',
-    outcome: 'Proactive threat detection',
+    icon: Globe,
+    title: 'Adversarial Scale',
+    description: 'Threat networks operate across jurisdictions. Point solutions can\'t see the network. You need infrastructure that can.',
   },
 ];
 
@@ -45,50 +30,28 @@ export function Solutions() {
       <div className="container-wide">
         {/* Header */}
         <div className="max-w-2xl mb-16">
-          <p className="text-label mb-4">Solutions</p>
+          <p className="text-label mb-4">The Problem</p>
           <h2 className="text-headline mb-4">
-            Built for mission-critical operations.
+            Built for environments where failure is not an option.
           </h2>
-          <p className="text-body">
-            For organizations where accuracy and audit compliance are non-negotiable.
-          </p>
         </div>
 
-        {/* Solution Cards */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {solutions.map((solution) => {
-            const Icon = solution.icon;
+        {/* Problem Cards */}
+        <div className="grid md:grid-cols-3 gap-6">
+          {problems.map((problem) => {
+            const Icon = problem.icon;
 
             return (
               <div
-                key={solution.title}
+                key={problem.title}
                 className="group p-6 border border-border bg-background hover:border-line-strong transition-all duration-300"
               >
-                <div className="flex items-start gap-4 mb-6">
-                  <div className="p-2 border border-border bg-secondary group-hover:border-accent group-hover:bg-accent-muted transition-colors">
-                    <Icon className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors" />
-                  </div>
-                  <h3 className="font-semibold text-lg pt-1">{solution.title}</h3>
+                <div className="p-2 border border-border bg-secondary group-hover:border-accent group-hover:bg-accent-muted transition-colors w-fit mb-6">
+                  <Icon className="w-5 h-5 text-muted-foreground group-hover:text-accent transition-colors" />
                 </div>
 
-                <div className="space-y-4">
-                  {/* Problem */}
-                  <div className="pl-4 border-l border-destructive/30">
-                    <p className="text-label text-destructive/80 mb-1">Problem</p>
-                    <p className="text-sm text-muted-foreground">{solution.problem}</p>
-                  </div>
-
-                  {/* Solution */}
-                  <div className="pl-4 border-l border-accent">
-                    <p className="text-label text-accent mb-1">Portolan delivers</p>
-                    <p className="text-sm text-muted-foreground">{solution.solution}</p>
-                  </div>
-
-                  {/* Outcome */}
-                  <div className="pt-4 border-t border-border">
-                    <p className="text-sm font-medium">{solution.outcome}</p>
-                  </div>
-                </div>
+                <h3 className="font-semibold text-lg mb-3">{problem.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{problem.description}</p>
               </div>
             );
           })}
