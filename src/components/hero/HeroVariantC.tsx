@@ -104,9 +104,8 @@ export function HeroVariantC() {
   const subOpacity = useTransform(scrollYProgress, [0.26, 0.32], [0, 1]);
   const subY = useTransform(scrollYProgress, [0.26, 0.32], [10, 0]);
   const ctaOpacity = useTransform(scrollYProgress, [0.3, 0.36], [0, 1]);
-  const chipsOpacity = useTransform(scrollYProgress, [0.34, 0.4], [0, 1]);
-  const statsOpacity = useTransform(scrollYProgress, [0.38, 0.46], [0, 1]);
-  const statsY = useTransform(scrollYProgress, [0.38, 0.46], [15, 0]);
+  const statsOpacity = useTransform(scrollYProgress, [0.34, 0.42], [0, 1]);
+  const statsY = useTransform(scrollYProgress, [0.34, 0.42], [15, 0]);
 
   // Terminal frame
   const frameOpacity = useTransform(scrollYProgress, [0, 0.03], [0, 1]);
