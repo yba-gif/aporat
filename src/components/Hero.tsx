@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { HeroGraph } from './HeroGraph';
 import { analytics } from '@/lib/analytics';
 import { Shield, Eye, Lock } from 'lucide-react';
 
@@ -31,9 +30,8 @@ export function Hero() {
       <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-surface-elevated/50 to-transparent pointer-events-none" />
 
       <div className="container-wide relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-8 items-center">
-          {/* Left: Content */}
-          <div className="max-w-xl">
+        <div className="max-w-3xl">
+          <div>
             <p className="text-label mb-4 animate-fade-up font-mono uppercase tracking-widest text-xs">
               Sovereign Intelligence Infrastructure
             </p>
@@ -71,11 +69,6 @@ export function Hero() {
                 </div>
               ))}
             </div>
-          </div>
-
-          {/* Right: Interactive Graph */}
-          <div className="relative h-[350px] md:h-[400px] lg:h-[450px] animate-fade-in delay-300">
-            <HeroGraph />
           </div>
         </div>
 
