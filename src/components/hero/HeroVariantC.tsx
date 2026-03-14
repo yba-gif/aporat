@@ -185,17 +185,6 @@ export function HeroVariantC() {
               </Button>
             </motion.div>
 
-            <motion.div className="flex flex-wrap gap-2 md:gap-4" style={{ opacity: chipsOpacity }}>
-              {proofChips.map((chip) => (
-                <div
-                  key={chip.label}
-                  className="flex items-center gap-2 px-2 md:px-3 py-1.5 bg-secondary border border-border text-xs md:text-sm"
-                >
-                  <chip.icon className="w-3 h-3 md:w-3.5 md:h-3.5 text-accent" />
-                  <span className="text-muted-foreground">{chip.label}</span>
-                </div>
-              ))}
-            </motion.div>
           </div>
 
           <motion.div
