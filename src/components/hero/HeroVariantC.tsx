@@ -2,7 +2,7 @@ import { useRef, useMemo, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { analytics } from '@/lib/analytics';
-import { Shield, Eye, Lock } from 'lucide-react';
+
 
 /**
  * VARIANT C: "Cipher Decode"
