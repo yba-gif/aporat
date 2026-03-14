@@ -5,16 +5,16 @@ import { HeroVariantC } from './HeroVariantC';
 import { HeroVariantD } from './HeroVariantD';
 
 const variants = [
-  { id: 'a', label: 'A: Declassification', description: 'Scan-line reveals content with blur-to-sharp' },
-  { id: 'b', label: 'B: Typography', description: 'Words slide in from scattered positions and lock into place' },
-  { id: 'c', label: 'C: Depth Field', description: 'Parallax layers at different scroll speeds create z-depth' },
-  { id: 'd', label: 'D: Wipe', description: 'Vertical edge sweeps left-to-right revealing content' },
+  { id: 'a', label: 'A: Declassify' },
+  { id: 'b', label: 'B: Redaction' },
+  { id: 'c', label: 'C: Cipher' },
+  { id: 'd', label: 'D: Gravity' },
 ] as const;
 
 type VariantId = typeof variants[number]['id'];
 
 export function HeroSelector() {
-  const [active, setActive] = useState<VariantId>('a');
+  const [active, setActive] = useState<VariantId>('b');
 
   return (
     <div>
@@ -32,14 +32,12 @@ export function HeroSelector() {
                 ? 'bg-accent text-accent-foreground'
                 : 'text-background/70 hover:text-background'
             }`}
-            title={v.description}
           >
             {v.label}
           </button>
         ))}
       </div>
 
-      {/* Active variant */}
       {active === 'a' && <HeroVariantA />}
       {active === 'b' && <HeroVariantB />}
       {active === 'c' && <HeroVariantC />}

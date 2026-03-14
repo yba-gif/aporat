@@ -1,15 +1,16 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef, useMemo } from 'react';
+import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { analytics } from '@/lib/analytics';
 import { Shield, Eye, Lock } from 'lucide-react';
 
 /**
- * VARIANT C: "Depth Field"
+ * VARIANT C: "Cipher Decode"
  * 
- * Multiple parallax layers at different scroll speeds create real depth.
- * Background grid crawls. Mid-layer data fragments drift. 
- * Foreground content moves fastest. Scroll controls the z-axis.
+ * The headline starts as encrypted text — random hex, symbols, unicode.
+ * As you scroll, each character cycles through random glyphs before 
+ * landing on the correct letter. Like watching a cipher crack in real-time.
+ * The decode ripples left to right.
  */
 
 const proofChips = [
@@ -25,15 +26,60 @@ const stats = [
   { value: '0', label: 'Data leaves your jurisdiction' },
 ];
 
-// Floating data fragments for mid-layer
-const fragments = [
-  { text: 'SHA-256', x: '75%', y: '20%', speed: 0.3 },
-  { text: 'VERIFIED', x: '85%', y: '45%', speed: 0.5 },
-  { text: '0x7f3a...', x: '70%', y: '65%', speed: 0.2 },
-  { text: 'AUDIT::OK', x: '82%', y: '80%', speed: 0.4 },
-  { text: 'NODE:7', x: '90%', y: '30%', speed: 0.35 },
-  { text: 'POLICY:ACTIVE', x: '65%', y: '50%', speed: 0.25 },
-];
+const CIPHER_CHARS = '█▓▒░╬╠╣╦╩┼─│┌┐└┘├┤┬┴0123456789ABCDEF@#$%&*!?><{}[]';
+
+function useDecodeText(text: string, scrollYProgress: MotionValue<number>, startAt: number, duration: number) {
+  const chars = useMemo(() => text.split(''), [text]);
+  
+  return chars.map((char, i) => {
+    if (char === ' ') return { char: '\u00A0', isSpace: true, opacity: 1 as any, isDecoded: 1 as any };
+    
+    const charStart = startAt + (i / chars.length) * duration;
+    const charEnd = charStart + duration * 0.3;
+    
+    const isDecoded = useTransform(scrollYProgress, [charStart, charEnd], [0, 1]);
+    const opacity = useTransform(scrollYProgress, [startAt - 0.02, startAt], [0, 1]);
+    
+    return { char, isSpace: false, opacity, isDecoded };
+  });
+}
+
+function DecodingChar({ char, isDecoded, opacity, isSpace }: { char: string; isDecoded: any; opacity: any; isSpace: boolean }) {
+  if (isSpace) return <span>&nbsp;</span>;
+  
+  return (
+    <motion.span
+      className="inline-block relative"
+      style={{ opacity }}
+    >
+      {/* Decoded (real) character */}
+      <motion.span
+        className="relative z-10"
+        style={{
+          opacity: isDecoded,
+        }}
+      >
+        {char}
+      </motion.span>
+      
+      {/* Encrypted character overlay */}
+      <motion.span
+        className="absolute inset-0 text-accent/70 font-mono"
+        style={{
+          opacity: useTransform(isDecoded, [0, 0.5, 1], [1, 0.5, 0]),
+        }}
+      >
+        <CyclingChar />
+      </motion.span>
+    </motion.span>
+  );
+}
+
+function CyclingChar() {
+  // Pick a random cipher character and hold it (no animation loop for perf)
+  const char = useMemo(() => CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)], []);
+  return <>{char}</>;
+}
 
 export function HeroVariantC() {
   const containerRef = useRef<HTMLElement>(null);
@@ -42,27 +88,26 @@ export function HeroVariantC() {
     offset: ['start start', 'end start'],
   });
 
-  // Layer speeds (background slowest, foreground fastest)
-  const bgY = useTransform(scrollYProgress, [0, 1], ['0%', '10%']);
-  const bgScale = useTransform(scrollYProgress, [0, 0.5], [1.05, 1]);
-  const bgOpacity = useTransform(scrollYProgress, [0, 0.3], [0.15, 0.4]);
+  // Decode the headline text
+  const line1Chars = useDecodeText('Decision systems', scrollYProgress, 0.04, 0.18);
+  const line2Chars = useDecodeText('for critical operations.', scrollYProgress, 0.1, 0.2);
 
-  // Content (foreground) - appears and stays
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.08], [0, 1]);
-  const contentY = useTransform(scrollYProgress, [0, 0.15], [80, 0]);
-  const contentScale = useTransform(scrollYProgress, [0, 0.15], [0.95, 1]);
+  // Kicker decodes first
+  const kickerChars = useDecodeText('SOVEREIGN INTELLIGENCE INFRASTRUCTURE', scrollYProgress, 0.02, 0.12);
 
-  const kickerOpacity = useTransform(scrollYProgress, [0, 0.06], [0, 1]);
-  const subOpacity = useTransform(scrollYProgress, [0.1, 0.18], [0, 1]);
-  const ctaOpacity = useTransform(scrollYProgress, [0.16, 0.22], [0, 1]);
-  const chipsOpacity = useTransform(scrollYProgress, [0.2, 0.26], [0, 1]);
-  const statsOpacity = useTransform(scrollYProgress, [0.24, 0.32], [0, 1]);
-  const statsY = useTransform(scrollYProgress, [0.24, 0.32], [20, 0]);
+  // Cursor blink at the end of decode
+  const cursorOpacity = useTransform(scrollYProgress, [0.02, 0.04, 0.3, 0.35], [0, 1, 1, 0]);
 
-  // Vertical depth lines
-  const depthLine1Height = useTransform(scrollYProgress, [0, 0.2], ['0%', '100%']);
-  const depthLine2Height = useTransform(scrollYProgress, [0.05, 0.25], ['0%', '80%']);
-  const depthLineOpacity = useTransform(scrollYProgress, [0, 0.05, 0.3, 0.4], [0, 0.15, 0.15, 0]);
+  // Sub content
+  const subOpacity = useTransform(scrollYProgress, [0.26, 0.32], [0, 1]);
+  const subY = useTransform(scrollYProgress, [0.26, 0.32], [10, 0]);
+  const ctaOpacity = useTransform(scrollYProgress, [0.3, 0.36], [0, 1]);
+  const chipsOpacity = useTransform(scrollYProgress, [0.34, 0.4], [0, 1]);
+  const statsOpacity = useTransform(scrollYProgress, [0.38, 0.46], [0, 1]);
+  const statsY = useTransform(scrollYProgress, [0.38, 0.46], [15, 0]);
+
+  // Terminal frame
+  const frameOpacity = useTransform(scrollYProgress, [0, 0.03], [0, 1]);
 
   const handleRequestAccess = () => {
     analytics.trackCTA('request_access', 'hero');
@@ -72,75 +117,58 @@ export function HeroVariantC() {
   return (
     <section ref={containerRef} className="relative min-h-[200vh]">
       <div className="sticky top-0 min-h-screen flex items-center pt-20 pb-12 md:pb-0 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-fade pointer-events-none opacity-20" />
 
-        {/* Layer 0: Background grid - slowest */}
-        <motion.div
-          className="absolute inset-0 bg-grid-fade pointer-events-none"
-          style={{ y: bgY, scale: bgScale, opacity: bgOpacity }}
+        {/* Subtle scan lines effect */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.03]"
+          style={{
+            backgroundImage: 'repeating-linear-gradient(0deg, transparent, transparent 2px, hsl(var(--foreground)) 2px, hsl(var(--foreground)) 3px)',
+          }}
         />
 
-        {/* Layer 1: Depth lines */}
-        <motion.div
-          className="absolute left-[20%] top-0 w-px bg-accent pointer-events-none origin-top hidden md:block"
-          style={{ height: depthLine1Height, opacity: depthLineOpacity }}
-        />
-        <motion.div
-          className="absolute right-[30%] bottom-0 w-px bg-accent pointer-events-none origin-bottom hidden md:block"
-          style={{ height: depthLine2Height, opacity: depthLineOpacity }}
-        />
-
-        {/* Layer 2: Mid-layer data fragments - medium speed */}
-        <div className="absolute inset-0 pointer-events-none hidden md:block">
-          {fragments.map((frag, i) => {
-            const fragY = useTransform(scrollYProgress, [0, 1], [0, -200 * frag.speed]);
-            const fragOpacity = useTransform(
-              scrollYProgress,
-              [0, 0.05, 0.35, 0.45],
-              [0, 0.25, 0.25, 0]
-            );
-
-            return (
+        <div className="container-wide relative z-10">
+          <div className="max-w-4xl">
+            {/* Terminal-style prompt */}
+            <motion.div
+              className="flex items-center gap-2 mb-8"
+              style={{ opacity: frameOpacity }}
+            >
+              <div className="w-2 h-2 rounded-full bg-accent" />
+              <span className="text-[10px] font-mono text-muted-foreground">DECRYPTING TRANSMISSION</span>
               <motion.span
-                key={i}
-                className="absolute text-[9px] font-mono text-accent/60 select-none"
-                style={{
-                  left: frag.x,
-                  top: frag.y,
-                  y: fragY,
-                  opacity: fragOpacity,
-                }}
+                className="text-accent font-mono text-[10px]"
+                style={{ opacity: cursorOpacity }}
               >
-                {frag.text}
+                █
               </motion.span>
-            );
-          })}
-        </div>
+            </motion.div>
 
-        {/* Layer 3: Foreground content - fastest */}
-        <motion.div
-          className="container-wide relative z-10"
-          style={{ y: contentY, scale: contentScale }}
-        >
-          <div className="max-w-3xl">
-            <motion.p
-              className="text-[10px] font-mono uppercase tracking-[0.2em] text-accent mb-6"
-              style={{ opacity: kickerOpacity }}
-            >
-              Sovereign Intelligence Infrastructure
-            </motion.p>
+            {/* Kicker - decoded char by char */}
+            <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-accent mb-6">
+              {kickerChars.map((c, i) => (
+                <DecodingChar key={i} {...c} />
+              ))}
+            </p>
 
-            <motion.h1
-              className="text-4xl md:text-display mb-4 md:mb-6"
-              style={{ opacity: contentOpacity }}
-            >
-              Decision systems
-              <br />
-              <span className="text-muted-foreground">for critical operations.</span>
-            </motion.h1>
+            {/* Headline line 1 */}
+            <h1 className="text-4xl md:text-display mb-2">
+              {line1Chars.map((c, i) => (
+                <DecodingChar key={i} {...c} />
+              ))}
+            </h1>
 
+            {/* Headline line 2 */}
+            <p className="text-4xl md:text-display text-muted-foreground mb-6">
+              {line2Chars.map((c, i) => (
+                <DecodingChar key={i} {...c} />
+              ))}
+            </p>
+
+            {/* Sub */}
             <motion.p
               className="text-lg md:text-subhead mb-6 md:mb-8"
-              style={{ opacity: subOpacity }}
+              style={{ opacity: subOpacity, y: subY }}
             >
               Sovereign decision infrastructure. Full-spectrum audit coverage.
             </motion.p>
@@ -179,7 +207,7 @@ export function HeroVariantC() {
               </div>
             ))}
           </motion.div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

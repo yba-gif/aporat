@@ -1,15 +1,16 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { analytics } from '@/lib/analytics';
 import { Shield, Eye, Lock } from 'lucide-react';
 
 /**
- * VARIANT B: "Typographic Assembly"
+ * VARIANT B: "Redaction Lift"
  * 
- * Each word of the headline slides in from scattered positions 
- * and locks into place as you scroll. Words travel along different 
- * axes at different rates. Controlled chaos to surgical precision.
+ * The viewport starts as a classified document. Black redaction bars 
+ * cover each line of text. As you scroll, bars peel away with a 3D 
+ * rotation — like someone is physically declassifying the page.
+ * The text underneath glows briefly as it's exposed.
  */
 
 const proofChips = [
@@ -25,6 +26,55 @@ const stats = [
   { value: '0', label: 'Data leaves your jurisdiction' },
 ];
 
+interface RedactionBarProps {
+  scrollYProgress: any;
+  startAt: number;
+  endAt: number;
+  width: string;
+  children: React.ReactNode;
+}
+
+function RedactionBar({ scrollYProgress, startAt, endAt, width, children }: RedactionBarProps) {
+  const rotateX = useTransform(scrollYProgress, [startAt, endAt], [0, -90]);
+  const barOpacity = useTransform(scrollYProgress, [startAt, endAt - 0.01, endAt], [1, 1, 0]);
+  const textOpacity = useTransform(scrollYProgress, [startAt, endAt], [0, 1]);
+  const textGlow = useTransform(
+    scrollYProgress,
+    [startAt, endAt, endAt + 0.04],
+    ['0px', '8px', '0px']
+  );
+
+  return (
+    <div className="relative">
+      {/* The text underneath */}
+      <motion.div
+        style={{
+          opacity: textOpacity,
+          textShadow: useTransform(textGlow, (v) => `0 0 ${v} hsl(var(--accent) / 0.4)`),
+        }}
+      >
+        {children}
+      </motion.div>
+
+      {/* The black redaction bar */}
+      <motion.div
+        className="absolute inset-0 flex items-center pointer-events-none origin-bottom"
+        style={{
+          rotateX,
+          opacity: barOpacity,
+          perspective: '800px',
+          transformStyle: 'preserve-3d',
+        }}
+      >
+        <div
+          className="h-[1.15em] bg-foreground"
+          style={{ width }}
+        />
+      </motion.div>
+    </div>
+  );
+}
+
 export function HeroVariantB() {
   const containerRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -32,35 +82,20 @@ export function HeroVariantB() {
     offset: ['start start', 'end start'],
   });
 
-  // Word-level transforms for "Decision systems"
-  const word1X = useTransform(scrollYProgress, [0, 0.12], [-200, 0]);
-  const word1Opacity = useTransform(scrollYProgress, [0, 0.08], [0, 1]);
-  const word2X = useTransform(scrollYProgress, [0.02, 0.14], [300, 0]);
-  const word2Opacity = useTransform(scrollYProgress, [0.02, 0.1], [0, 1]);
+  // Classification stamp rotation
+  const stampRotate = useTransform(scrollYProgress, [0, 0.04], [-8, -3]);
+  const stampOpacity = useTransform(scrollYProgress, [0, 0.03], [0, 1]);
+  const stampScale = useTransform(scrollYProgress, [0, 0.04], [1.5, 1]);
 
-  // Word-level transforms for "for critical operations."
-  const word3Y = useTransform(scrollYProgress, [0.06, 0.16], [60, 0]);
-  const word3Opacity = useTransform(scrollYProgress, [0.06, 0.12], [0, 1]);
-  const word4X = useTransform(scrollYProgress, [0.08, 0.18], [-150, 0]);
-  const word4Opacity = useTransform(scrollYProgress, [0.08, 0.14], [0, 1]);
-  const word5X = useTransform(scrollYProgress, [0.1, 0.2], [200, 0]);
-  const word5Opacity = useTransform(scrollYProgress, [0.1, 0.16], [0, 1]);
+  // Post-reveal elements
+  const ctaOpacity = useTransform(scrollYProgress, [0.32, 0.38], [0, 1]);
+  const ctaY = useTransform(scrollYProgress, [0.32, 0.38], [10, 0]);
+  const chipsOpacity = useTransform(scrollYProgress, [0.36, 0.42], [0, 1]);
+  const statsOpacity = useTransform(scrollYProgress, [0.4, 0.48], [0, 1]);
+  const statsY = useTransform(scrollYProgress, [0.4, 0.48], [15, 0]);
 
-  // Underline that draws itself after words lock
-  const underlineWidth = useTransform(scrollYProgress, [0.18, 0.28], ['0%', '100%']);
-  const underlineOpacity = useTransform(scrollYProgress, [0.18, 0.22], [0, 1]);
-
-  // Kicker
-  const kickerOpacity = useTransform(scrollYProgress, [0.14, 0.2], [0, 1]);
-  const kickerLetterSpacing = useTransform(scrollYProgress, [0.14, 0.22], [16, 3]);
-
-  // Sub, CTA, chips
-  const subOpacity = useTransform(scrollYProgress, [0.22, 0.28], [0, 1]);
-  const subY = useTransform(scrollYProgress, [0.22, 0.28], [15, 0]);
-  const ctaOpacity = useTransform(scrollYProgress, [0.26, 0.32], [0, 1]);
-  const chipsOpacity = useTransform(scrollYProgress, [0.3, 0.36], [0, 1]);
-  const statsOpacity = useTransform(scrollYProgress, [0.34, 0.42], [0, 1]);
-  const statsY = useTransform(scrollYProgress, [0.34, 0.42], [20, 0]);
+  // Document border
+  const borderOpacity = useTransform(scrollYProgress, [0, 0.05], [0, 0.15]);
 
   const handleRequestAccess = () => {
     analytics.trackCTA('request_access', 'hero');
@@ -70,73 +105,60 @@ export function HeroVariantB() {
   return (
     <section ref={containerRef} className="relative min-h-[200vh]">
       <div className="sticky top-0 min-h-screen flex items-center pt-20 pb-12 md:pb-0 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-fade pointer-events-none" />
+        <div className="absolute inset-0 bg-grid-fade pointer-events-none opacity-20" />
+
+        {/* Document border effect */}
+        <motion.div
+          className="absolute inset-8 md:inset-16 border border-foreground pointer-events-none"
+          style={{ opacity: borderOpacity }}
+        />
+
+        {/* Classification stamp */}
+        <motion.div
+          className="absolute top-28 right-12 md:right-24 z-20 pointer-events-none"
+          style={{ rotate: stampRotate, opacity: stampOpacity, scale: stampScale }}
+        >
+          <div className="border-2 border-accent px-4 py-2">
+            <span className="text-accent font-mono text-xs md:text-sm font-bold uppercase tracking-widest">
+              Declassified
+            </span>
+          </div>
+        </motion.div>
 
         <div className="container-wide relative z-10">
-          <div className="max-w-4xl">
-            {/* Kicker with letter-spacing scrub */}
-            <motion.p
-              className="text-[10px] font-mono uppercase text-accent mb-6 overflow-hidden"
-              style={{
-                opacity: kickerOpacity,
-                letterSpacing: useTransform(kickerLetterSpacing, (v) => `${v}px`),
-              }}
-            >
-              Sovereign Intelligence Infrastructure
-            </motion.p>
+          <div className="max-w-3xl space-y-2">
+            {/* Kicker - first to reveal */}
+            <RedactionBar scrollYProgress={scrollYProgress} startAt={0.04} endAt={0.1} width="55%">
+              <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-accent py-2">
+                Sovereign Intelligence Infrastructure
+              </p>
+            </RedactionBar>
 
-            {/* Headline - each word independently positioned */}
-            <h1 className="text-4xl md:text-display mb-4 md:mb-6">
-              <span className="block">
-                <motion.span
-                  className="inline-block mr-[0.3em]"
-                  style={{ x: word1X, opacity: word1Opacity }}
-                >
-                  Decision
-                </motion.span>
-                <motion.span
-                  className="inline-block"
-                  style={{ x: word2X, opacity: word2Opacity }}
-                >
-                  systems
-                </motion.span>
-              </span>
-              <span className="block text-muted-foreground">
-                <motion.span
-                  className="inline-block mr-[0.3em]"
-                  style={{ y: word3Y, opacity: word3Opacity }}
-                >
-                  for
-                </motion.span>
-                <motion.span
-                  className="inline-block mr-[0.3em]"
-                  style={{ x: word4X, opacity: word4Opacity }}
-                >
-                  critical
-                </motion.span>
-                <motion.span
-                  className="inline-block"
-                  style={{ x: word5X, opacity: word5Opacity }}
-                >
-                  operations.
-                </motion.span>
-              </span>
-            </h1>
+            {/* Headline line 1 */}
+            <RedactionBar scrollYProgress={scrollYProgress} startAt={0.08} endAt={0.16} width="75%">
+              <h1 className="text-4xl md:text-display py-1">
+                Decision systems
+              </h1>
+            </RedactionBar>
 
-            {/* Drawn underline */}
-            <motion.div
-              className="h-px bg-accent mb-8 origin-left"
-              style={{ width: underlineWidth, opacity: underlineOpacity }}
-            />
+            {/* Headline line 2 */}
+            <RedactionBar scrollYProgress={scrollYProgress} startAt={0.12} endAt={0.2} width="85%">
+              <p className="text-4xl md:text-display text-muted-foreground py-1">
+                for critical operations.
+              </p>
+            </RedactionBar>
 
-            <motion.p
-              className="text-lg md:text-subhead mb-6 md:mb-8 max-w-2xl"
-              style={{ opacity: subOpacity, y: subY }}
-            >
-              Sovereign decision infrastructure. Full-spectrum audit coverage.
-            </motion.p>
+            {/* Subtitle */}
+            <div className="pt-4">
+              <RedactionBar scrollYProgress={scrollYProgress} startAt={0.18} endAt={0.26} width="90%">
+                <p className="text-lg md:text-subhead py-2">
+                  Sovereign decision infrastructure. Full-spectrum audit coverage.
+                </p>
+              </RedactionBar>
+            </div>
 
-            <motion.div className="mb-6 md:mb-8" style={{ opacity: ctaOpacity }}>
+            {/* CTA */}
+            <motion.div className="pt-4" style={{ opacity: ctaOpacity, y: ctaY }}>
               <Button
                 size="lg"
                 onClick={handleRequestAccess}
@@ -146,7 +168,8 @@ export function HeroVariantB() {
               </Button>
             </motion.div>
 
-            <motion.div className="flex flex-wrap gap-2 md:gap-4" style={{ opacity: chipsOpacity }}>
+            {/* Chips */}
+            <motion.div className="flex flex-wrap gap-2 md:gap-4 pt-2" style={{ opacity: chipsOpacity }}>
               {proofChips.map((chip) => (
                 <div
                   key={chip.label}
