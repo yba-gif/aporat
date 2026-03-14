@@ -47,45 +47,22 @@ function useDecodeText(text: string, scrollYProgress: MotionValue<number>, start
 function DecodingChar({ char, isDecoded, opacity, isSpace }: { char: string; isDecoded: any; opacity: any; isSpace: boolean }) {
   if (isSpace) return <span>&nbsp;</span>;
 
-  // 3D flip: cipher on front (0deg), real char on back (180deg)
-  const rotateY = useTransform(isDecoded, [0, 1], [0, 180]);
+  const [resolved, setResolved] = useState(false);
+
+  useEffect(() => {
+    if (typeof isDecoded === 'number') {
+      setResolved(isDecoded >= 0.5);
+      return;
+    }
+    const unsub = isDecoded.on('change', (v: number) => {
+      if (v >= 0.5 && !resolved) setResolved(true);
+    });
+    return unsub;
+  }, [isDecoded, resolved]);
 
   return (
-    <motion.span
-      className="inline-block relative"
-      style={{ opacity, perspective: 600 }}
-    >
-      {/* Container that flips */}
-      <motion.span
-        className="inline-block relative"
-        style={{
-          rotateY,
-          transformStyle: 'preserve-3d',
-        }}
-      >
-        {/* Front face: cycling cipher char */}
-        <motion.span
-          className="inline-block text-accent"
-          style={{
-            backfaceVisibility: 'hidden',
-            opacity: useTransform(isDecoded, [0, 0.45, 0.55], [1, 1, 0]),
-          }}
-        >
-          <CyclingChar decoded={isDecoded} />
-        </motion.span>
-
-        {/* Back face: real character */}
-        <motion.span
-          className="absolute inset-0 inline-block"
-          style={{
-            backfaceVisibility: 'hidden',
-            rotateY: 180,
-            opacity: useTransform(isDecoded, [0, 0.45, 0.55], [0, 0, 1]),
-          }}
-        >
-          {char}
-        </motion.span>
-      </motion.span>
+    <motion.span className="inline-block" style={{ opacity }}>
+      {resolved ? char : <CyclingChar decoded={isDecoded} />}
     </motion.span>
   );
 }
