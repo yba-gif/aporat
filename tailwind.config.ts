@@ -15,6 +15,7 @@ export default {
     extend: {
       colors: {
         border: "hsl(var(--border))",
+        "border-accent": "hsl(var(--border-accent))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -39,6 +40,10 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
           muted: "hsl(var(--accent-muted))",
+          red: "hsl(var(--accent-red))",
+          blue: "hsl(var(--accent-blue))",
+          green: "hsl(var(--accent-green))",
+          gold: "hsl(var(--accent-gold))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",
@@ -47,6 +52,7 @@ export default {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+          hover: "hsl(var(--card-hover))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
@@ -58,7 +64,6 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Custom semantic colors
         line: {
           subtle: "hsl(var(--line-subtle))",
           strong: "hsl(var(--line-strong))",
