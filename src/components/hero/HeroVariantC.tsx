@@ -46,44 +46,69 @@ function useDecodeText(text: string, scrollYProgress: MotionValue<number>, start
 
 function DecodingChar({ char, isDecoded, opacity, isSpace }: { char: string; isDecoded: any; opacity: any; isSpace: boolean }) {
   if (isSpace) return <span>&nbsp;</span>;
-  
+
+  // 3D flip: cipher on front (0deg), real char on back (180deg)
+  const rotateY = useTransform(isDecoded, [0, 1], [0, 180]);
+
   return (
     <motion.span
       className="inline-block relative"
-      style={{ opacity }}
+      style={{ opacity, perspective: 600 }}
     >
-      {/* Decoded (real) character */}
+      {/* Container that flips */}
       <motion.span
-        className="relative z-10"
+        className="inline-block relative"
         style={{
-          opacity: isDecoded,
+          rotateY,
+          transformStyle: 'preserve-3d',
         }}
       >
-        {char}
-      </motion.span>
-      
-      {/* Encrypted character overlay */}
-      <motion.span
-        className="absolute inset-0 text-accent/70 font-mono"
-        style={{
-          opacity: useTransform(isDecoded, [0, 0.5, 1], [1, 0.5, 0]),
-        }}
-      >
-        <CyclingChar />
+        {/* Front face: cycling cipher char */}
+        <motion.span
+          className="inline-block text-accent"
+          style={{
+            backfaceVisibility: 'hidden',
+            opacity: useTransform(isDecoded, [0, 0.45, 0.55], [1, 1, 0]),
+          }}
+        >
+          <CyclingChar decoded={isDecoded} />
+        </motion.span>
+
+        {/* Back face: real character */}
+        <motion.span
+          className="absolute inset-0 inline-block"
+          style={{
+            backfaceVisibility: 'hidden',
+            rotateY: 180,
+            opacity: useTransform(isDecoded, [0, 0.45, 0.55], [0, 0, 1]),
+          }}
+        >
+          {char}
+        </motion.span>
       </motion.span>
     </motion.span>
   );
 }
 
-function CyclingChar() {
+function CyclingChar({ decoded }: { decoded: any }) {
   const [char, setChar] = useState(() => CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)]);
+  const [stopped, setStopped] = useState(false);
 
   useEffect(() => {
+    if (stopped) return;
     const interval = setInterval(() => {
       setChar(CIPHER_CHARS[Math.floor(Math.random() * CIPHER_CHARS.length)]);
-    }, 60 + Math.random() * 80);
+    }, 50 + Math.random() * 70);
     return () => clearInterval(interval);
-  }, []);
+  }, [stopped]);
+
+  // Stop cycling once decoded to save perf
+  useEffect(() => {
+    const unsub = decoded.on('change', (v: number) => {
+      if (v > 0.5) setStopped(true);
+    });
+    return unsub;
+  }, [decoded]);
 
   return <>{char}</>;
 }
