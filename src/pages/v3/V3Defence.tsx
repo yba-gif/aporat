@@ -15,7 +15,7 @@ export default function V3Defence() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
-  const { data: defScans, loading, refetch } = useDefenceScans();
+  const { data: defScans, loading, refetch } = useV3DefenceScans();
   const [expandedScan, setExpandedScan] = useState<string | null>(null);
 
   const handleCSVUpload = async (file: File) => {
