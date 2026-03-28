@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Users, Building2, Database, AlertTriangle, ExternalLink } from 'lucide-react';
+import { Users, Building2, Database, AlertTriangle, ExternalLink } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { MapContainer, TileLayer, CircleMarker, Tooltip as LeafletTooltip } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
 import { useDashboardStats, useTopThreats, useInstallations } from '@/hooks/useDefenceApi';
 import { SeverityBadge, SeverityDot } from '@/components/defence/SeverityBadge';
 import { PlatformIcon } from '@/components/defence/PlatformIcon';
@@ -11,7 +9,6 @@ import { StatusDot } from '@/components/defence/StatusDot';
 import { StatCardSkeleton, AlertCardSkeleton } from '@/components/defence/DefenceSkeletons';
 
 const SEVERITY_COLORS: Record<string, string> = { critical: '#EF4444', high: '#F59E0B', medium: '#EAB308', low: '#3B82F6' };
-const INSTALL_COLORS: Record<string, string> = { airfield: '#3B82F6', naval: '#10B981', headquarters: '#EF4444', army_base: '#F59E0B', training: '#A855F7', radar: '#06B6D4' };
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -157,33 +154,51 @@ export default function DefenceDashboard() {
           </div>
         </div>
 
-        {/* Threat Map */}
+        {/* Operational Coverage */}
         <div className="lg:col-span-2 rounded-lg border overflow-hidden" style={{ background: '#111827', borderColor: '#1E293B' }}>
           <div className="px-5 pt-5 pb-2">
-            <h3 className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Threat Map</h3>
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Operational Coverage</h3>
+              <button
+                onClick={() => navigate('/v3/defence/map')}
+                className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                Open Map <ExternalLink size={10} />
+              </button>
+            </div>
           </div>
-          <div className="h-[260px]">
-            <MapContainer
-              center={[39, 35]}
-              zoom={6}
-              style={{ height: '100%', width: '100%', background: '#0A0F1C' }}
-              zoomControl={false}
-              attributionControl={false}
-            >
-              <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-              {installations?.map(inst => (
-                <CircleMarker
-                  key={inst.id}
-                  center={[inst.latitude, inst.longitude]}
-                  radius={5}
-                  pathOptions={{ color: INSTALL_COLORS[inst.installation_type] || '#3B82F6', fillColor: INSTALL_COLORS[inst.installation_type] || '#3B82F6', fillOpacity: 0.8, weight: 1 }}
-                >
-                  <LeafletTooltip direction="top" offset={[0, -5]} opacity={0.95}>
-                    <span style={{ fontSize: '11px', fontWeight: 600 }}>{inst.name}</span>
-                  </LeafletTooltip>
-                </CircleMarker>
-              ))}
-            </MapContainer>
+          <div className="h-[260px] px-5 pb-5">
+            <div className="h-full rounded-lg border p-4 flex flex-col" style={{ background: '#0A0F1C', borderColor: '#1E293B' }}>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="rounded-md border p-3" style={{ background: '#111827', borderColor: '#1E293B' }}>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Active Sites</div>
+                  <div className="mt-2 text-2xl font-mono font-bold text-white">{installations?.filter(inst => inst.is_active).length ?? 0}</div>
+                </div>
+                <div className="rounded-md border p-3" style={{ background: '#111827', borderColor: '#1E293B' }}>
+                  <div className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Coverage</div>
+                  <div className="mt-2 text-2xl font-mono font-bold text-white">TR-81</div>
+                </div>
+              </div>
+
+              <div className="space-y-2 overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1E293B transparent' }}>
+                {installations?.slice(0, 6).map(inst => (
+                  <button
+                    key={inst.id}
+                    onClick={() => navigate('/v3/defence/map')}
+                    className="w-full rounded-md border px-3 py-2 text-left transition-colors hover:bg-white/[0.03]"
+                    style={{ background: '#111827', borderColor: '#1E293B' }}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <div className="text-[12px] font-medium text-slate-100 truncate">{inst.name}</div>
+                        <div className="text-[10px] text-slate-500 font-mono">{inst.code} · {inst.city}</div>
+                      </div>
+                      <SeverityBadge severity={inst.classification === 'classified' ? 'high' : 'low'} />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
