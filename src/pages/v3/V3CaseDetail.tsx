@@ -51,7 +51,7 @@ const eventColors: Record<string, string> = {
 export default function V3CaseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: caseData, loading, refetch } = useCase(id);
+  const { data: caseData, loading, refetch } = useV3Case(id);
   const [activeTab, setActiveTab] = useState<'findings' | 'graph' | 'timeline' | 'documents'>('findings');
   const [findingFilter, setFindingFilter] = useState<'all' | 'high' | 'medium'>('all');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['social_media', 'financial', 'public_records', 'network', 'digital_footprint', 'travel']));
