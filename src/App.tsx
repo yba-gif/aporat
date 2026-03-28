@@ -8,7 +8,7 @@ import Index from "./pages/Index";
 import Positions from "./pages/Positions";
 import PositionDetail from "./pages/PositionDetail";
 import Government from "./pages/Government";
-import Huda from "./pages/Huda";
+
 import NotFound from "./pages/NotFound";
 import V3Login from "./pages/v3/V3Login";
 import V3Layout from "./pages/v3/V3Layout";
