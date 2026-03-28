@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Play, Loader2, CheckCircle } from 'lucide-react';
-import { scans as scansApi } from '@/api/client';
+import { v3Scans } from '@/api/v3-supabase';
 import type { Scan } from '@/api/client';
 import { toast } from 'sonner';
 
