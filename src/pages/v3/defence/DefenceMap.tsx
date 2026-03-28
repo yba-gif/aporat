@@ -62,13 +62,15 @@ export default function DefenceMap() {
         {installations?.map(inst => {
           const color = TYPE_COLORS[inst.installation_type] || '#3B82F6';
           return (
-            <span key={inst.id}>
+            <>
               <Circle
+                key={`circle-${inst.id}`}
                 center={[inst.latitude, inst.longitude]}
                 radius={inst.radius_km * 1000}
                 pathOptions={{ color, fillColor: color, fillOpacity: 0.08, weight: 1, opacity: 0.4 }}
               />
               <CircleMarker
+                key={`marker-${inst.id}`}
                 center={[inst.latitude, inst.longitude]}
                 radius={6}
                 pathOptions={{ color, fillColor: color, fillOpacity: 0.9, weight: 2, opacity: 1 }}
@@ -79,7 +81,7 @@ export default function DefenceMap() {
                   <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#666' }}>{inst.code} · {inst.city}</span>
                 </LeafletTooltip>
               </CircleMarker>
-            </span>
+            </>
           );
         })}
 
