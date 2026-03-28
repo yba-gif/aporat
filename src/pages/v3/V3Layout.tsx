@@ -8,6 +8,7 @@ import { V3CommandPalette } from '@/components/v3/V3CommandPalette';
 export default function V3Layout() {
   const [cmdOpen, setCmdOpen] = useState(false);
   const location = useLocation();
+  const isGraphRoute = location.pathname === '/v3/graph';
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
