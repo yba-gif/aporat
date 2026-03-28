@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Circle, Popup, useMapEvents, useMap } from 'react-leaflet';
+import { useState, useCallback } from 'react';
+import { MapContainer, TileLayer, CircleMarker, Circle, Tooltip as LeafletTooltip, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useInstallations, useGeofenceCheck, type GeofenceResult } from '@/hooks/useDefenceApi';
 import { SeverityBadge } from '@/components/defence/SeverityBadge';
