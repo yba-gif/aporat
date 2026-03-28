@@ -182,7 +182,7 @@ export const v3Scans = {
       target_username: scanData.target_username || null,
       status: 'queued',
       progress: 0,
-    }).select().single();
+    } as any).select().single();
     if (error) throw new Error(error.message);
     return mapScan(data);
   },
