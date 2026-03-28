@@ -1,51 +1,53 @@
 
 
-## Recommendation: Continue Development on `/v3`
+## V3 Intelligence Graph — Full-Page 3D Network Visualization
 
-### Why V3
-V3 already implements all 9 modules from the PRD, both verticals (visa + defence), real auth, and the correct design language. The remaining gaps are primarily backend integration items that the frontend is already scaffolded to support.
+### What We're Building
+A dedicated `/v3/graph` route that delivers a full-screen, immersive 3D fraud network visualization — the same caliber as `/p2/dashboard/graph` (the P2NetworkGraph) but adapted to V3's dark workstation aesthetic and wired to V3 case data.
 
-### Remaining PRD Gaps to Close
+This is the "wow" screen — the one you show in demos. It turns OSINT findings and case relationships into a navigable 3D intelligence environment.
 
-**Frontend gaps (can build now):**
-1. **OSINT Scanner real-time progress** — currently simulated with `setInterval`. PRD requires WebSocket-style live updates. Can simulate more realistically with streaming fetch.
-2. **Document OCR field extraction view** — Documents tab exists but OCR extraction results are mock. Need richer extracted-fields display with confidence scores per field.
-3. **Role-based routing** — PRD specifies admin/officer/supervisor roles with different access. V3 currently shows everything to all users. Need role gates on admin-only features (Settings > Team, system config).
-4. **Audit log export** — PRD P1 requires exportable audit trail. Case history exists but no CSV/PDF export button.
-5. **Bulk case import from CSV** — PRD P1 item. Not implemented.
+### What Already Exists
+- **P2NetworkGraph** (`src/pages/P2NetworkGraph.tsx`, 695 lines): Full 3D graph using `react-force-graph-3d` + Three.js with bloom glow, animated particles, right-click dossier panel, entity type filtering, risk path highlighting, search, zoom controls, and a bottom legend. Uses hardcoded Ahmad Rezaee fraud network data.
+- **V3SocialGraph** (`src/components/v3/V3SocialGraph.tsx`): Basic 2D graph embedded in case detail tab. Generates nodes from case OSINT findings. Minimal interactivity.
 
-**Backend gaps (need FastAPI deployment or edge functions):**
-6. **Real OSINT scanning** — Sherlock/Maigret/Holehe integration exists in `/backend` but isn't deployed. Could create edge function proxies or deploy the Docker backend.
-7. **Persistent case data** — all data is mock. Need database tables for cases, findings, scans, events.
-8. **File upload storage** — document uploads are UI-only. Need storage bucket integration.
+### Design Approach
+Port the P2NetworkGraph's 3D engine into the V3 design system, with these upgrades:
 
-### Proposed Next Steps (Priority Order)
+1. **V3 color scheme** — swap P2's navy/blue palette for V3's `--v3-surface`, `--v3-accent` (teal), `--v3-border` CSS variables. Background `#0A0F1A` instead of `#080c14`.
 
-#### Step 1: Database Schema for V3
-Create tables matching the PRD data model: `cases`, `osint_findings`, `case_documents`, `case_events`, `osint_scans`. Migrate from mock data to real database queries.
+2. **Case-aware data** — accept an optional `?case=<id>` query param. If present, build the graph from that case's OSINT findings + applicant data (using `v3Cases.get()`). If no case param, show a global network view with nodes from multiple high-risk cases.
 
-#### Step 2: Role-Based Access Control
-Add `user_roles` table, create `has_role` function, gate Settings/Team and admin features behind role checks. Show role badge in sidebar from database.
+3. **V3 dossier panel** — right-click dossier styled with V3 border/surface tokens, sharper corners (rounded-md not rounded-xl), monospace IDs. Add "Open in Case Detail" button that navigates to `/v3/cases/:id`.
 
-#### Step 3: CRUD Operations
-Wire case actions (approve/reject/escalate) to real database updates. Create case events on each action for audit trail. Add case creation flow.
+4. **Sidebar integration** — add "Network Graph" nav item to V3Sidebar under Intelligence section. Register `/v3/graph` route in App.tsx.
 
-#### Step 4: Document Upload
-Use file storage for passport scans, bank statements. Track OCR status per document. Display extracted fields with confidence scores.
+5. **Edge types from PRD** — add `SHARED_DOC` and `SAME_MOBILE` edge types (red, thicker) matching the P2 fraud network data model. These are the high-signal connections that make the demo compelling.
 
-#### Step 5: Audit Log Export
-Add CSV/PDF export for case history and system-wide audit trail.
+### Implementation Steps
 
-#### Step 6: Edge Function OSINT
-Create edge functions wrapping the OSINT scanning logic (or proxy to the FastAPI backend if deployed). Wire the Scanner page to trigger real scans.
+**File 1: `src/pages/v3/V3Graph.tsx`** (~600 lines)
+- Port P2NetworkGraph wholesale, then restyle:
+  - Replace all `bg-[#0f1524]/90` with V3 surface variables
+  - Replace `border-white/10` with `var(--v3-border)`
+  - Replace blue accents with teal (`var(--v3-accent)`)
+  - Use rounded-md everywhere (no rounded-xl)
+  - Font sizes: 10px labels, 11px body, monospace for IDs
+- Keep all 3D features: ForceGraph3D, Three.js custom geometries, bloom glow rings, animated particles, risk path highlighting
+- Keep the dossier slide-in panel, entity type filter panel, search, zoom/reset controls, bottom legend, stats overlay
+- Graph data: use the same Ahmad Rezaee fraud network dataset (23 nodes, 30+ links) as the default view — this is the demo scenario
+- Add `useSearchParams` to accept `?case=<id>` for future case-specific graph generation
 
-### What to Do with `/p2` and `/platform`
-- **`/platform`**: Archive or remove. Superseded by V3.
-- **`/p2`**: Keep the B2C applicant portal (`/p2/apply/*`) if you want a public-facing application submission flow. The B2G dashboard portions are redundant with V3.
+**File 2: `src/components/v3/V3Sidebar.tsx`** (edit)
+- Add "Network Graph" nav item with `Network` icon under the Intelligence section, linking to `/v3/graph`
+
+**File 3: `src/App.tsx`** (edit)
+- Add `<Route path="graph" element={<V3Graph />} />` inside the V3 layout routes
 
 ### Technical Notes
-- Database tables will use Lovable Cloud (Supabase) with RLS policies
-- Auth already works via Supabase — just need role assignment
-- Mock data in `src/data/v3/mockData.ts` serves as the seeding reference for database migration
-- No changes needed to the V3 UI architecture — it's already structured for real data swapping
+- `react-force-graph-3d` and `three` are already installed (used by P2NetworkGraph)
+- The 3D graph renders on a `<canvas>` managed by Three.js — no DOM performance concerns
+- Node geometries: Octahedron (applicant/flagged), Box (org), Cone (location), Cylinder (social), Sphere (person) — same as P2
+- Particle animation on links at `speed: 0.004` with blue directional particles
+- Dossier panel uses `framer-motion` for slide-in animation
 
