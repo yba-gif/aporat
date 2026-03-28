@@ -12,8 +12,12 @@ export default defineConfig(({ mode }) => ({
       overlay: false,
     },
   },
+  optimizeDeps: {
+    exclude: ["leaflet", "react-leaflet", "@react-leaflet/core"],
+  },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
