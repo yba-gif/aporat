@@ -8,6 +8,7 @@ import { V3CommandPalette } from '@/components/v3/V3CommandPalette';
 export default function V3Layout() {
   const [cmdOpen, setCmdOpen] = useState(false);
   const location = useLocation();
+  const isGraphRoute = location.pathname === '/v3/graph';
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -24,8 +25,8 @@ export default function V3Layout() {
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--v3-bg)' }}>
       <V3Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
-        <V3TopBar onSearchClick={() => setCmdOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-6 v3-scrollbar">
+        {!isGraphRoute && <V3TopBar onSearchClick={() => setCmdOpen(true)} />}
+        <main className={`flex-1 overflow-y-auto v3-scrollbar ${isGraphRoute ? '' : 'p-6'}`} style={isGraphRoute ? { overflow: 'hidden' } : undefined}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
