@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpDown, Filter, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useCases } from '@/api/hooks';
+import { useV3Cases } from '@/api/v3-hooks';
 import { nationalityFlags } from '@/data/v3/mockData';
 import type { RiskLevel, CaseStatus } from '@/data/v3/mockData';
 import { RiskBadge, StatusBadge } from '@/components/v3/V3Badges';
