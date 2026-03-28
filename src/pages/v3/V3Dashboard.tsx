@@ -4,7 +4,7 @@ import {
   ArrowUpRight, ArrowDownRight, Minus, CheckCircle, XCircle, Search, AlertCircle
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { useDashboard, useCases } from '@/api/hooks';
+import { useV3Dashboard, useV3Cases } from '@/api/v3-hooks';
 import { nationalityFlags } from '@/data/v3/mockData';
 import { RiskBadge, StatusBadge } from '@/components/v3/V3Badges';
 import { useNavigate } from 'react-router-dom';
@@ -31,8 +31,8 @@ const activityColors: Record<string, string> = {
 
 export default function V3Dashboard() {
   const navigate = useNavigate();
-  const { data: stats, loading: statsLoading } = useDashboard();
-  const { data: casesData, loading: casesLoading } = useCases({ page: 1, per_page: 10 });
+  const { data: stats, loading: statsLoading } = useV3Dashboard();
+  const { data: casesData, loading: casesLoading } = useV3Cases({ page: 1, per_page: 10 });
 
   const recentCases = casesData?.items || [];
 

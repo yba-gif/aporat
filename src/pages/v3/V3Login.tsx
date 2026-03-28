@@ -1,27 +1,27 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
-import { useAuthContext } from '@/api/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 export default function V3Login() {
   const navigate = useNavigate();
-  const { login } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const fillDemo = () => {
-    setEmail('admin@portolan.ai');
-    setPassword('admin123');
+    setEmail('berkan@admin.com');
+    setPassword('123123');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await login(email, password);
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
       navigate('/v3/dashboard');
     } catch (err: any) {
       toast.error(err.message || 'Authentication failed');

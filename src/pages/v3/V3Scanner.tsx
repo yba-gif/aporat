@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search, Play, Loader2, CheckCircle } from 'lucide-react';
-import { scans as scansApi } from '@/api/client';
+import { v3Scans } from '@/api/v3-supabase';
 import type { Scan } from '@/api/client';
 import { toast } from 'sonner';
 
@@ -27,7 +27,7 @@ export default function V3Scanner() {
     if (!activeScan || activeScan.status === 'completed' || activeScan.status === 'failed') return;
     const interval = setInterval(async () => {
       try {
-        const updated = await scansApi.get(activeScan.id);
+        const updated = await v3Scans.get(activeScan.id);
         setActiveScan(updated);
         if (updated.status === 'completed') {
           setScanning(false);
@@ -47,7 +47,7 @@ export default function V3Scanner() {
     if (!name.trim()) { toast.error('Name is required'); return; }
     setScanning(true);
     try {
-      const scan = await scansApi.trigger({
+      const scan = await v3Scans.trigger({
         target_name: name,
         target_email: email || undefined,
         target_username: username || undefined,

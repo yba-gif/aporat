@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Search, Bell, ChevronRight } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const routeLabels: Record<string, string> = {
   '/v3/dashboard': 'Dashboard',
@@ -18,6 +19,15 @@ interface V3TopBarProps {
 
 export function V3TopBar({ onSearchClick }: V3TopBarProps) {
   const location = useLocation();
+  const [initials, setInitials] = useState('OY');
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email) {
+        setInitials(user.email.substring(0, 2).toUpperCase());
+      }
+    });
+  }, []);
 
   const pathParts = location.pathname.split('/').filter(Boolean);
   const currentLabel = routeLabels[location.pathname] || pathParts[pathParts.length - 1];
@@ -61,7 +71,7 @@ export function V3TopBar({ onSearchClick }: V3TopBarProps) {
           <Bell size={16} />
           <span className="absolute top-1 right-1 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center" style={{ background: 'var(--v3-red)', color: 'white' }}>3</span>
         </button>
-        <div className="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>OY</div>
+        <div className="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>{initials}</div>
       </div>
     </header>
   );

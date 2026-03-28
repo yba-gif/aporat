@@ -6,8 +6,8 @@ import {
   Instagram, Facebook, Twitter, Globe, Shield, CreditCard, Plane,
   Network, Fingerprint, Clock, User, Upload, Brain, Activity
 } from 'lucide-react';
-import { useCase } from '@/api/hooks';
-import { cases as casesApi } from '@/api/client';
+import { useV3Case } from '@/api/v3-hooks';
+import { v3Cases as casesApi } from '@/api/v3-supabase';
 import { nationalityFlags } from '@/data/v3/mockData';
 import type { Finding } from '@/api/client';
 import { RiskBadge, StatusBadge, RiskScoreCircle } from '@/components/v3/V3Badges';
@@ -51,7 +51,7 @@ const eventColors: Record<string, string> = {
 export default function V3CaseDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { data: caseData, loading, refetch } = useCase(id);
+  const { data: caseData, loading, refetch } = useV3Case(id);
   const [activeTab, setActiveTab] = useState<'findings' | 'graph' | 'timeline' | 'documents'>('findings');
   const [findingFilter, setFindingFilter] = useState<'all' | 'high' | 'medium'>('all');
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['social_media', 'financial', 'public_records', 'network', 'digital_footprint', 'travel']));
