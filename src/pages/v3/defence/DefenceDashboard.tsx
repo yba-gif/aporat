@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Users, Building2, Database, AlertTriangle, ExternalLink } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { MapContainer, TileLayer, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, CircleMarker, Tooltip as LeafletTooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useDashboardStats, useTopThreats, useInstallations } from '@/hooks/useDefenceApi';
 import { SeverityBadge, SeverityDot } from '@/components/defence/SeverityBadge';
