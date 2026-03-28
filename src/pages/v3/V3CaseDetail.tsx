@@ -6,8 +6,8 @@ import {
   Instagram, Facebook, Twitter, Globe, Shield, CreditCard, Plane,
   Network, Fingerprint, Clock, User, Upload, Brain, Activity
 } from 'lucide-react';
-import { useCase } from '@/api/hooks';
-import { cases as casesApi } from '@/api/client';
+import { useV3Case } from '@/api/v3-hooks';
+import { v3Cases as casesApi } from '@/api/v3-supabase';
 import { nationalityFlags } from '@/data/v3/mockData';
 import type { Finding } from '@/api/client';
 import { RiskBadge, StatusBadge, RiskScoreCircle } from '@/components/v3/V3Badges';
