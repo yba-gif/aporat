@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Upload, Plus, Play, ChevronDown, ChevronRight, MapPin, Loader2 } from 'lucide-react';
-import { useDefenceScans } from '@/api/hooks';
-import { defence as defenceApi } from '@/api/client';
+import { useV3DefenceScans } from '@/api/v3-hooks';
+import { v3Defence as defenceApi, v3Scans } from '@/api/v3-supabase';
 import type { Scan } from '@/api/client';
 import { RiskBadge } from '@/components/v3/V3Badges';
 import { toast } from 'sonner';
