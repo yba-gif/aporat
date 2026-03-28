@@ -46,6 +46,7 @@ import V3Queue from "./pages/v3/V3Queue";
 import V3Settings from "./pages/v3/V3Settings";
 import V3Personnel from "./pages/v3/V3Personnel";
 import V3Scanner from "./pages/v3/V3Scanner";
+import V3Graph from "./pages/v3/V3Graph";
 import { V3ProtectedRoute } from "./components/v3/V3ProtectedRoute";
 import { AuthProvider } from "./api/AuthContext";
 
