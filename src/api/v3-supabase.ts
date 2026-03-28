@@ -89,7 +89,7 @@ export const v3Cases = {
         type: data.status === 'approved' ? 'approved' : data.status === 'rejected' ? 'rejected' : 'escalated',
         description: `Case ${data.status} by ${user?.email || 'system'}`,
         user_name: user?.email || null,
-      });
+      } as any);
     }
 
     return v3Cases.get(id);
