@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,16 +22,21 @@ import V3Scanner from "./pages/v3/V3Scanner";
 import V3Graph from "./pages/v3/V3Graph";
 import { V3ProtectedRoute } from "./components/v3/V3ProtectedRoute";
 import { AuthProvider } from "./api/AuthContext";
-import DefenceLayout from "./pages/v3/defence/DefenceLayout";
-import DefenceDashboard from "./pages/v3/defence/DefenceDashboard";
-import DefenceAlerts from "./pages/v3/defence/DefenceAlerts";
-import DefenceMap from "./pages/v3/defence/DefenceMap";
-import DefencePersonnel from "./pages/v3/defence/DefencePersonnel";
-import DefenceInstallations from "./pages/v3/defence/DefenceInstallations";
-import DefenceScan from "./pages/v3/defence/DefenceScan";
-import DefenceGeofence from "./pages/v3/defence/DefenceGeofence";
+
+const DefenceLayout = lazy(() => import("./pages/v3/defence/DefenceLayout"));
+const DefenceDashboard = lazy(() => import("./pages/v3/defence/DefenceDashboard"));
+const DefenceAlerts = lazy(() => import("./pages/v3/defence/DefenceAlerts"));
+const DefenceMap = lazy(() => import("./pages/v3/defence/DefenceMap"));
+const DefencePersonnel = lazy(() => import("./pages/v3/defence/DefencePersonnel"));
+const DefenceInstallations = lazy(() => import("./pages/v3/defence/DefenceInstallations"));
+const DefenceScan = lazy(() => import("./pages/v3/defence/DefenceScan"));
+const DefenceGeofence = lazy(() => import("./pages/v3/defence/DefenceGeofence"));
 
 const queryClient = new QueryClient();
+
+const DefenceRouteFallback = () => (
+  <div className="min-h-screen bg-background" />
+);
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -57,14 +63,14 @@ const App = () => (
               <Route path="settings" element={<V3Settings />} />
             </Route>
             {/* Defence OSINT Platform */}
-            <Route path="/v3/defence" element={<V3ProtectedRoute><DefenceLayout /></V3ProtectedRoute>}>
-              <Route index element={<DefenceDashboard />} />
-              <Route path="alerts" element={<DefenceAlerts />} />
-              <Route path="map" element={<DefenceMap />} />
-              <Route path="personnel" element={<DefencePersonnel />} />
-              <Route path="installations" element={<DefenceInstallations />} />
-              <Route path="scan" element={<DefenceScan />} />
-              <Route path="geofence" element={<DefenceGeofence />} />
+             <Route path="/v3/defence" element={<V3ProtectedRoute><Suspense fallback={<DefenceRouteFallback />}><DefenceLayout /></Suspense></V3ProtectedRoute>}>
+               <Route index element={<Suspense fallback={<DefenceRouteFallback />}><DefenceDashboard /></Suspense>} />
+               <Route path="alerts" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceAlerts /></Suspense>} />
+               <Route path="map" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceMap /></Suspense>} />
+               <Route path="personnel" element={<Suspense fallback={<DefenceRouteFallback />}><DefencePersonnel /></Suspense>} />
+               <Route path="installations" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceInstallations /></Suspense>} />
+               <Route path="scan" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceScan /></Suspense>} />
+               <Route path="geofence" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceGeofence /></Suspense>} />
             </Route>
             {/* Public pages */}
             <Route path="/government" element={<Government />} />
