@@ -97,12 +97,13 @@ export const v3Cases = {
 
   create: async (data: { applicant: Record<string, unknown>; consulate_location?: string; travel_destination?: string }): Promise<CaseDetail> => {
     const caseId = `PL-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 99999)).padStart(5, '0')}`;
-    const { data: row, error } = await supabase.from('v3_cases').insert({
+    const insertData = {
       case_id: caseId,
-      applicant: data.applicant,
+      applicant: data.applicant as any,
       consulate_location: data.consulate_location || 'Istanbul',
       travel_destination: data.travel_destination || 'Schengen',
-    }).select().single();
+    };
+    const { data: row, error } = await supabase.from('v3_cases').insert(insertData).select().single();
     if (error) throw new Error(error.message);
 
     // Create initial event
@@ -110,7 +111,7 @@ export const v3Cases = {
       case_id: row.id,
       type: 'created',
       description: `Case ${caseId} created`,
-    });
+    } as any);
 
     return v3Cases.get(row.id);
   },
