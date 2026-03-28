@@ -97,6 +97,18 @@ const App = () => (
             <Route path="/huda" element={<Huda />} />
             <Route path="/positions" element={<Positions />} />
             <Route path="/positions/:id" element={<PositionDetail />} />
+            {/* V3 Intelligence Platform */}
+            <Route path="/v3" element={<V3Login />} />
+            <Route path="/v3" element={<V3Layout />}>
+              <Route path="dashboard" element={<V3Dashboard />} />
+              <Route path="cases" element={<V3Cases />} />
+              <Route path="cases/:id" element={<V3CaseDetail />} />
+              <Route path="scanner" element={<V3Dashboard />} />
+              <Route path="defence" element={<V3Defence />} />
+              <Route path="personnel" element={<V3Cases />} />
+              <Route path="queue" element={<V3Queue />} />
+              <Route path="settings" element={<V3Settings />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
