@@ -47,7 +47,7 @@ export default function V3Scanner() {
     if (!name.trim()) { toast.error('Name is required'); return; }
     setScanning(true);
     try {
-      const scan = await scansApi.trigger({
+      const scan = await v3Scans.trigger({
         target_name: name,
         target_email: email || undefined,
         target_username: username || undefined,
