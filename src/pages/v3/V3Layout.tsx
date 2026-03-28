@@ -26,7 +26,7 @@ export default function V3Layout() {
       <V3Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <V3TopBar onSearchClick={() => setCmdOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-6 v3-scrollbar">
+        <main className={`flex-1 overflow-y-auto v3-scrollbar ${isGraphRoute ? '' : 'p-6'}`} style={isGraphRoute ? { overflow: 'hidden' } : undefined}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
