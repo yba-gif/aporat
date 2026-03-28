@@ -55,7 +55,6 @@ export default function V3CaseDetail() {
   const groupedFindings = useMemo(() => {
     if (!caseData) return {};
     let findings = caseData.osintFindings;
-    let findings = caseData.osintFindings;
     if (findingFilter === 'high') findings = findings.filter(f => f.riskImpact === 'high' || f.riskImpact === 'critical');
     if (findingFilter === 'medium') findings = findings.filter(f => f.riskImpact !== 'none' && f.riskImpact !== 'low');
     const groups: Record<string, OsintFinding[]> = {};

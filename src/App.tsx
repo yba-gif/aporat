@@ -36,6 +36,14 @@ import P2AdminLayout from "./pages/P2AdminLayout";
 import P2AdminDashboard from "./pages/P2AdminDashboard";
 import { AdminUsers, AdminConsulates, AdminApi, AdminBilling, AdminConfig } from "./pages/P2AdminPlaceholders";
 import NotFound from "./pages/NotFound";
+import V3Login from "./pages/v3/V3Login";
+import V3Layout from "./pages/v3/V3Layout";
+import V3Dashboard from "./pages/v3/V3Dashboard";
+import V3Cases from "./pages/v3/V3Cases";
+import V3CaseDetail from "./pages/v3/V3CaseDetail";
+import V3Defence from "./pages/v3/V3Defence";
+import V3Queue from "./pages/v3/V3Queue";
+import V3Settings from "./pages/v3/V3Settings";
 
 const queryClient = new QueryClient();
 
