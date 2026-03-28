@@ -51,9 +51,10 @@ export default function V3CaseDetail() {
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['social_media', 'financial', 'public_records', 'network', 'digital_footprint', 'travel']));
 
   const caseData = v3Cases.find(c => c.id === id);
-  if (!caseData) return <div style={{ color: 'var(--v3-text)' }}>Case not found</div>;
 
   const groupedFindings = useMemo(() => {
+    if (!caseData) return {};
+    let findings = caseData.osintFindings;
     let findings = caseData.osintFindings;
     if (findingFilter === 'high') findings = findings.filter(f => f.riskImpact === 'high' || f.riskImpact === 'critical');
     if (findingFilter === 'medium') findings = findings.filter(f => f.riskImpact !== 'none' && f.riskImpact !== 'low');
