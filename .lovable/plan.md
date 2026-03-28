@@ -1,82 +1,96 @@
 
 
-# HUDA - Yerel Secim Kampanya Platformu Tanitim Sayfasi
+## V3 Platform — Gap Analysis & Implementation Plan
 
-## Ozet
-`/huda` rotasinda HUDA icin Turkce bir tanitim sayfasi olusturulacak. Tasarim `/tanitim` sayfasinin "Stark Minimal" GovTech estetigi ile ayni olacak. Fiyatlandirma yok. Icerik tamamen Turkce.
+### What's Built (✓)
+- **Login page** — grid background, wordmark, demo credentials toggle
+- **Sidebar** — collapsible, sectioned nav, user badge, logout
+- **Top bar** — breadcrumbs, search button, notification bell, avatar
+- **Dashboard** — 6 KPI cards, recent cases table, risk donut chart, activity feed, top risk signals
+- **Cases list** — sortable/filterable table, pagination, bulk actions, checkboxes
+- **Case Detail** — 3-column layout, applicant card, documents, OSINT findings (grouped/filterable), timeline, documents tab, risk assessment with breakdown bars, key risk factors, case actions, case history
+- **Defence OSINT** — new scan (CSV/manual), scan results with expandable personnel violations
+- **Scan Queue** — active queue table with simulated progress, OSINT tool status grid
+- **Settings** — 5 tabs (Profile, Team, Risk Scoring, OSINT Tools, System)
+- **Mock data** — 30 cases, 3 defence scans, 12 personnel, activity feed, OSINT tools
 
-## Sayfa Yapisi (10 bolum)
+### What's Missing
 
-### 1. Header
-- Portolan Labs logosu + "Siteye don" linki
-- `/tanitim` ile ayni minimal yapi
+1. **Social Graph tab** — currently a placeholder icon. Needs interactive force-directed graph using `react-force-graph-2d` with applicant as center node, connected identities color-coded by risk, clickable nodes, edge labels, legend.
 
-### 2. HudaHero
-- Etiket: "Gizli Urun Dosyasi"
-- Baslik: **"Yerel secimler icin yapay zeka destekli kampanya istihbarati"**
-- Alt baslik: "Secmen segmentasyonu. Cok kanalli erisim. Anlik analitik. Tek platform."
-- Metrikler: **81 il** | **973 ilce** | **5 kanal**
-- Guven gostergeleri: KVKK uyumlu, Yerinde kurulum, Anlik analitik
+2. **Cmd+K global search overlay** — search bar in top bar exists but doesn't open anything. Needs a modal overlay searching across cases, people, and findings with keyboard navigation.
 
-### 3. HudaMarketContext - "Stratejik Baglam"
-- Istatistikler: 64M+ kayitli secmen, 81 il, 973 ilce
-- Mevcut kampanya araclarinin daginik yapisi vurgusu
+3. **Confirmation modals** — Approve/Reject/Escalate buttons in case detail have no confirmation dialogs. Need modals for destructive actions.
 
-### 4. HudaProblem - "Sorun"
-- "Mevcut kampanya araclari daginik ve manuel"
-- 6 sorun karti: yapay zeka segmentasyonu yok, kanallararasi kopukluk, geri bildirim dongusu yok, saha takibi manuel, duygu analizi yok, demografik kor noktalar
+4. **Toast notifications** — actions like Approve/Reject should trigger toast feedback ("Case PL-2026-00142 approved").
 
-### 5. HudaSolution - "Cozum"
-- "Butunlesik kampanya istihbarati"
-- Dort modul: Secmen Istihbarati, Erisim Motoru, Saha Operasyonlari, Analitik Paneli
+5. **Keyboard shortcuts** — J/K to navigate table rows, Enter to open, Esc to go back. Not implemented.
 
-### 6. HudaMockups - "Platform Goruntuleri"
-- Uc sekmeli UI mockup:
-  - **Kontrol Paneli**: Secmen segmentasyonu pasta grafigi, performans cizgi grafigi, KPI kartlari (erisim, etkilesim, donusum) - recharts ile
-  - **Erisim Motoru**: Cok kanalli mesaj olusturucu, kanal secimi (SMS/WhatsApp/Sosyal), hedef kitle filtreleri
-  - **Saha Operasyonlari**: Ekip atamalari, ziyaret kayitlari, ilce kapsama ilerleme cubuklar
+6. **Skeleton loading states** — no skeleton loaders exist; data loads instantly from mock. Should add skeleton components matching layout shapes.
 
-### 7. HudaTechnology - "Teknik Altyapi"
-- "Siyasi operasyonlar icin olceklenebilir altyapi"
-- Yetenekler: Yapay zeka secmen segmentasyonu, anlik duygu takibi, cok kanalli orkestrasyon, cevrimdisi mobil
-- Metrikler: <2sn segmentasyon, 5 kanal, 81 il, anlik senkronizasyon
+7. **Consulate filter in Cases** — filter bar has risk and status dropdowns but no consulate dropdown (spec requires it) and no date range picker.
 
-### 8. HudaComparison - "Karsilastirma"
-- "Manuel kampanyalar vs. HUDA"
-- Tablo: secmen segmentasyonu, cok kanal senkronizasyonu, anlik analitik, saha takibi, duygu analizi, KVKK uyumu
+8. **Document mismatch flags** — Documents tab should flag fields where extracted value doesn't match OSINT findings (e.g., name mismatch). Not implemented.
 
-### 9. HudaTimeline - "Yol Haritasi"
-- 12 aylik gelistirme plani:
-  - Faz 1 (1-2 ay): MVP, temel segmentasyon + SMS
-  - Faz 2 (3-5 ay): Cok kanal + saha operasyonlari
-  - Faz 3 (6-8 ay): Yapay zeka optimizasyonu + duygu analizi
-  - Faz 4 (9-12 ay): Tam platform + ileri analitik
+9. **Risk Rationale expandable section** — right column should have an expandable "Risk Rationale" section with full explanation below key risk factors. Not present.
 
-### 10. HudaFooter
-- "HUDA by Portolan Labs"
-- Guven rozetleri + belge siniflandirmasi
+10. **Personnel Database page** — `/v3/personnel` currently routes to `V3Cases` (placeholder). Should be a dedicated personnel database view.
 
-## Teknik Detaylar
+11. **OSINT Scanner page** — `/v3/scanner` routes to `V3Dashboard` (placeholder). Should be a visa-specific OSINT scanner.
 
-### Yeni Dosyalar
-- `src/pages/Huda.tsx` - Sayfa bileseni
-- `src/components/huda/HudaHero.tsx`
-- `src/components/huda/HudaMarketContext.tsx`
-- `src/components/huda/HudaProblem.tsx`
-- `src/components/huda/HudaSolution.tsx`
-- `src/components/huda/HudaMockups.tsx` - Sekmeli mockup panelleri (recharts grafikleri ile)
-- `src/components/huda/HudaTechnology.tsx`
-- `src/components/huda/HudaComparison.tsx`
-- `src/components/huda/HudaTimeline.tsx`
-- `src/components/huda/HudaFooter.tsx`
+12. **Login with real auth** — login currently does `setTimeout` → navigate. Should use the Supabase auth (user berkan@admin.com already created).
 
-### Degistirilecek Dosyalar
-- `src/App.tsx` - `/huda` rotasi eklenir
+13. **Page transitions** — no fade animations between routes.
 
-### Tasarim Yaklasimu
-- `/tanitim` ile ayni minimal estetik
-- Mevcut `accent` renk tokeni (teal)
-- Mockup'lar Tailwind + recharts ile CSS kompozisyonlari olarak
-- Mevcut UI bilesenleri (Card, Badge, Tabs) kullanilacak
-- Fiyatlandirma yok
-- Kisa, net Turkce metin, em dash yok
+### Implementation Plan
+
+#### Step 1: Social Graph Visualization
+- Install `react-force-graph-2d`
+- Generate `socialGraph` data in mockData (nodes for applicant + found identities/orgs, edges with relationship labels)
+- Build `V3SocialGraph` component in the case detail graph tab
+- Applicant = teal center node (larger), others colored by risk, clickable with detail panel, legend
+
+#### Step 2: Cmd+K Global Search
+- Create `V3CommandPalette` modal component
+- Wire `⌘K` keyboard listener globally in V3Layout
+- Search across cases (by ID, name), personnel, and findings
+- Keyboard nav: arrow keys, Enter to select, Esc to close
+- Results grouped by type with icons
+
+#### Step 3: Action Modals & Toasts
+- Add confirmation dialogs for Reject and Escalate using existing shadcn AlertDialog
+- Wire Approve/Reject/Escalate buttons to show toast via sonner
+- Add toast on bulk actions (Escalate, Export CSV)
+
+#### Step 4: Missing Filters & UI Polish
+- Add consulate dropdown and date range inputs to Cases filter bar
+- Add document mismatch flags in Documents tab (compare extracted fields vs applicant data)
+- Add expandable "Risk Rationale" section in right column
+- Add skeleton loaders for dashboard and case detail
+
+#### Step 5: Keyboard Shortcuts
+- J/K navigation in Cases table and Queue table
+- Enter to open selected row
+- Esc to navigate back
+
+#### Step 6: Placeholder Pages
+- Build `V3Personnel` — dedicated personnel database table with search/filter
+- Build `V3Scanner` — visa-specific OSINT scanner (similar to defence but for individual applicants)
+
+#### Step 7: Auth Integration
+- Wire V3Login to use Supabase auth (`supabase.auth.signInWithPassword`)
+- Add protected route wrapper for `/v3/*` routes
+- Show real user info in sidebar/topbar
+
+#### Step 8: Page Transitions
+- Add framer-motion `AnimatePresence` wrapper in V3Layout
+- Subtle fade (150ms) on route changes
+
+### Technical Details
+
+- **react-force-graph-2d**: Lightweight 2D graph renderer, fits the dark theme well with custom node/link colors
+- **Social graph data**: Will add `socialGraph: { nodes: [], edges: [] }` to each V3Case in mockData with 5-15 nodes per case
+- **Command palette**: Full-screen overlay with backdrop blur, input field, grouped results list
+- **Skeleton loaders**: Tailwind `animate-pulse` blocks matching card/table layouts
+- **Auth**: Use existing `supabase` client from `@/integrations/supabase/client`
+
