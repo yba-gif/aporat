@@ -64,7 +64,9 @@ export default function V3CaseDetail() {
       groups[f.category].push(f);
     });
     return groups;
-  }, [caseData.osintFindings, findingFilter]);
+  }, [caseData?.osintFindings, findingFilter]);
+
+  if (!caseData) return <div style={{ color: 'var(--v3-text)' }}>Case not found</div>;
 
   const toggleCategory = (cat: string) => {
     setExpandedCategories(prev => {
