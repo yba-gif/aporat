@@ -44,6 +44,9 @@ import V3CaseDetail from "./pages/v3/V3CaseDetail";
 import V3Defence from "./pages/v3/V3Defence";
 import V3Queue from "./pages/v3/V3Queue";
 import V3Settings from "./pages/v3/V3Settings";
+import V3Personnel from "./pages/v3/V3Personnel";
+import V3Scanner from "./pages/v3/V3Scanner";
+import { V3ProtectedRoute } from "./components/v3/V3ProtectedRoute";
 
 const queryClient = new QueryClient();
 
