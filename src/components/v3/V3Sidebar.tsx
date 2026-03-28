@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Briefcase, Search, Shield, Users, ListOrdered,
-  Settings, ChevronLeft, ChevronRight, LogOut
+  Settings, ChevronLeft, ChevronRight, LogOut, Network
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,7 @@ const NAV_SECTIONS = [
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, path: '/v3/dashboard' },
       { label: 'Cases', icon: Briefcase, path: '/v3/cases' },
+      { label: 'Network Graph', icon: Network, path: '/v3/graph' },
       { label: 'OSINT Scanner', icon: Search, path: '/v3/scanner' },
     ],
   },

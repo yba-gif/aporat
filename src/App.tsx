@@ -46,6 +46,7 @@ import V3Queue from "./pages/v3/V3Queue";
 import V3Settings from "./pages/v3/V3Settings";
 import V3Personnel from "./pages/v3/V3Personnel";
 import V3Scanner from "./pages/v3/V3Scanner";
+import V3Graph from "./pages/v3/V3Graph";
 import { V3ProtectedRoute } from "./components/v3/V3ProtectedRoute";
 import { AuthProvider } from "./api/AuthContext";
 
@@ -109,6 +110,7 @@ const App = () => (
               <Route path="cases" element={<V3Cases />} />
               <Route path="cases/:id" element={<V3CaseDetail />} />
               <Route path="scanner" element={<V3Scanner />} />
+              <Route path="graph" element={<V3Graph />} />
               <Route path="defence" element={<V3Defence />} />
               <Route path="personnel" element={<V3Personnel />} />
               <Route path="queue" element={<V3Queue />} />
