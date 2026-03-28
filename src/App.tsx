@@ -36,6 +36,14 @@ import P2AdminLayout from "./pages/P2AdminLayout";
 import P2AdminDashboard from "./pages/P2AdminDashboard";
 import { AdminUsers, AdminConsulates, AdminApi, AdminBilling, AdminConfig } from "./pages/P2AdminPlaceholders";
 import NotFound from "./pages/NotFound";
+import V3Login from "./pages/v3/V3Login";
+import V3Layout from "./pages/v3/V3Layout";
+import V3Dashboard from "./pages/v3/V3Dashboard";
+import V3Cases from "./pages/v3/V3Cases";
+import V3CaseDetail from "./pages/v3/V3CaseDetail";
+import V3Defence from "./pages/v3/V3Defence";
+import V3Queue from "./pages/v3/V3Queue";
+import V3Settings from "./pages/v3/V3Settings";
 
 const queryClient = new QueryClient();
 
@@ -89,6 +97,18 @@ const App = () => (
             <Route path="/huda" element={<Huda />} />
             <Route path="/positions" element={<Positions />} />
             <Route path="/positions/:id" element={<PositionDetail />} />
+            {/* V3 Intelligence Platform */}
+            <Route path="/v3" element={<V3Login />} />
+            <Route path="/v3" element={<V3Layout />}>
+              <Route path="dashboard" element={<V3Dashboard />} />
+              <Route path="cases" element={<V3Cases />} />
+              <Route path="cases/:id" element={<V3CaseDetail />} />
+              <Route path="scanner" element={<V3Dashboard />} />
+              <Route path="defence" element={<V3Defence />} />
+              <Route path="personnel" element={<V3Cases />} />
+              <Route path="queue" element={<V3Queue />} />
+              <Route path="settings" element={<V3Settings />} />
+            </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
