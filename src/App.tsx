@@ -44,6 +44,9 @@ import V3CaseDetail from "./pages/v3/V3CaseDetail";
 import V3Defence from "./pages/v3/V3Defence";
 import V3Queue from "./pages/v3/V3Queue";
 import V3Settings from "./pages/v3/V3Settings";
+import V3Personnel from "./pages/v3/V3Personnel";
+import V3Scanner from "./pages/v3/V3Scanner";
+import { V3ProtectedRoute } from "./components/v3/V3ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -99,13 +102,13 @@ const App = () => (
             <Route path="/positions/:id" element={<PositionDetail />} />
             {/* V3 Intelligence Platform */}
             <Route path="/v3" element={<V3Login />} />
-            <Route path="/v3" element={<V3Layout />}>
+            <Route path="/v3" element={<V3ProtectedRoute><V3Layout /></V3ProtectedRoute>}>
               <Route path="dashboard" element={<V3Dashboard />} />
               <Route path="cases" element={<V3Cases />} />
               <Route path="cases/:id" element={<V3CaseDetail />} />
-              <Route path="scanner" element={<V3Dashboard />} />
+              <Route path="scanner" element={<V3Scanner />} />
               <Route path="defence" element={<V3Defence />} />
-              <Route path="personnel" element={<V3Cases />} />
+              <Route path="personnel" element={<V3Personnel />} />
               <Route path="queue" element={<V3Queue />} />
               <Route path="settings" element={<V3Settings />} />
             </Route>
