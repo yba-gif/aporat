@@ -4,7 +4,7 @@ import {
   ArrowUpRight, ArrowDownRight, Minus, CheckCircle, XCircle, Search, AlertCircle
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { useDashboard, useCases } from '@/api/hooks';
+import { useV3Dashboard, useV3Cases } from '@/api/v3-hooks';
 import { nationalityFlags } from '@/data/v3/mockData';
 import { RiskBadge, StatusBadge } from '@/components/v3/V3Badges';
 import { useNavigate } from 'react-router-dom';
