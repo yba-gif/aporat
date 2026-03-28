@@ -78,7 +78,7 @@ async def seed():
             case = Case(
                 case_id=case_id,
                 applicant=applicant,
-                application_date=datetime.now(timezone.utc) - timedelta(days=random.randint(1, 30)),
+                application_date=datetime.utcnow() - timedelta(days=random.randint(1, 30)),
                 consulate_location=random.choice(CONSULATES),
                 travel_destination=random.choice(DESTINATIONS),
                 risk_score=round(risk_score, 1),
@@ -111,7 +111,7 @@ async def seed():
                     detail=ft["detail"],
                     confidence=random.randint(50, 95),
                     risk_impact=random.choice([RiskImpact.low, RiskImpact.medium, RiskImpact.high]),
-                    timestamp=datetime.now(timezone.utc) - timedelta(days=random.randint(0, 90)),
+                    timestamp=datetime.utcnow() - timedelta(days=random.randint(0, 90)),
                     evidence={"tool": "seed_data"},
                 )
                 db.add(finding)

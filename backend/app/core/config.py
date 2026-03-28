@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
     DEBUG: bool = True
     SECRET_KEY: str = "CHANGE-ME-IN-PRODUCTION-portolan-2026"
-    ALLOWED_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+    ALLOWED_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000", "http://localhost:8080"]
 
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://portolan:portolan@localhost:5432/portolan"

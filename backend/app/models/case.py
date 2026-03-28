@@ -98,7 +98,7 @@ def gen_uuid():
 
 
 def utcnow():
-    return datetime.now(timezone.utc)
+    return datetime.utcnow()
 
 
 class User(Base):
