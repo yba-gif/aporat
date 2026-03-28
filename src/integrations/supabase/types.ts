@@ -345,6 +345,328 @@ export type Database = {
         }
         Relationships: []
       }
+      v3_case_documents: {
+        Row: {
+          case_id: string
+          created_at: string
+          extracted_fields: Json | null
+          file_path: string | null
+          id: string
+          name: string
+          ocr_status: string | null
+          type: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          extracted_fields?: Json | null
+          file_path?: string | null
+          id?: string
+          name: string
+          ocr_status?: string | null
+          type: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          extracted_fields?: Json | null
+          file_path?: string | null
+          id?: string
+          name?: string
+          ocr_status?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v3_case_documents_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "v3_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v3_case_events: {
+        Row: {
+          case_id: string
+          description: string
+          id: string
+          timestamp: string
+          type: string
+          user_name: string | null
+        }
+        Insert: {
+          case_id: string
+          description: string
+          id?: string
+          timestamp?: string
+          type: string
+          user_name?: string | null
+        }
+        Update: {
+          case_id?: string
+          description?: string
+          id?: string
+          timestamp?: string
+          type?: string
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v3_case_events_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "v3_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v3_cases: {
+        Row: {
+          applicant: Json
+          application_date: string
+          assigned_officer: string | null
+          case_id: string
+          consulate_location: string
+          created_at: string
+          id: string
+          risk_breakdown: Json
+          risk_factors: Json
+          risk_level: string
+          risk_score: number
+          status: string
+          travel_destination: string
+          updated_at: string
+        }
+        Insert: {
+          applicant: Json
+          application_date?: string
+          assigned_officer?: string | null
+          case_id: string
+          consulate_location?: string
+          created_at?: string
+          id?: string
+          risk_breakdown?: Json
+          risk_factors?: Json
+          risk_level?: string
+          risk_score?: number
+          status?: string
+          travel_destination?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant?: Json
+          application_date?: string
+          assigned_officer?: string | null
+          case_id?: string
+          consulate_location?: string
+          created_at?: string
+          id?: string
+          risk_breakdown?: Json
+          risk_factors?: Json
+          risk_level?: string
+          risk_score?: number
+          status?: string
+          travel_destination?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      v3_defence_scans: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          personnel_count: number | null
+          progress: number | null
+          scan_id: string
+          scan_type: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          personnel_count?: number | null
+          progress?: number | null
+          scan_id: string
+          scan_type?: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          personnel_count?: number | null
+          progress?: number | null
+          scan_id?: string
+          scan_type?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      v3_osint_findings: {
+        Row: {
+          case_id: string
+          category: string
+          confidence: number | null
+          detail: string
+          evidence: Json | null
+          id: string
+          risk_impact: string | null
+          source: string
+          timestamp: string | null
+          title: string
+          url: string | null
+        }
+        Insert: {
+          case_id: string
+          category: string
+          confidence?: number | null
+          detail: string
+          evidence?: Json | null
+          id?: string
+          risk_impact?: string | null
+          source: string
+          timestamp?: string | null
+          title: string
+          url?: string | null
+        }
+        Update: {
+          case_id?: string
+          category?: string
+          confidence?: number | null
+          detail?: string
+          evidence?: Json | null
+          id?: string
+          risk_impact?: string | null
+          source?: string
+          timestamp?: string | null
+          title?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v3_osint_findings_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "v3_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v3_osint_scans: {
+        Row: {
+          case_id: string | null
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          findings_count: number | null
+          id: string
+          progress: number | null
+          results: Json | null
+          scan_type: string
+          started_at: string | null
+          status: string
+          target_email: string | null
+          target_name: string
+          target_username: string | null
+          tools_used: Json | null
+        }
+        Insert: {
+          case_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          findings_count?: number | null
+          id?: string
+          progress?: number | null
+          results?: Json | null
+          scan_type?: string
+          started_at?: string | null
+          status?: string
+          target_email?: string | null
+          target_name: string
+          target_username?: string | null
+          tools_used?: Json | null
+        }
+        Update: {
+          case_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          findings_count?: number | null
+          id?: string
+          progress?: number | null
+          results?: Json | null
+          scan_type?: string
+          started_at?: string | null
+          status?: string
+          target_email?: string | null
+          target_name?: string
+          target_username?: string | null
+          tools_used?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v3_osint_scans_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "v3_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v3_personnel: {
+        Row: {
+          branch: string
+          created_at: string
+          defence_scan_id: string | null
+          id: string
+          name: string
+          opsec_violations: Json | null
+          overall_risk: string | null
+          profiles_found: number | null
+          rank: string
+          unit: string
+        }
+        Insert: {
+          branch: string
+          created_at?: string
+          defence_scan_id?: string | null
+          id?: string
+          name: string
+          opsec_violations?: Json | null
+          overall_risk?: string | null
+          profiles_found?: number | null
+          rank: string
+          unit: string
+        }
+        Update: {
+          branch?: string
+          created_at?: string
+          defence_scan_id?: string | null
+          id?: string
+          name?: string
+          opsec_violations?: Json | null
+          overall_risk?: string | null
+          profiles_found?: number | null
+          rank?: string
+          unit?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v3_personnel_defence_scan_id_fkey"
+            columns: ["defence_scan_id"]
+            isOneToOne: false
+            referencedRelation: "v3_defence_scans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vault_documents: {
         Row: {
           case_id: string | null
