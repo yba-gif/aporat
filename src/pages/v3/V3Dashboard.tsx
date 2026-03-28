@@ -31,8 +31,8 @@ const activityColors: Record<string, string> = {
 
 export default function V3Dashboard() {
   const navigate = useNavigate();
-  const { data: stats, loading: statsLoading } = useDashboard();
-  const { data: casesData, loading: casesLoading } = useCases({ page: 1, per_page: 10 });
+  const { data: stats, loading: statsLoading } = useV3Dashboard();
+  const { data: casesData, loading: casesLoading } = useV3Cases({ page: 1, per_page: 10 });
 
   const recentCases = casesData?.items || [];
 

@@ -27,7 +27,7 @@ export default function V3Cases() {
     return () => clearTimeout(t);
   }, [search]);
 
-  const { data, loading, error } = useCases({
+  const { data, loading, error } = useV3Cases({
     page,
     per_page: PAGE_SIZE,
     status: statusFilter !== 'all' ? statusFilter : undefined,
