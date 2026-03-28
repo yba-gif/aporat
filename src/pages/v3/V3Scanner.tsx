@@ -27,7 +27,7 @@ export default function V3Scanner() {
     if (!activeScan || activeScan.status === 'completed' || activeScan.status === 'failed') return;
     const interval = setInterval(async () => {
       try {
-        const updated = await scansApi.get(activeScan.id);
+        const updated = await v3Scans.get(activeScan.id);
         setActiveScan(updated);
         if (updated.status === 'completed') {
           setScanning(false);
