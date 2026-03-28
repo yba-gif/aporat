@@ -178,12 +178,9 @@ export default function DefenceDashboard() {
                   radius={5}
                   pathOptions={{ color: INSTALL_COLORS[inst.installation_type] || '#3B82F6', fillColor: INSTALL_COLORS[inst.installation_type] || '#3B82F6', fillOpacity: 0.8, weight: 1 }}
                 >
-                  <Popup>
-                    <div className="text-xs">
-                      <div className="font-bold">{inst.name}</div>
-                      <div className="font-mono text-[10px] text-gray-500">{inst.code}</div>
-                    </div>
-                  </Popup>
+                  <LeafletTooltip direction="top" offset={[0, -5]} opacity={0.95}>
+                    <span style={{ fontSize: '11px', fontWeight: 600 }}>{inst.name}</span>
+                  </LeafletTooltip>
                 </CircleMarker>
               ))}
             </MapContainer>

@@ -73,22 +73,11 @@ export default function DefenceMap() {
                 radius={6}
                 pathOptions={{ color, fillColor: color, fillOpacity: 0.9, weight: 2, opacity: 1 }}
               >
-                <Popup>
-                  <div style={{ background: '#111827', color: '#E2E8F0', padding: '8px', borderRadius: '6px', minWidth: '180px', fontSize: '11px', lineHeight: '1.6' }}>
-                    <div style={{ fontWeight: 700, fontSize: '13px', marginBottom: '4px' }}>{inst.name}</div>
-                    <div style={{ fontFamily: 'monospace', color: '#94A3B8', fontSize: '10px' }}>{inst.code}</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px' }}>
-                      <span style={{ padding: '1px 6px', borderRadius: '4px', background: `${color}20`, color, fontWeight: 600, fontSize: '10px' }}>{TYPE_LABELS[inst.installation_type]}</span>
-                      <span style={{ color: '#64748B' }}>{inst.city}</span>
-                    </div>
-                    <div style={{ fontFamily: 'monospace', color: '#64748B', fontSize: '10px', marginTop: '4px' }}>
-                      {inst.latitude.toFixed(4)}°N, {inst.longitude.toFixed(4)}°E
-                    </div>
-                    <div style={{ color: '#64748B', fontSize: '10px', marginTop: '2px' }}>
-                      Radius: {inst.radius_km} km
-                    </div>
-                  </div>
-                </Popup>
+                <LeafletTooltip direction="top" offset={[0, -8]} opacity={0.95}>
+                  <span style={{ fontWeight: 700, fontSize: '12px' }}>{inst.name}</span>
+                  <br />
+                  <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#666' }}>{inst.code} · {inst.city}</span>
+                </LeafletTooltip>
               </CircleMarker>
             </span>
           );
