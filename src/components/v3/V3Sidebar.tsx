@@ -13,6 +13,7 @@ const NAV_SECTIONS = [
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, path: '/v3/dashboard' },
       { label: 'Cases', icon: Briefcase, path: '/v3/cases' },
+      { label: 'Network Graph', icon: Network, path: '/v3/graph' },
       { label: 'OSINT Scanner', icon: Search, path: '/v3/scanner' },
     ],
   },

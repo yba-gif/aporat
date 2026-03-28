@@ -110,6 +110,7 @@ const App = () => (
               <Route path="cases" element={<V3Cases />} />
               <Route path="cases/:id" element={<V3CaseDetail />} />
               <Route path="scanner" element={<V3Scanner />} />
+              <Route path="graph" element={<V3Graph />} />
               <Route path="defence" element={<V3Defence />} />
               <Route path="personnel" element={<V3Personnel />} />
               <Route path="queue" element={<V3Queue />} />
