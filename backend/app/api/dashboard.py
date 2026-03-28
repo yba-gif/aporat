@@ -19,7 +19,7 @@ async def get_dashboard(
     db: AsyncSession = Depends(get_db),
     _user: dict = Depends(get_current_user),
 ):
-    today_start = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
 
     # Total cases
     total = (await db.execute(select(func.count(Case.id)))).scalar() or 0

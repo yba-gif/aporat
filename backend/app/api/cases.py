@@ -19,7 +19,7 @@ router = APIRouter(prefix="/api/cases", tags=["cases"])
 
 
 def _generate_case_id() -> str:
-    year = datetime.now(timezone.utc).year
+    year = datetime.utcnow().year
     seq = random.randint(1, 99999)
     return f"PL-{year}-{seq:05d}"
 
@@ -146,7 +146,7 @@ async def update_case(
         else:
             setattr(case, key, value)
 
-    case.updated_at = datetime.now(timezone.utc)
+    case.updated_at = datetime.utcnow()
 
     # Auto-create status change event
     if body.status and body.status != old_status:

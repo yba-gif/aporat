@@ -43,7 +43,7 @@ def run_osint_scan(self, scan_id: str):
 
         # Mark running
         scan.status = ScanStatus.running
-        scan.started_at = datetime.now(timezone.utc)
+        scan.started_at = datetime.utcnow()
         scan.progress = 5
         db.commit()
 
@@ -117,7 +117,7 @@ def run_osint_scan(self, scan_id: str):
         scan.progress = 100
         scan.results = results
         scan.findings_count = len(findings)
-        scan.completed_at = datetime.now(timezone.utc)
+        scan.completed_at = datetime.utcnow()
         db.commit()
 
         # Update parent case if exists
@@ -138,7 +138,7 @@ def run_osint_scan(self, scan_id: str):
 
                 case.status = CaseStatus.in_review
                 case.risk_factors = [f.title for f in findings[:10]]
-                case.updated_at = datetime.now(timezone.utc)
+                case.updated_at = datetime.utcnow()
 
                 # Add scan complete event
                 event = CaseEvent(
@@ -168,7 +168,7 @@ def run_osint_scan(self, scan_id: str):
             if scan:
                 scan.status = ScanStatus.failed
                 scan.error = str(exc)
-                scan.completed_at = datetime.now(timezone.utc)
+                scan.completed_at = datetime.utcnow()
                 db.commit()
         except Exception:
             pass

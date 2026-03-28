@@ -9,10 +9,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Python deps
 COPY pyproject.toml ./
-RUN pip install --no-cache-dir -e ".[osint]" 2>/dev/null || pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir -e .
+RUN pip install --no-cache-dir bcrypt sherlock-project maigret holehe || true
 
 COPY . .
 
 EXPOSE 8000
-
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
