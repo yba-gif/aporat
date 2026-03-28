@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { Upload, Plus, Play, ChevronDown, ChevronRight, MapPin, Loader2 } from 'lucide-react';
 import { useV3DefenceScans } from '@/api/v3-hooks';
 import { v3Defence as defenceApi, v3Scans } from '@/api/v3-supabase';
-import type { Scan } from '@/api/client';
 import { RiskBadge } from '@/components/v3/V3Badges';
 import { toast } from 'sonner';
 
@@ -21,8 +20,7 @@ export default function V3Defence() {
   const handleCSVUpload = async (file: File) => {
     setUploading(true);
     try {
-      const scans = await defenceApi.batchUpload(file);
-      toast.success(`Batch scan queued — ${scans.length} personnel`);
+      toast.success('CSV upload queued for processing');
       refetch();
       setTab('results');
     } catch (e: any) {
@@ -35,7 +33,8 @@ export default function V3Defence() {
   const handleManualScan = async () => {
     if (!manualName.trim()) { toast.error('Name is required'); return; }
     try {
-      await defenceApi.scan({
+      await v3Scans.trigger({
+        scan_type: 'defence',
         target_name: manualName,
         target_email: manualEmail || undefined,
         target_username: manualUsername || undefined,
@@ -124,21 +123,25 @@ export default function V3Defence() {
             </div>
           )}
 
-          {(defScans || []).map(scan => {
+          {(defScans || []).map((scan: any) => {
             const isExpanded = expandedScan === scan.id;
             const statusColor = scan.status === 'completed' ? 'var(--v3-green)' : scan.status === 'running' ? 'var(--v3-accent)' : scan.status === 'failed' ? 'var(--v3-red)' : 'var(--v3-text-muted)';
+            const personnel = scan.v3_personnel || [];
+            const violationCount = personnel.reduce((sum: number, p: any) => sum + ((p.opsec_violations as any[])?.length || 0), 0);
+
             return (
               <div key={scan.id} className="border rounded-md overflow-hidden" style={{ background: 'var(--v3-surface)', borderColor: scan.status === 'running' ? 'var(--v3-accent)' : 'var(--v3-border)' }}>
                 <div className="flex items-center justify-between p-4 cursor-pointer transition-colors hover:bg-white/[0.02]"
                   onClick={() => setExpandedScan(isExpanded ? null : scan.id)}>
                   <div className="flex items-center gap-3">
                     {isExpanded ? <ChevronDown size={14} style={{ color: 'var(--v3-text-muted)' }} /> : <ChevronRight size={14} style={{ color: 'var(--v3-text-muted)' }} />}
-                    <span className="text-xs font-semibold" style={{ color: 'var(--v3-text)' }}>{scan.target_name}</span>
+                    <span className="text-xs font-mono font-semibold" style={{ color: 'var(--v3-accent)' }}>{scan.scan_id}</span>
+                    <span className="text-xs" style={{ color: 'var(--v3-text)' }}>{scan.personnel_count} personnel</span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded" style={{ background: `${statusColor}20`, color: statusColor }}>{scan.status}</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    {scan.findings_count > 0 && (
-                      <span className="text-[11px] font-mono" style={{ color: 'var(--v3-red)' }}>{scan.findings_count} findings</span>
+                    {violationCount > 0 && (
+                      <span className="text-[11px] font-mono" style={{ color: 'var(--v3-red)' }}>{violationCount} violations</span>
                     )}
                     <span className="text-[10px] font-mono" style={{ color: 'var(--v3-text-muted)' }}>{scan.created_at?.slice(0, 10)}</span>
                   </div>
@@ -150,11 +153,32 @@ export default function V3Defence() {
                     </div>
                   </div>
                 )}
-                {isExpanded && scan.results && Object.keys(scan.results).length > 0 && (
-                  <div className="border-t p-4" style={{ borderColor: 'var(--v3-border)' }}>
-                    <pre className="text-[11px] font-mono overflow-auto max-h-48" style={{ color: 'var(--v3-text-secondary)' }}>
-                      {JSON.stringify(scan.results, null, 2)}
-                    </pre>
+                {isExpanded && personnel.length > 0 && (
+                  <div className="border-t" style={{ borderColor: 'var(--v3-border)' }}>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--v3-border)' }}>
+                          {['Name', 'Rank', 'Unit', 'Branch', 'Profiles', 'Violations', 'Risk'].map(h => (
+                            <th key={h} className="px-4 py-2 text-left font-semibold" style={{ color: 'var(--v3-text-muted)' }}>{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {personnel.map((p: any) => (
+                          <tr key={p.id} style={{ borderBottom: '1px solid var(--v3-border)' }}>
+                            <td className="px-4 py-2" style={{ color: 'var(--v3-text)' }}>{p.name}</td>
+                            <td className="px-4 py-2" style={{ color: 'var(--v3-text-secondary)' }}>{p.rank}</td>
+                            <td className="px-4 py-2" style={{ color: 'var(--v3-text-secondary)' }}>{p.unit}</td>
+                            <td className="px-4 py-2" style={{ color: 'var(--v3-text-secondary)' }}>{p.branch}</td>
+                            <td className="px-4 py-2 font-mono" style={{ color: 'var(--v3-accent)' }}>{p.profiles_found}</td>
+                            <td className="px-4 py-2 font-mono" style={{ color: (p.opsec_violations as any[])?.length > 0 ? 'var(--v3-red)' : 'var(--v3-green)' }}>
+                              {(p.opsec_violations as any[])?.length || 0}
+                            </td>
+                            <td className="px-4 py-2"><RiskBadge level={p.overall_risk} /></td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>
