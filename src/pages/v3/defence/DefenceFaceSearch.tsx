@@ -645,8 +645,30 @@ export default function DefenceFaceSearch() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setTelegramOsint(data);
-      const found = data?.totalFound || 0;
+      // Add confidence scoring by cross-referencing display names with the subject
+      const subjectName = (potentialName || enrichment?.name || '').toLowerCase().trim();
+      const enrichedResults = data?.results?.map((r: any) => {
+        if (!r.exists) return r;
+        const displayLower = (r.displayName || '').toLowerCase().trim();
+        let confidence: 'high' | 'medium' | 'low' = 'low';
+        let confidenceReason = 'Username correlation only';
+        if (subjectName && displayLower) {
+          const subjectParts = subjectName.split(/\s+/);
+          const displayParts = displayLower.split(/\s+/);
+          const matchingParts = subjectParts.filter(p => displayParts.some(d => d.includes(p) || p.includes(d)));
+          if (matchingParts.length >= 2 || displayLower === subjectName) {
+            confidence = 'high';
+            confidenceReason = 'Display name matches subject';
+          } else if (matchingParts.length === 1) {
+            confidence = 'medium';
+            confidenceReason = 'Partial name match';
+          }
+        }
+        return { ...r, confidence, confidenceReason };
+      }) || [];
+      const enrichedData = { ...data, results: enrichedResults };
+      setTelegramOsint(enrichedData);
+      const found = enrichedData?.totalFound || 0;
       if (found > 0) {
         toast.success(`Found ${found} Telegram profile${found > 1 ? 's' : ''}`);
       } else {
