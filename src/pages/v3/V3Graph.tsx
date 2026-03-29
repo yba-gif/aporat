@@ -380,7 +380,7 @@ export default function V3Graph() {
   const panelBg = 'rgba(24,24,27,0.92)';
 
   return (
-    <div className="relative w-full h-full overflow-hidden" ref={containerRef} style={{ background: '#0A0F1A' }}>
+    <div className="relative w-full h-full overflow-hidden" ref={containerRef} style={{ background: '#09090b' }}>
       <ForceGraph3D
         ref={graphRef}
         graphData={graphData}
