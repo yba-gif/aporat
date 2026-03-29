@@ -575,7 +575,7 @@ export default function V3Graph() {
                   </div>
                 </div>
                 {dossierNode.flagged && (
-                  <Badge className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] px-1.5 rounded-md">
+                  <Badge className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] px-2 rounded-full">
                     <AlertTriangle size={10} className="mr-1" /> FLAGGED
                   </Badge>
                 )}
