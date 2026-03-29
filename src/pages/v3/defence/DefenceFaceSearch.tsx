@@ -631,7 +631,7 @@ export default function DefenceFaceSearch() {
     } finally {
       setExporting(false);
     }
-  }, [results, potentialName, testingMode]);
+  }, [results, potentialName, testingMode, enrichment]);
 
   const saveSearch = async (parsedResults: FaceResult[]) => {
     try {
