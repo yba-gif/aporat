@@ -21,6 +21,19 @@ interface ReportData {
     digitalFootprint?: string;
   };
   searchImageBase64?: string;
+  enrichment?: {
+    enriched: boolean;
+    extractedName?: string | null;
+    nameConfidence?: string;
+    bio?: string | null;
+    location?: string | null;
+    occupation?: string | null;
+    organization?: string | null;
+    website?: string | null;
+    profileDetails?: { platform: string; username: string; displayName?: string; bio?: string; followers?: string }[];
+    crossReferenceNotes?: string;
+    scrapedCount?: number;
+  } | null;
 }
 
 const COLORS = {
