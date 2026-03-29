@@ -404,42 +404,46 @@ export default function DefenceFaceSearch() {
 
   useEffect(() => stopPolling, [stopPolling]);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image must be under 10MB');
-      return;
-    }
-    setSelectedFile(file);
+  const addFiles = useCallback((files: File[]) => {
+    const valid = files.filter(f => {
+      if (!f.type.startsWith('image/')) { toast.error(`${f.name} is not an image`); return false; }
+      if (f.size > 10 * 1024 * 1024) { toast.error(`${f.name} exceeds 10MB`); return false; }
+      return true;
+    });
+    if (valid.length === 0) return;
+    const total = selectedFiles.length + valid.length;
+    if (total > 5) { toast.error('Maximum 5 images allowed'); return; }
+    setSelectedFiles(prev => [...prev, ...valid]);
     setResults([]);
     setErrorMsg('');
-    const reader = new FileReader();
-    reader.onload = (ev) => setImagePreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
-  }, []);
+    valid.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setImagePreviews(prev => [...prev, ev.target?.result as string]);
+      reader.readAsDataURL(file);
+    });
+  }, [selectedFiles]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    addFiles(files);
+  }, [addFiles]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setSelectedFile(file);
-      setResults([]);
-      setErrorMsg('');
-      const reader = new FileReader();
-      reader.onload = (ev) => setImagePreview(ev.target?.result as string);
-      reader.readAsDataURL(file);
-    }
-  }, []);
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    if (files.length > 0) addFiles(files);
+  }, [addFiles]);
+
+  const removeImage = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   const clearImage = () => {
     stopPolling();
-    setSelectedFile(null);
-    setImagePreview(null);
+    setSelectedFiles([]);
+    setImagePreviews([]);
     setResults([]);
     setSearchState('idle');
     setErrorMsg('');
@@ -447,6 +451,7 @@ export default function DefenceFaceSearch() {
     setSavedId(null);
     setDossier(null);
     setActiveTab('results');
+    setSearchProgress('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
