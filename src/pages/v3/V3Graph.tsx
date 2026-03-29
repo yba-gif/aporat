@@ -41,12 +41,12 @@ interface GLink {
 
 // ── V3 Color config ──
 const NODE_HEX: Record<NodeType, number> = {
-  applicant:      0x06B6D4, // teal — primary subject
-  person:         0x64748B, // slate
-  flagged_person: 0xEF4444, // red
-  organization:   0x3B82F6, // blue
-  social:         0x8B5CF6, // purple
-  location:       0x10B981, // green
+  applicant:      0xA78BFA, // violet — primary subject
+  person:         0x71717A, // zinc-500
+  flagged_person: 0xF87171, // red
+  organization:   0x818CF8, // indigo
+  social:         0xA78BFA, // violet
+  location:       0x4ADE80, // green
 };
 
 const NODE_SIZE: Record<NodeType, number> = {
