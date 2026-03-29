@@ -29,9 +29,7 @@ const DefenceDashboard = lazy(() => import("./pages/v3/defence/DefenceDashboard"
 const DefenceAlerts = lazy(() => import("./pages/v3/defence/DefenceAlerts"));
 const DefenceMap = lazy(() => import("./pages/v3/defence/DefenceMap"));
 const DefencePersonnel = lazy(() => import("./pages/v3/defence/DefencePersonnel"));
-const DefenceInstallations = lazy(() => import("./pages/v3/defence/DefenceInstallations"));
 const DefenceScan = lazy(() => import("./pages/v3/defence/DefenceScan"));
-const DefenceGeofence = lazy(() => import("./pages/v3/defence/DefenceGeofence"));
 
 const queryClient = new QueryClient();
 
