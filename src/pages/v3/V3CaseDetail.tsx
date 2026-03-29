@@ -222,8 +222,12 @@ export default function V3CaseDetail() {
       });
       if (error) throw error;
       setNarrative(data.narrative);
-      toast.success('AI narrative generated');
-      refetch();
+      // Persist to database (upsert)
+      await supabase.from('v3_case_narratives').upsert(
+        { case_id: caseData.id, narrative: data.narrative, generated_at: new Date().toISOString() },
+        { onConflict: 'case_id' }
+      );
+      toast.success('AI narrative generated & saved');
     } catch (e: any) {
       toast.error(e.message || 'Narrative generation failed');
     } finally {
