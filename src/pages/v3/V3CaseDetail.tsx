@@ -268,7 +268,7 @@ export default function V3CaseDetail() {
                             const SrcIcon = sourceIcons[finding.source] || Globe;
                             const impactColor = finding.risk_impact === 'critical' ? 'var(--v3-red)' : finding.risk_impact === 'high' ? '#F97316' : finding.risk_impact === 'medium' ? 'var(--v3-amber)' : 'var(--v3-green)';
                             return (
-                              <div key={finding.id} className="border rounded-md p-3 transition-colors hover:border-[var(--v3-border-hover)]" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
+                              <div key={finding.id} className="rounded-xl border p-4 transition-colors hover:border-[var(--v3-border-hover)]" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
                                 <div className="flex items-start gap-2 mb-2">
                                   <SrcIcon size={14} style={{ color: 'var(--v3-accent)', marginTop: 2 }} />
                                   <div className="flex-1 min-w-0">
