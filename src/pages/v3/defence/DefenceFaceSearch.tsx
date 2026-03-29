@@ -1028,11 +1028,20 @@ export default function DefenceFaceSearch() {
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="text-[14px] font-bold" style={{ color: 'var(--v3-text)' }}>
-                            {potentialName || 'Unknown Subject'}
+                            {potentialName || (() => {
+                              // Show top username if no real name inferred
+                              const platforms = correlatePlatforms(results);
+                              const topAccount = platforms.flatMap(p => p.accounts).sort((a, b) => b.bestScore - a.bestScore)[0];
+                              return topAccount ? `@${topAccount.username}` : 'Unknown Subject';
+                            })()}
                           </h3>
-                          {potentialName && (
+                          {potentialName ? (
                             <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400">
                               INFERRED
+                            </span>
+                          ) : (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-zinc-500/10 text-zinc-400">
+                              USERNAME
                             </span>
                           )}
                         </div>
