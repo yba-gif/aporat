@@ -900,7 +900,7 @@ export default function DefenceFaceSearch() {
               <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-[12px] font-medium text-amber-300">Production Mode Active</p>
-                <p className="text-[11px] text-amber-400/70 mt-0.5">Each search costs 3 credits (0.30 USD)</p>
+                <p className="text-[11px] text-amber-400/70 mt-0.5">Each image search costs 3 credits (0.30 USD) — {selectedFiles.length} image{selectedFiles.length !== 1 ? 's' : ''} = {selectedFiles.length * 3} credits</p>
               </div>
             </motion.div>
           )}
