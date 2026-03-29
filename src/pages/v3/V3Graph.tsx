@@ -41,12 +41,12 @@ interface GLink {
 
 // ── V3 Color config ──
 const NODE_HEX: Record<NodeType, number> = {
-  applicant:      0x06B6D4, // teal — primary subject
-  person:         0x64748B, // slate
-  flagged_person: 0xEF4444, // red
-  organization:   0x3B82F6, // blue
-  social:         0x8B5CF6, // purple
-  location:       0x10B981, // green
+  applicant:      0xA78BFA, // violet — primary subject
+  person:         0x71717A, // zinc-500
+  flagged_person: 0xF87171, // red
+  organization:   0x818CF8, // indigo
+  social:         0xA78BFA, // violet
+  location:       0x4ADE80, // green
 };
 
 const NODE_SIZE: Record<NodeType, number> = {
@@ -55,13 +55,13 @@ const NODE_SIZE: Record<NodeType, number> = {
 };
 
 const EDGE_COLORS: Record<EdgeType, string> = {
-  KNOWS:        'rgba(148,163,184,0.35)',
-  CONNECTED_TO: 'rgba(6,182,212,0.45)',
-  FOLLOWS:      'rgba(139,92,246,0.35)',
-  EMPLOYED_BY:  'rgba(245,158,11,0.45)',
-  LOCATED_AT:   'rgba(16,185,129,0.3)',
-  SHARED_DOC:   'rgba(239,68,68,0.6)',
-  SAME_MOBILE:  'rgba(239,68,68,0.7)',
+  KNOWS:        'rgba(113,113,122,0.35)',
+  CONNECTED_TO: 'rgba(167,139,250,0.45)',
+  FOLLOWS:      'rgba(167,139,250,0.35)',
+  EMPLOYED_BY:  'rgba(251,191,36,0.45)',
+  LOCATED_AT:   'rgba(74,222,128,0.3)',
+  SHARED_DOC:   'rgba(248,113,113,0.6)',
+  SAME_MOBILE:  'rgba(248,113,113,0.7)',
 };
 
 const TYPE_ICONS: Record<NodeType, { label: string; icon: typeof User }> = {
@@ -249,8 +249,8 @@ export default function V3Graph() {
       color,
       transparent: true,
       opacity: isDimmed ? 0.15 : 0.92,
-      emissive: node.flagged ? 0xef4444 : (isRiskPath ? 0xf59e0b : 0x000000),
-      emissiveIntensity: node.flagged ? 0.4 : (isRiskPath ? 0.2 : 0),
+      emissive: node.flagged ? 0xf87171 : (isRiskPath ? 0xfbbf24 : 0x000000),
+      emissiveIntensity: node.flagged ? 0.35 : (isRiskPath ? 0.15 : 0),
       shininess: 80,
     });
     const mesh = new THREE.Mesh(geo, mat);
@@ -259,7 +259,7 @@ export default function V3Graph() {
     if (node.flagged) {
       const ringGeo = new THREE.RingGeometry(size * 1.6, size * 2.0, 32);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: 0xef4444,
+        color: 0xf87171,
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.35 + Math.sin(Date.now() * 0.003) * 0.15,
@@ -267,7 +267,7 @@ export default function V3Graph() {
       group.add(new THREE.Mesh(ringGeo, ringMat));
       const glow = new THREE.RingGeometry(size * 2.0, size * 2.6, 32);
       const glowMat = new THREE.MeshBasicMaterial({
-        color: 0xef4444,
+        color: 0xf87171,
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.12,
@@ -278,7 +278,7 @@ export default function V3Graph() {
     if (isSelected || isHovered) {
       const ringGeo = new THREE.RingGeometry(size * 1.4, size * 1.7, 32);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: isSelected ? 0x06B6D4 : 0xffffff,
+        color: isSelected ? 0xA78BFA : 0xffffff,
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.7,
@@ -296,7 +296,7 @@ export default function V3Graph() {
     ctx.fillText(node.label.length > 18 ? node.label.slice(0, 16) + '…' : node.label, 128, 28);
     if (node.riskScore >= 70) {
       ctx.font = 'bold 18px sans-serif';
-      ctx.fillStyle = '#ef4444';
+      ctx.fillStyle = '#f87171';
       ctx.fillText(`⚠ ${node.riskScore}`, 128, 52);
     }
     const texture = new THREE.CanvasTexture(canvas);
@@ -372,19 +372,21 @@ export default function V3Graph() {
   }, [dossierNode]);
 
   const riskColor = (score: number) =>
-    score >= 80 ? 'text-red-400' : score >= 60 ? 'text-orange-400' : score >= 40 ? 'text-yellow-400' : 'text-green-400';
+    score >= 80 ? 'text-red-400' : score >= 60 ? 'text-orange-400' : score >= 40 ? 'text-amber-400' : 'text-green-400';
 
   const riskBg = (score: number) =>
-    score >= 80 ? 'bg-red-500/20 text-red-400 border-red-500/30' : score >= 60 ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : score >= 40 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30';
+    score >= 80 ? 'bg-red-500/20 text-red-400 border-red-500/30' : score >= 60 ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : score >= 40 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30';
+
+  const panelBg = 'rgba(24,24,27,0.92)';
 
   return (
-    <div className="relative w-full h-full overflow-hidden" ref={containerRef} style={{ background: '#0A0F1A' }}>
+    <div className="relative w-full h-full overflow-hidden" ref={containerRef} style={{ background: '#09090b' }}>
       <ForceGraph3D
         ref={graphRef}
         graphData={graphData}
         width={dims.width}
         height={dims.height}
-        backgroundColor="#0A0F1A"
+        backgroundColor="#09090b"
         nodeThreeObject={nodeThreeObject}
         nodeThreeObjectExtend={false}
         onNodeClick={handleNodeClick}
@@ -396,7 +398,7 @@ export default function V3Graph() {
         linkDirectionalParticles={showParticles ? 3 : 0}
         linkDirectionalParticleWidth={1.5}
         linkDirectionalParticleSpeed={0.004}
-        linkDirectionalParticleColor={() => '#06B6D4'}
+        linkDirectionalParticleColor={() => '#a78bfa'}
         linkCurvature={0.1}
         enableNodeDrag={true}
         enableNavigationControls={true}
@@ -410,7 +412,7 @@ export default function V3Graph() {
       {/* Top bar */}
       <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
         <div className="pointer-events-auto flex items-center gap-3">
-          <div className="backdrop-blur-md border rounded-md px-3 py-2 flex items-center gap-3" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+          <div className="backdrop-blur-md border rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
             <Network size={16} style={{ color: 'var(--v3-accent)' }} />
             <div>
               <h2 className="text-xs font-bold" style={{ color: 'var(--v3-text)' }}>Ahmad Rezaee — Fraud Network</h2>
@@ -420,7 +422,7 @@ export default function V3Graph() {
         </div>
 
         <div className="pointer-events-auto">
-          <div className="backdrop-blur-md border rounded-md px-2" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+          <div className="backdrop-blur-md border rounded-xl px-3" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
             <div className="relative">
               <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--v3-text-muted)' }} />
               <Input
@@ -437,8 +439,8 @@ export default function V3Graph() {
 
       {/* Left filter panel */}
       <div className="absolute left-3 top-16 pointer-events-auto z-10">
-        <div className="backdrop-blur-md border rounded-md p-3 space-y-3 w-48" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
-          <p className="text-[10px] font-semibold uppercase tracking-widest flex items-center gap-1.5" style={{ color: 'var(--v3-text-muted)' }}>
+        <div className="backdrop-blur-md border rounded-xl p-4 space-y-3 w-48" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.15em] flex items-center gap-1.5" style={{ color: 'var(--v3-text-muted)' }}>
             <Filter size={10} /> Entity Types
           </p>
           {(Object.keys(TYPE_ICONS) as NodeType[]).map(t => {
@@ -447,7 +449,7 @@ export default function V3Graph() {
             const count = NODES.filter(n => n.type === t).length;
             return (
               <button key={t} onClick={() => toggleType(t)}
-                className={cn('flex items-center gap-2 w-full text-left text-xs rounded-md px-2 py-1.5 transition-all',
+                className={cn('flex items-center gap-2 w-full text-left text-xs rounded-lg px-2.5 py-2 transition-all',
                   active ? 'bg-white/5' : 'hover:bg-white/5'
                 )}
                 style={{ color: active ? 'var(--v3-text-secondary)' : 'var(--v3-text-muted)' }}>
@@ -488,8 +490,8 @@ export default function V3Graph() {
           }, tip: 'Focus subject' },
         ].map(({ icon: Icon, action, tip }) => (
           <Button key={tip} size="icon" variant="ghost" onClick={action} title={tip}
-            className="w-9 h-9 backdrop-blur-md border rounded-md"
-            style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
+            className="w-9 h-9 backdrop-blur-md border rounded-xl"
+            style={{ background: panelBg, borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
             <Icon size={15} />
           </Button>
         ))}
@@ -497,7 +499,7 @@ export default function V3Graph() {
 
       {/* Bottom legend */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-auto z-10 hidden md:block">
-        <div className="backdrop-blur-md border rounded-md px-4 py-2 flex items-center gap-5" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+        <div className="backdrop-blur-md border rounded-xl px-5 py-2.5 flex items-center gap-5" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
           {[
             { label: 'KNOWS', color: '#94A3B8' },
             { label: 'EMPLOYED_BY', color: '#F59E0B' },
@@ -516,7 +518,7 @@ export default function V3Graph() {
 
       {/* Stats overlay */}
       <div className="absolute bottom-3 right-3 pointer-events-auto z-10">
-        <div className="backdrop-blur-md border rounded-md px-3 py-2 flex items-center gap-4" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+        <div className="backdrop-blur-md border rounded-xl px-4 py-3 flex items-center gap-4" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
           <div className="text-center">
             <div className="text-sm font-bold text-red-400">{NODES.filter(n => n.flagged).length}</div>
             <div className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>Flagged</div>
@@ -543,7 +545,7 @@ export default function V3Graph() {
             exit={{ x: 400, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="absolute top-0 right-0 w-80 h-full border-l z-20 overflow-y-auto v3-scrollbar"
-            style={{ background: 'rgba(11,17,32,0.95)', borderColor: 'var(--v3-border)' }}
+            style={{ background: 'rgba(9,9,11,0.96)', borderColor: 'var(--v3-border)' }}
           >
             <div className="p-5 space-y-5">
               <div className="flex items-start justify-between">
@@ -573,7 +575,7 @@ export default function V3Graph() {
                   </div>
                 </div>
                 {dossierNode.flagged && (
-                  <Badge className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] px-1.5 rounded-md">
+                  <Badge className="bg-red-500/20 text-red-400 border border-red-500/30 text-[9px] px-2 rounded-full">
                     <AlertTriangle size={10} className="mr-1" /> FLAGGED
                   </Badge>
                 )}
@@ -582,7 +584,7 @@ export default function V3Graph() {
               <p className="text-xs leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{dossierNode.detail}</p>
 
               {(dossierNode.riskScore >= 60 || dossierNode.flagged) && (
-                <div className="bg-red-500/5 border border-red-500/10 rounded-md p-3 space-y-1.5">
+                <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4 space-y-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-red-400 flex items-center gap-1.5">
                     <FileWarning size={10} /> Risk Indicators
                   </p>
@@ -615,11 +617,11 @@ export default function V3Graph() {
                   {dossierConnections.map((c, i) => (
                     <button key={i}
                       onClick={() => { if (c.other) { setDossierNode(c.other); handleNodeClick(c.other); } }}
-                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 text-left transition-colors"
+                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-white/5 text-left transition-colors"
                     >
                       <div className="w-1.5 h-1.5 rounded-full" style={{ background: EDGE_COLORS[c.edgeType] }} />
                       <span className="text-[11px] flex-1 truncate" style={{ color: 'var(--v3-text-secondary)' }}>{c.other?.label ?? '?'}</span>
-                      <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-mono', riskBg(c.other?.riskScore ?? 0))}>
+                      <span className={cn('text-[9px] px-2 py-0.5 rounded-full border font-mono', riskBg(c.other?.riskScore ?? 0))}>
                         {c.other?.riskScore ?? 0}
                       </span>
                       <ChevronRight size={10} style={{ color: 'var(--v3-text-muted)' }} />
@@ -631,18 +633,18 @@ export default function V3Graph() {
               <div className="space-y-2 pt-2 border-t" style={{ borderColor: 'var(--v3-border)' }}>
                 {dossierNode.caseId && (
                   <Button variant="outline" size="sm" onClick={() => navigate(`/v3/cases/${dossierNode.caseId}`)}
-                    className="w-full border rounded-md text-xs justify-start gap-2"
+                    className="w-full border rounded-xl text-xs justify-start gap-2"
                     style={{ background: 'var(--v3-accent-muted)', borderColor: 'var(--v3-border)', color: 'var(--v3-accent)' }}>
                     <ExternalLink size={12} /> Open in Case Detail
                   </Button>
                 )}
                 <Button variant="outline" size="sm"
-                  className="w-full border rounded-md text-xs justify-start gap-2"
+                  className="w-full border rounded-xl text-xs justify-start gap-2"
                   style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
                   <Activity size={12} /> View Full Dossier
                 </Button>
                 <Button variant="outline" size="sm"
-                  className="w-full bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 rounded-md text-xs justify-start gap-2">
+                  className="w-full bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 rounded-xl text-xs justify-start gap-2">
                   <AlertTriangle size={12} /> Flag Entity
                 </Button>
               </div>
@@ -660,7 +662,7 @@ export default function V3Graph() {
             exit={{ y: 20, opacity: 0 }}
             className="absolute bottom-14 left-3 pointer-events-auto z-10"
           >
-            <div className="backdrop-blur-md border rounded-md p-3 w-64" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+            <div className="backdrop-blur-md border rounded-xl p-4 w-64" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold" style={{ color: 'var(--v3-text)' }}>{selectedNode.label}</span>
                 <span className={cn('text-xs font-bold font-mono', riskColor(selectedNode.riskScore))}>{selectedNode.riskScore}</span>
