@@ -189,8 +189,7 @@ export default function DefenceFaceSearch() {
     if (!output?.items) return [];
     return output.items
       .filter((item: any) => item.score > 0)
-      .sort((a: any, b: any) => b.score - a.score)
-      .slice(0, 20);
+      .sort((a: any, b: any) => b.score - a.score);
   };
 
   const getResultImage = (result: FaceResult & Record<string, any>): string | null => {
