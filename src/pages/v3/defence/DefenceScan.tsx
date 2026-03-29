@@ -74,7 +74,7 @@ export default function DefenceScan() {
               <div className="space-y-2 text-[11px]">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Last Run</span>
-                  <span className="text-slate-300 font-mono">{timeAgo(col.last_run_at)}</span>
+                  <span className="text-slate-300 font-mono">{timeAgo((col as any).last_run_at ?? (col as any).last_run)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Items Today</span>
