@@ -162,7 +162,7 @@ export default function V3CaseDetail() {
       {/* Top Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/v3/cases')} className="p-1.5 rounded-md border transition-colors hover:bg-white/5" style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
+          <button onClick={() => navigate('/v3/cases')} className="p-2 rounded-xl border transition-colors hover:bg-white/5" style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
             <ArrowLeft size={16} />
           </button>
           <span className="font-mono text-sm font-bold" style={{ color: 'var(--v3-text)' }}>{caseData.case_id}</span>
@@ -170,9 +170,9 @@ export default function V3CaseDetail() {
           <StatusBadge status={caseData.status as any} />
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => handleAction('approve')} className="px-4 py-2 rounded-md text-xs font-semibold" style={{ background: 'var(--v3-green)', color: 'var(--v3-text-dark)' }}>Approve</button>
-          <button onClick={() => handleAction('reject')} className="px-4 py-2 rounded-md text-xs font-semibold" style={{ background: 'var(--v3-red)', color: 'white' }}>Reject</button>
-          <button onClick={() => handleAction('escalate')} className="px-4 py-2 rounded-md text-xs font-semibold" style={{ background: 'var(--v3-amber-muted)', color: 'var(--v3-amber)' }}>Escalate</button>
+          <button onClick={() => handleAction('approve')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-green)', color: 'var(--v3-text-dark)' }}>Approve</button>
+          <button onClick={() => handleAction('reject')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-red)', color: 'white' }}>Reject</button>
+          <button onClick={() => handleAction('escalate')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-amber-muted)', color: 'var(--v3-amber)' }}>Escalate</button>
         </div>
       </div>
 
