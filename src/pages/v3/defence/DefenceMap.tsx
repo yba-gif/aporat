@@ -1,6 +1,4 @@
-import { useState, useCallback } from 'react';
-import { MapContainer, TileLayer, CircleMarker, Circle, Tooltip as LeafletTooltip, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import { useInstallations, useGeofenceCheck, type GeofenceResult } from '@/hooks/useDefenceApi';
 import { SeverityBadge } from '@/components/defence/SeverityBadge';
 import { X } from 'lucide-react';
@@ -12,31 +10,8 @@ const TYPE_LABELS: Record<string, string> = {
   airfield: 'Airfield', naval: 'Naval Base', headquarters: 'HQ', army_base: 'Army Base', training: 'Training', radar: 'Radar',
 };
 
-function CursorPosition() {
-  const [pos, setPos] = useState<{ lat: number; lng: number } | null>(null);
-  useMapEvents({
-    mousemove(e) { setPos(e.latlng); },
-    mouseout() { setPos(null); },
-  });
-  if (!pos) return null;
-  return (
-    <div className="absolute top-3 right-3 z-[1000] px-3 py-1.5 rounded-md text-[10px] font-mono text-slate-300" style={{ background: '#111827E6', border: '1px solid #1E293B' }}>
-      {pos.lat.toFixed(4)}°N &nbsp; {pos.lng.toFixed(4)}°E
-    </div>
-  );
-}
-
-function ClickChecker({ onResult }: { onResult: (r: GeofenceResult, lat: number, lng: number) => void }) {
-  const check = useGeofenceCheck();
-  useMapEvents({
-    click(e) {
-      check.mutate({ latitude: e.latlng.lat, longitude: e.latlng.lng }, {
-        onSuccess: (data) => onResult(data, e.latlng.lat, e.latlng.lng),
-      });
-    },
-  });
-  return null;
-}
+// Lazy-load the actual Leaflet map to isolate potential crashes
+const LeafletMap = lazy(() => import('./DefenceMapLeaflet'));
 
 export default function DefenceMap() {
   const { data: installations } = useInstallations();
@@ -48,51 +23,13 @@ export default function DefenceMap() {
 
   return (
     <div className="relative h-full" style={{ height: 'calc(100vh - 0px)' }}>
-      <MapContainer
-        center={[39, 35]}
-        zoom={6}
-        style={{ height: '100%', width: '100%', background: '#0A0F1C' }}
-        zoomControl={true}
-        attributionControl={false}
-      >
-        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-        <CursorPosition />
-        <ClickChecker onResult={handleResult} />
-
-        {installations?.map(inst => {
-          const color = TYPE_COLORS[inst.installation_type] || '#3B82F6';
-          return (
-            <>
-              <Circle
-                key={`circle-${inst.id}`}
-                center={[inst.latitude, inst.longitude]}
-                radius={inst.radius_km * 1000}
-                pathOptions={{ color, fillColor: color, fillOpacity: 0.08, weight: 1, opacity: 0.4 }}
-              />
-              <CircleMarker
-                key={`marker-${inst.id}`}
-                center={[inst.latitude, inst.longitude]}
-                radius={6}
-                pathOptions={{ color, fillColor: color, fillOpacity: 0.9, weight: 2, opacity: 1 }}
-              >
-                <LeafletTooltip direction="top" offset={[0, -8]} opacity={0.95}>
-                  <span style={{ fontWeight: 700, fontSize: '12px' }}>{inst.name}</span>
-                  <br />
-                  <span style={{ fontFamily: 'monospace', fontSize: '10px', color: '#666' }}>{inst.code} · {inst.city}</span>
-                </LeafletTooltip>
-              </CircleMarker>
-            </>
-          );
-        })}
-
-        {checkResult && (
-          <CircleMarker
-            center={[checkResult.lat, checkResult.lng]}
-            radius={5}
-            pathOptions={{ color: '#EF4444', fillColor: '#EF4444', fillOpacity: 1, weight: 2 }}
-          />
-        )}
-      </MapContainer>
+      <Suspense fallback={
+        <div className="h-full flex items-center justify-center" style={{ background: '#0A0F1C' }}>
+          <div className="text-slate-500 text-[12px]">Loading map...</div>
+        </div>
+      }>
+        <LeafletMap installations={installations || []} onGeofenceResult={handleResult} checkResult={checkResult} />
+      </Suspense>
 
       {/* Legend */}
       <div className="absolute bottom-4 left-4 z-[1000] rounded-lg p-3 space-y-1.5" style={{ background: '#111827E6', border: '1px solid #1E293B' }}>
