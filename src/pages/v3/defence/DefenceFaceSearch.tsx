@@ -766,49 +766,72 @@ export default function DefenceFaceSearch() {
             style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
           >
             <h2 className="text-[13px] font-semibold mb-4" style={{ color: 'var(--v3-text)' }}>
-              Upload Image
+              Upload Images <span className="font-normal text-[11px]" style={{ color: 'var(--v3-text-muted)' }}>(up to 5)</span>
             </h2>
 
-            {!imagePreview ? (
+            {/* Drop zone - always show if under 5 images */}
+            {imagePreviews.length < 5 && (
               <div
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 cursor-pointer transition-colors hover:border-[var(--v3-accent)]"
+                className="border-2 border-dashed rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer transition-colors hover:border-[var(--v3-accent)]"
                 style={{ borderColor: 'var(--v3-border)' }}
               >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'var(--v3-accent-muted)' }}>
-                  <Upload size={20} style={{ color: 'var(--v3-accent)' }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--v3-accent-muted)' }}>
+                  <Upload size={18} style={{ color: 'var(--v3-accent)' }} />
                 </div>
                 <div className="text-center">
-                  <p className="text-[13px] font-medium" style={{ color: 'var(--v3-text-secondary)' }}>
-                    Drop image or click to upload
+                  <p className="text-[12px] font-medium" style={{ color: 'var(--v3-text-secondary)' }}>
+                    {imagePreviews.length === 0 ? 'Drop images or click to upload' : 'Add more images'}
                   </p>
-                  <p className="text-[11px] mt-1" style={{ color: 'var(--v3-text-muted)' }}>
-                    JPG, PNG up to 10MB
+                  <p className="text-[10px] mt-0.5" style={{ color: 'var(--v3-text-muted)' }}>
+                    JPG, PNG up to 10MB each
                   </p>
                 </div>
               </div>
-            ) : (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full rounded-xl object-cover max-h-[240px]"
-                />
-                <button
-                  onClick={clearImage}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center bg-black/60 text-white hover:bg-black/80 transition-colors"
-                >
-                  <X size={14} />
-                </button>
+            )}
+
+            {/* Image previews grid */}
+            {imagePreviews.length > 0 && (
+              <div className={`grid gap-2 mt-3 ${imagePreviews.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                {imagePreviews.map((preview, idx) => (
+                  <div key={idx} className="relative group">
+                    <img
+                      src={preview}
+                      alt={`Preview ${idx + 1}`}
+                      className="w-full rounded-lg object-cover"
+                      style={{ maxHeight: imagePreviews.length === 1 ? '200px' : '120px' }}
+                    />
+                    <button
+                      onClick={() => removeImage(idx)}
+                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-md flex items-center justify-center bg-black/60 text-white hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <X size={12} />
+                    </button>
+                    <span className="absolute bottom-1.5 left-1.5 text-[9px] px-1.5 py-0.5 rounded-md bg-black/60 text-white font-medium">
+                      #{idx + 1}
+                    </span>
+                  </div>
+                ))}
               </div>
+            )}
+
+            {imagePreviews.length > 0 && (
+              <button
+                onClick={clearImage}
+                className="w-full mt-2 text-[11px] py-1.5 rounded-lg transition-colors"
+                style={{ color: 'var(--v3-text-muted)' }}
+              >
+                Clear all
+              </button>
             )}
 
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               className="hidden"
               onChange={handleFileSelect}
             />
@@ -830,11 +853,11 @@ export default function DefenceFaceSearch() {
             {/* Search button */}
             <button
               onClick={startSearch}
-              disabled={!selectedFile || searchState === 'uploading' || searchState === 'searching'}
+              disabled={selectedFiles.length === 0 || searchState === 'uploading' || searchState === 'searching'}
               className="w-full mt-4 py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
-                background: selectedFile ? 'var(--v3-accent)' : 'var(--v3-surface-hover)',
-                color: selectedFile ? 'white' : 'var(--v3-text-muted)',
+                background: selectedFiles.length > 0 ? 'var(--v3-accent)' : 'var(--v3-surface-hover)',
+                color: selectedFiles.length > 0 ? 'white' : 'var(--v3-text-muted)',
               }}
             >
               {searchState === 'uploading' && <Loader2 size={14} className="animate-spin" />}
@@ -843,7 +866,8 @@ export default function DefenceFaceSearch() {
               {searchState === 'complete' && <CheckCircle2 size={14} />}
               {searchState === 'uploading' ? 'Uploading...' :
                searchState === 'searching' ? 'Searching...' :
-               searchState === 'complete' ? 'Search Again' : 'Search Face'}
+               searchState === 'complete' ? 'Search Again' :
+               selectedFiles.length > 1 ? `Search ${selectedFiles.length} Faces` : 'Search Face'}
             </button>
 
             {/* Progress bar */}
