@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User, UserCircle, Save, Shield, Briefcase, MapPin, Eye, Network, Clock, Target, Brain, ChevronRight } from 'lucide-react';
+import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User, UserCircle, Save, Shield, Briefcase, MapPin, Eye, Network, Clock, Target, Brain, ChevronRight, Sparkles, ScanSearch } from 'lucide-react';
 import { toast } from 'sonner';
 import { FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
