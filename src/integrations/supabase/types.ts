@@ -139,6 +139,48 @@ export type Database = {
           },
         ]
       }
+      face_search_results: {
+        Row: {
+          accounts: Json
+          best_score: number | null
+          created_at: string
+          id: string
+          platforms: Json
+          potential_name: string | null
+          raw_results: Json
+          search_image_path: string | null
+          searched_by: string | null
+          testing_mode: boolean
+          total_matches: number
+        }
+        Insert: {
+          accounts?: Json
+          best_score?: number | null
+          created_at?: string
+          id?: string
+          platforms?: Json
+          potential_name?: string | null
+          raw_results?: Json
+          search_image_path?: string | null
+          searched_by?: string | null
+          testing_mode?: boolean
+          total_matches?: number
+        }
+        Update: {
+          accounts?: Json
+          best_score?: number | null
+          created_at?: string
+          id?: string
+          platforms?: Json
+          potential_name?: string | null
+          raw_results?: Json
+          search_image_path?: string | null
+          searched_by?: string | null
+          testing_mode?: boolean
+          total_matches?: number
+        }
+        Relationships: []
+      }
       job_applications: {
         Row: {
           created_at: string
