@@ -162,7 +162,7 @@ export default function V3CaseDetail() {
       {/* Top Bar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => navigate('/v3/cases')} className="p-1.5 rounded-md border transition-colors hover:bg-white/5" style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
+          <button onClick={() => navigate('/v3/cases')} className="p-2 rounded-xl border transition-colors hover:bg-white/5" style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
             <ArrowLeft size={16} />
           </button>
           <span className="font-mono text-sm font-bold" style={{ color: 'var(--v3-text)' }}>{caseData.case_id}</span>
@@ -170,9 +170,9 @@ export default function V3CaseDetail() {
           <StatusBadge status={caseData.status as any} />
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => handleAction('approve')} className="px-4 py-2 rounded-md text-xs font-semibold" style={{ background: 'var(--v3-green)', color: 'var(--v3-text-dark)' }}>Approve</button>
-          <button onClick={() => handleAction('reject')} className="px-4 py-2 rounded-md text-xs font-semibold" style={{ background: 'var(--v3-red)', color: 'white' }}>Reject</button>
-          <button onClick={() => handleAction('escalate')} className="px-4 py-2 rounded-md text-xs font-semibold" style={{ background: 'var(--v3-amber-muted)', color: 'var(--v3-amber)' }}>Escalate</button>
+          <button onClick={() => handleAction('approve')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-green)', color: 'var(--v3-text-dark)' }}>Approve</button>
+          <button onClick={() => handleAction('reject')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-red)', color: 'white' }}>Reject</button>
+          <button onClick={() => handleAction('escalate')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-amber-muted)', color: 'var(--v3-amber)' }}>Escalate</button>
         </div>
       </div>
 
@@ -180,9 +180,9 @@ export default function V3CaseDetail() {
       <div className="grid grid-cols-[280px_1fr_320px] gap-4">
         {/* LEFT COLUMN */}
         <div className="space-y-4">
-          <div className="border rounded-md p-4" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+          <div className="rounded-xl border p-5" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>
                 {caseData.applicant.firstName?.[0]}{caseData.applicant.lastName?.[0]}
               </div>
               <div>
@@ -204,8 +204,8 @@ export default function V3CaseDetail() {
             ))}
           </div>
 
-          <div className="border rounded-md p-4" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
-            <div className="text-[11px] font-semibold mb-3 tracking-wide" style={{ color: 'var(--v3-text-muted)' }}>DOCUMENTS</div>
+          <div className="rounded-xl border p-5" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+            <div className="text-[10px] font-semibold mb-3 tracking-[0.15em]" style={{ color: 'var(--v3-text-muted)' }}>DOCUMENTS</div>
             {(caseData.documents || []).map(doc => (
               <div key={doc.id} className="flex items-center gap-2 py-2 border-t cursor-pointer transition-colors hover:bg-white/[0.03] px-1 rounded" style={{ borderColor: 'var(--v3-border)' }}>
                 {ocrIcon(doc.ocr_status)}
@@ -215,7 +215,7 @@ export default function V3CaseDetail() {
             ))}
           </div>
 
-          <div className="border rounded-md p-4 grid grid-cols-3 gap-3" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+          <div className="rounded-xl border p-5 grid grid-cols-3 gap-3" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
             {[
               { label: 'Profiles', value: (caseData.findings || []).filter(f => f.category === 'social_media').length },
               { label: 'Signals', value: (caseData.findings || []).length },
@@ -230,7 +230,7 @@ export default function V3CaseDetail() {
         </div>
 
         {/* CENTER COLUMN */}
-        <div className="border rounded-md overflow-hidden" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+        <div className="rounded-xl border overflow-hidden" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
           <div className="flex border-b" style={{ borderColor: 'var(--v3-border)' }}>
             {(['findings', 'graph', 'timeline', 'documents'] as const).map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={tabClass(tab)}
@@ -268,7 +268,7 @@ export default function V3CaseDetail() {
                             const SrcIcon = sourceIcons[finding.source] || Globe;
                             const impactColor = finding.risk_impact === 'critical' ? 'var(--v3-red)' : finding.risk_impact === 'high' ? '#F97316' : finding.risk_impact === 'medium' ? 'var(--v3-amber)' : 'var(--v3-green)';
                             return (
-                              <div key={finding.id} className="border rounded-md p-3 transition-colors hover:border-[var(--v3-border-hover)]" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
+                              <div key={finding.id} className="rounded-xl border p-4 transition-colors hover:border-[var(--v3-border-hover)]" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
                                 <div className="flex items-start gap-2 mb-2">
                                   <SrcIcon size={14} style={{ color: 'var(--v3-accent)', marginTop: 2 }} />
                                   <div className="flex-1 min-w-0">
@@ -313,7 +313,7 @@ export default function V3CaseDetail() {
                   return (
                     <div key={event.id} className="flex gap-3 relative">
                       <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 z-10" style={{ background: `${evColor}20`, border: `1px solid ${evColor}40` }}>
+                        <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 z-10" style={{ background: `${evColor}20`, border: `1px solid ${evColor}40` }}>
                           <EvIcon size={13} style={{ color: evColor }} />
                         </div>
                         {i < (caseData.events || []).length - 1 && <div className="w-px flex-1 my-1" style={{ background: 'var(--v3-border)' }} />}
@@ -334,7 +334,7 @@ export default function V3CaseDetail() {
             {activeTab === 'documents' && (
               <div className="space-y-3">
                 {(caseData.documents || []).map(doc => (
-                  <div key={doc.id} className="border rounded-md p-4" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
+                  <div key={doc.id} className="rounded-xl border p-5" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
                     <div className="flex items-center gap-2 mb-3">
                       <FileText size={14} style={{ color: 'var(--v3-accent)' }} />
                       <span className="text-xs font-semibold" style={{ color: 'var(--v3-text)' }}>{doc.name}</span>
@@ -362,7 +362,7 @@ export default function V3CaseDetail() {
 
         {/* RIGHT COLUMN */}
         <div className="space-y-4">
-          <div className="border rounded-md p-4 sticky top-0" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+          <div className="rounded-xl border p-5 sticky top-0" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
             <div className="text-[10px] font-semibold tracking-widest mb-4" style={{ color: 'var(--v3-text-muted)' }}>RISK ASSESSMENT</div>
             <div className="flex justify-center mb-4">
               <RiskScoreCircle score={Math.round(caseData.risk_score)} size="lg" />
@@ -409,13 +409,13 @@ export default function V3CaseDetail() {
             </div>
           </div>
 
-          <div className="border rounded-md p-4" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
-            <div className="text-[10px] font-semibold tracking-widest mb-3" style={{ color: 'var(--v3-text-muted)' }}>ADD NOTE</div>
+          <div className="rounded-xl border p-5" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+            <div className="text-[10px] font-semibold tracking-[0.15em] mb-3" style={{ color: 'var(--v3-text-muted)' }}>ADD NOTE</div>
             <textarea
-              className="w-full px-3 py-2 rounded-md border text-xs resize-none outline-none" rows={3} placeholder="Officer notes..."
+              className="w-full px-3.5 py-2.5 rounded-xl border text-xs resize-none outline-none transition-colors focus:border-[var(--v3-accent)]" rows={3} placeholder="Officer notes..."
               style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text)' }}
             />
-            <button onClick={() => toast.success('Note added')} className="mt-2 w-full py-1.5 rounded-md text-xs font-semibold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>Submit Note</button>
+            <button onClick={() => toast.success('Note added')} className="mt-3 w-full py-2 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>Submit Note</button>
           </div>
         </div>
       </div>
