@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon } from 'lucide-react';
 
@@ -24,6 +24,15 @@ export default function DefenceFaceSearch() {
   const [testingMode, setTestingMode] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopPolling = useCallback(() => {
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => stopPolling, [stopPolling]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -58,6 +67,7 @@ export default function DefenceFaceSearch() {
   }, []);
 
   const clearImage = () => {
+    stopPolling();
     setSelectedFile(null);
     setImagePreview(null);
     setResults([]);
@@ -70,6 +80,8 @@ export default function DefenceFaceSearch() {
     if (!selectedFile) return;
 
     try {
+      stopPolling();
+
       // Step 1: Upload
       setSearchState('uploading');
       setProgress(0);
@@ -109,6 +121,10 @@ export default function DefenceFaceSearch() {
 
       const searchData = await searchRes.json();
 
+      if (!searchRes.ok || searchData?.error) {
+        throw new Error(searchData?.error || 'Search failed');
+      }
+
       // If we got output immediately
       if (searchData?.output) {
         setResults(parseResults(searchData.output));
@@ -124,7 +140,7 @@ export default function DefenceFaceSearch() {
       pollRef.current = setInterval(async () => {
         attempts++;
         if (attempts > maxAttempts) {
-          clearInterval(pollRef.current!);
+          stopPolling();
           setSearchState('error');
           setErrorMsg('Search timed out after 5 minutes');
           return;
@@ -148,14 +164,14 @@ export default function DefenceFaceSearch() {
           const statusData = await statusRes.json();
 
           if (statusData.output) {
-            clearInterval(pollRef.current!);
+            stopPolling();
             setResults(parseResults(statusData.output));
             setSearchState('complete');
             setProgress(100);
-          } else if (statusData.error) {
-            clearInterval(pollRef.current!);
+          } else if (!statusRes.ok || statusData.error) {
+            stopPolling();
             setSearchState('error');
-            setErrorMsg(statusData.error);
+            setErrorMsg(statusData.error || 'Unable to fetch search status');
           }
         } catch {
           // Continue polling on network errors
@@ -163,6 +179,7 @@ export default function DefenceFaceSearch() {
       }, 5000);
 
     } catch (err: any) {
+      stopPolling();
       setSearchState('error');
       setErrorMsg(err.message || 'Search failed');
     }

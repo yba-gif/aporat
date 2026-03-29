@@ -74,20 +74,22 @@ serve(async (req) => {
         headers: {
           'accept': 'application/json',
           'content-type': 'application/json',
+          'Authorization': FACECHECK_API_TOKEN,
         },
         body: JSON.stringify({
           id_search,
-          with_progress: true,
-          id_captcha: '',
-          status_only: false,
-          api_token: FACECHECK_API_TOKEN,
-          testing: testing,
+          testing,
+          wait_for_results: false,
         }),
       });
 
-      const searchData = await searchRes.json();
-      return new Response(JSON.stringify(searchData), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const searchData = await searchRes.text();
+      return new Response(searchData, {
+        status: searchRes.status,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': searchRes.headers.get('content-type') ?? 'application/json',
+        },
       });
     }
 
@@ -96,25 +98,35 @@ serve(async (req) => {
       const body = await req.json();
       const { id_search, testing = true } = body;
 
+      if (!id_search) {
+        return new Response(JSON.stringify({ error: 'id_search required' }), {
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
       const statusRes = await fetch(`${FACECHECK_API}/search`, {
         method: 'POST',
         headers: {
           'accept': 'application/json',
           'content-type': 'application/json',
+          'Authorization': FACECHECK_API_TOKEN,
         },
         body: JSON.stringify({
           id_search,
           with_progress: true,
           id_captcha: '',
           status_only: true,
-          api_token: FACECHECK_API_TOKEN,
-          testing: testing,
+          testing,
         }),
       });
 
-      const statusData = await statusRes.json();
-      return new Response(JSON.stringify(statusData), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const statusData = await statusRes.text();
+      return new Response(statusData, {
+        status: statusRes.status,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': statusRes.headers.get('content-type') ?? 'application/json',
+        },
       });
     }
 
