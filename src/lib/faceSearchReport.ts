@@ -159,12 +159,12 @@ export async function generateFaceSearchReport(data: ReportData): Promise<void> 
   y = checkPageBreak(doc, y, 40);
   y = sectionHeader(doc, 'RISK ASSESSMENT', ML, y);
   doc.setFillColor(rc[0], rc[1], rc[2]);
-  doc.setGState(new (jsPDF as any).GState({ opacity: 0.08 }));
-  doc.roundedRect(ML, y, CW, 20, 2, 2, 'F');
-  doc.setGState(new (jsPDF as any).GState({ opacity: 1 }));
   doc.setDrawColor(...rc);
+  doc.setFillColor(rc[0], rc[1], rc[2]);
   doc.setLineWidth(0.3);
   doc.roundedRect(ML, y, CW, 20, 2, 2, 'S');
+  doc.setFillColor(248, 248, 252);
+  doc.roundedRect(ML + 0.3, y + 0.3, CW - 0.6, 19.4, 1.8, 1.8, 'F');
   y = wrappedText(doc, data.narrative.riskAssessment, ML + 4, y + 5, CW - 8, 9, COLORS.darkGray);
   y += 10;
 
