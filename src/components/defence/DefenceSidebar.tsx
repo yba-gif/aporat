@@ -20,26 +20,31 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
   return (
     <aside
       className={cn(
-        'h-screen flex flex-col border-r transition-all duration-150 shrink-0',
+        'h-screen flex flex-col border-r transition-all duration-200 shrink-0',
         collapsed ? 'w-14' : 'w-56'
       )}
-      style={{ background: '#0D1321', borderColor: '#1E293B' }}
+      style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
     >
-      <div className="flex items-center justify-between h-12 px-3 border-b" style={{ borderColor: '#1E293B' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between h-14 px-3 border-b" style={{ borderColor: 'var(--v3-border)' }}>
         {!collapsed && (
-          <span className="text-[10px] font-bold tracking-[0.2em] text-slate-400">DEFENCE OSINT</span>
+          <span className="text-[10px] font-bold tracking-[0.2em]" style={{ color: 'var(--v3-text-secondary)' }}>
+            DEFENCE OSINT
+          </span>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1 rounded-md text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
+          className="p-1.5 rounded-lg transition-colors"
+          style={{ color: 'var(--v3-text-muted)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--v3-surface-hover)'; e.currentTarget.style.color = 'var(--v3-text-secondary)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--v3-text-muted)'; }}
         >
           {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
         </button>
       </div>
 
-      <div className="h-px mx-3 my-1" style={{ background: '#1E293B' }} />
-
-      <nav className="flex-1 py-2 overflow-y-auto">
+      {/* Nav */}
+      <nav className="flex-1 py-3 overflow-y-auto space-y-0.5">
         {NAV_ITEMS.map(item => (
           <NavLink
             key={item.path}
@@ -48,10 +53,10 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
             title={collapsed ? item.label : undefined}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-2.5 px-3 py-2 mx-1.5 rounded-md text-[13px] font-medium transition-all duration-150',
+                'flex items-center gap-2.5 px-3 py-2 mx-2 rounded-xl text-[13px] font-medium transition-all duration-150',
                 isActive
-                  ? 'text-blue-400 border-l-2 border-blue-500 bg-blue-500/8'
-                  : 'text-slate-500 border-l-2 border-transparent hover:text-slate-300 hover:bg-white/5'
+                  ? 'text-[var(--v3-accent)] bg-[var(--v3-accent-muted)]'
+                  : 'text-[var(--v3-text-muted)] hover:text-[var(--v3-text-secondary)] hover:bg-[var(--v3-surface-hover)]'
               )
             }
           >
@@ -61,12 +66,14 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
         ))}
       </nav>
 
-      <div className="border-t px-2 py-2" style={{ borderColor: '#1E293B' }}>
+      {/* Back button */}
+      <div className="border-t px-2 py-2" style={{ borderColor: 'var(--v3-border)' }}>
         <button
           onClick={() => navigate('/v3/dashboard')}
-          className={cn(
-            'flex items-center gap-2 w-full px-2 py-2 rounded-md text-[11px] font-medium text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors',
-          )}
+          className="flex items-center gap-2 w-full px-3 py-2 rounded-xl text-[11px] font-medium transition-colors"
+          style={{ color: 'var(--v3-text-muted)' }}
+          onMouseEnter={e => { e.currentTarget.style.background = 'var(--v3-surface-hover)'; e.currentTarget.style.color = 'var(--v3-text-secondary)'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--v3-text-muted)'; }}
           title="Back to Platform"
         >
           <ArrowLeft size={14} />
@@ -74,10 +81,11 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
         </button>
       </div>
 
-      <div className="px-3 py-2.5 border-t flex items-center gap-2" style={{ borderColor: '#1E293B' }}>
+      {/* Status */}
+      <div className="px-3 py-3 border-t flex items-center gap-2" style={{ borderColor: 'var(--v3-border)' }}>
         <StatusDot status={backendOnline ? 'idle' : 'error'} size="sm" />
         {!collapsed && (
-          <span className="text-[10px] text-slate-500 font-medium">
+          <span className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>
             {backendOnline ? 'System Online' : 'Demo Mode'}
           </span>
         )}
