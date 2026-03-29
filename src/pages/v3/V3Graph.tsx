@@ -621,7 +621,7 @@ export default function V3Graph() {
                     >
                       <div className="w-1.5 h-1.5 rounded-full" style={{ background: EDGE_COLORS[c.edgeType] }} />
                       <span className="text-[11px] flex-1 truncate" style={{ color: 'var(--v3-text-secondary)' }}>{c.other?.label ?? '?'}</span>
-                      <span className={cn('text-[9px] px-1.5 py-0.5 rounded-md border font-mono', riskBg(c.other?.riskScore ?? 0))}>
+                      <span className={cn('text-[9px] px-2 py-0.5 rounded-full border font-mono', riskBg(c.other?.riskScore ?? 0))}>
                         {c.other?.riskScore ?? 0}
                       </span>
                       <ChevronRight size={10} style={{ color: 'var(--v3-text-muted)' }} />
