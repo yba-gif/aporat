@@ -386,7 +386,7 @@ export default function V3Graph() {
         graphData={graphData}
         width={dims.width}
         height={dims.height}
-        backgroundColor="#0A0F1A"
+        backgroundColor="#09090b"
         nodeThreeObject={nodeThreeObject}
         nodeThreeObjectExtend={false}
         onNodeClick={handleNodeClick}
