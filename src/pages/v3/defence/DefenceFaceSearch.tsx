@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User, UserCircle, Save } from 'lucide-react';
+import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User, UserCircle, Save, Shield, Briefcase, MapPin, Eye, Network, Clock, Target, Brain, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
-import { FileText, Download } from 'lucide-react';
+import { FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { generateFaceSearchReport } from '@/lib/faceSearchReport';
 
@@ -15,6 +15,55 @@ interface FaceResult {
 }
 
 type SearchState = 'idle' | 'uploading' | 'searching' | 'complete' | 'error';
+type ResultTab = 'results' | 'dossier';
+
+interface Dossier {
+  identity?: {
+    fullName?: string;
+    aliases?: string[];
+    nameConfidence?: string;
+    possibleAge?: string | null;
+    possibleLocation?: string | null;
+    possibleNationality?: string | null;
+    possibleOccupation?: string | null;
+  };
+  digitalPresence?: {
+    footprintSize?: string;
+    primaryPlatforms?: string[];
+    professionalProfiles?: { platform: string; url: string; significance: string }[];
+    socialProfiles?: { platform: string; url: string; significance: string }[];
+    contentCreation?: { platform: string; url: string; type: string }[];
+  };
+  professionalIntel?: {
+    summary?: string;
+    organizations?: string[];
+    roles?: string[];
+    industry?: string | null;
+    publicProfile?: string;
+  };
+  riskProfile?: {
+    opsecLevel?: string;
+    exposureLevel?: string;
+    vulnerabilities?: string[];
+    dataLeakRisk?: string;
+  };
+  connections?: {
+    inferredNetwork?: string[];
+    geographicTies?: string[];
+    languageIndicators?: string[];
+  };
+  timeline?: { date: string; event: string; source: string }[];
+  actionableIntel?: {
+    keyInsights?: string[];
+    investigationLeads?: string[];
+    monitoringRecommendations?: string[];
+  };
+  confidenceAssessment?: {
+    overallConfidence?: string;
+    limitations?: string[];
+    dataQuality?: string;
+  };
+}
 
 interface PlatformMatch {
   platform: string;
@@ -339,6 +388,9 @@ export default function DefenceFaceSearch() {
   const [potentialName, setPotentialName] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [activeTab, setActiveTab] = useState<ResultTab>('results');
+  const [dossier, setDossier] = useState<Dossier | null>(null);
+  const [dossierLoading, setDossierLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -392,8 +444,44 @@ export default function DefenceFaceSearch() {
     setErrorMsg('');
     setPotentialName(null);
     setSavedId(null);
+    setDossier(null);
+    setActiveTab('results');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const generateDossier = useCallback(async () => {
+    if (results.length === 0) return;
+    setDossierLoading(true);
+    setActiveTab('dossier');
+    try {
+      const platforms = correlatePlatforms(results);
+      const allAccounts = platforms.flatMap(p =>
+        p.accounts.map(a => ({ platform: p.platform, ...a }))
+      );
+      const platformsSummary = platforms.map(p => ({
+        platform: p.platform, icon: p.icon, count: p.results.length, avgScore: p.avgScore,
+      }));
+
+      const { data, error } = await supabase.functions.invoke('face-dossier', {
+        body: {
+          subjectName: potentialName,
+          totalMatches: results.length,
+          bestScore: results.length > 0 ? Math.max(...results.map(r => r.score)) : 0,
+          platforms: platformsSummary,
+          accounts: allAccounts,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      setDossier(data);
+      toast.success('Intelligence dossier generated');
+    } catch (err: any) {
+      toast.error('Dossier generation failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setDossierLoading(false);
+    }
+  }, [results, potentialName]);
 
   const exportReport = useCallback(async () => {
     if (results.length === 0) return;
