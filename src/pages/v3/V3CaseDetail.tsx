@@ -69,6 +69,19 @@ export default function V3CaseDetail() {
   const [correlations, setCorrelations] = useState<Array<{ case_id: string; match_type: string; detail: string; risk_level: string; shared_attribute: string }> | null>(null);
   const [correlationLoading, setCorrelationLoading] = useState(false);
 
+  // Load persisted narrative on mount
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from('v3_case_narratives')
+      .select('narrative, generated_at')
+      .eq('case_id', id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data?.narrative) setNarrative(data.narrative);
+      });
+  }, [id]);
+
   const groupedFindings = useMemo(() => {
     if (!caseData) return {};
     let findings = caseData.findings || [];
