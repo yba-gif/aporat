@@ -411,6 +411,8 @@ export default function DefenceFaceSearch() {
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [dossierLoading, setDossierLoading] = useState(false);
   const [searchProgress, setSearchProgress] = useState('');
+  const [enrichment, setEnrichment] = useState<any>(null);
+  const [enriching, setEnriching] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
