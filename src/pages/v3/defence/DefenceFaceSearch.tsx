@@ -1,8 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User } from 'lucide-react';
+import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User, UserCircle, Save } from 'lucide-react';
 
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 interface FaceResult {
   url: string;
@@ -183,7 +184,6 @@ function correlatePlatforms(results: FaceResult[]): PlatformMatch[] {
 
       // Extract unique accounts
       const accountMap = new Map<string, { postCount: number; bestScore: number; profileUrl: string }>();
-      let unknownPosts = 0;
 
       for (const r of g.results) {
         const username = g.rule?.extractUsername(r.url) || null;
@@ -200,8 +200,6 @@ function correlatePlatforms(results: FaceResult[]): PlatformMatch[] {
               profileUrl: g.rule!.buildProfileUrl(username),
             });
           }
-        } else {
-          unknownPosts++;
         }
       }
 
@@ -214,6 +212,62 @@ function correlatePlatforms(results: FaceResult[]): PlatformMatch[] {
     .sort((a, b) => b.avgScore - a.avgScore);
 }
 
+/** Infer potential real name from URLs and usernames across all results */
+function inferPotentialName(results: FaceResult[]): string | null {
+  const nameCandidates = new Map<string, number>();
+
+  for (const r of results) {
+    const url = r.url;
+
+    // LinkedIn: /in/firstname-lastname
+    const li = url.match(/linkedin\.com\/in\/([a-z]+-[a-z0-9-]+)/i);
+    if (li) {
+      const name = li[1].split('-').filter(p => p.length > 1).slice(0, 3)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      if (name.length > 3) nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score);
+    }
+
+    // Crunchbase: /person/firstname-lastname
+    const cb = url.match(/crunchbase\.com\/person\/([a-z]+-[a-z0-9-]+)/i);
+    if (cb) {
+      const name = cb[1].split('-').filter(p => p.length > 1).slice(0, 3)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      if (name.length > 3) nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score);
+    }
+
+    // Forbes councils / profiles
+    const fb = url.match(/forbes\.com\/(?:councils\/|profile\/)([a-z]+-[a-z0-9-]+)/i);
+    if (fb) {
+      const name = fb[1].split('-').filter(p => p.length > 1).slice(0, 3)
+        .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      if (name.length > 3) nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score);
+    }
+
+    // Wiki pages: /wiki/Firstname_Lastname
+    const wiki = url.match(/(?:wikitia|wikipedia)\.(?:com|org)\/wiki\/([A-Z][a-z]+_[A-Z][a-z_]+)/);
+    if (wiki) {
+      const name = wiki[1].replace(/_/g, ' ');
+      nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score);
+    }
+
+    // Generic path-based: site.com/firstname-lastname or site.com/yusuf-berk...
+    const generic = url.match(/\.com\/([a-z]+-[a-z]+-?[a-z]*)\/?/i);
+    if (generic && !url.match(/instagram|twitter|x\.com|facebook|youtube|tiktok|reddit|github|pinterest|quora|medium/i)) {
+      const parts = generic[1].split('-').filter(p => p.length > 1);
+      if (parts.length >= 2 && parts.length <= 4) {
+        const name = parts.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        if (name.length > 3) nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score * 0.5);
+      }
+    }
+  }
+
+  if (nameCandidates.size === 0) return null;
+
+  // Return the name with the highest cumulative score
+  return Array.from(nameCandidates.entries())
+    .sort((a, b) => b[1] - a[1])[0][0];
+}
+
 export default function DefenceFaceSearch() {
   const [searchState, setSearchState] = useState<SearchState>('idle');
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -222,6 +276,8 @@ export default function DefenceFaceSearch() {
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
   const [testingMode, setTestingMode] = useState(true);
+  const [potentialName, setPotentialName] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -273,6 +329,8 @@ export default function DefenceFaceSearch() {
     setResults([]);
     setSearchState('idle');
     setErrorMsg('');
+    setPotentialName(null);
+    setSavedId(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -325,11 +383,42 @@ export default function DefenceFaceSearch() {
         throw new Error(searchData?.error || 'Search failed');
       }
 
+  const saveSearch = useCallback(async (parsedResults: FaceResult[]) => {
+    try {
+      const platforms = correlatePlatforms(parsedResults);
+      const name = inferPotentialName(parsedResults);
+      setPotentialName(name);
+
+      const allAccounts = platforms.flatMap(p =>
+        p.accounts.map(a => ({ platform: p.platform, ...a }))
+      );
+
+      const { data, error } = await supabase.from('face_search_results' as any).insert({
+        potential_name: name,
+        total_matches: parsedResults.length,
+        best_score: parsedResults.length > 0 ? Math.max(...parsedResults.map(r => r.score)) : 0,
+        platforms: platforms.map(p => ({ platform: p.platform, icon: p.icon, count: p.results.length, avgScore: p.avgScore })),
+        accounts: allAccounts,
+        raw_results: parsedResults.slice(0, 50),
+        testing_mode: testingMode,
+      } as any).select('id').single();
+
+      if (!error && data) {
+        setSavedId((data as any).id);
+        toast.success('Search saved to intelligence database');
+      }
+    } catch {
+      // Non-critical, don't block UI
+    }
+  }, [testingMode]);
+
       // If we got output immediately
       if (searchData?.output) {
-        setResults(parseResults(searchData.output));
+        const parsed = parseResults(searchData.output);
+        setResults(parsed);
         setSearchState('complete');
         setProgress(100);
+        saveSearch(parsed);
         return;
       }
 
@@ -365,9 +454,11 @@ export default function DefenceFaceSearch() {
 
           if (statusData.output) {
             stopPolling();
-            setResults(parseResults(statusData.output));
+            const parsed = parseResults(statusData.output);
+            setResults(parsed);
             setSearchState('complete');
             setProgress(100);
+            saveSearch(parsed);
           } else if (!statusRes.ok || statusData.error) {
             stopPolling();
             setSearchState('error');
@@ -585,12 +676,44 @@ export default function DefenceFaceSearch() {
             {results.length > 0 && (
               <div className="p-4 space-y-4">
                 {/* Correlated Intelligence */}
-                <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
-                  <div className="flex items-center gap-2 mb-1">
-                    <Link2 size={14} style={{ color: 'var(--v3-accent)' }} />
-                    <h3 className="text-[12px] font-semibold tracking-wide uppercase" style={{ color: 'var(--v3-text-secondary)' }}>
-                      Correlated Intelligence
-                    </h3>
+                <div className="rounded-xl border p-4 space-y-4" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
+                  {/* Subject Identity Header */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--v3-accent-muted)' }}>
+                        <UserCircle size={20} style={{ color: 'var(--v3-accent)' }} />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-[14px] font-bold" style={{ color: 'var(--v3-text)' }}>
+                            {potentialName || 'Unknown Subject'}
+                          </h3>
+                          {potentialName && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400">
+                              INFERRED
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] mt-0.5" style={{ color: 'var(--v3-text-muted)' }}>
+                          {results.length} matches across {correlatePlatforms(results).length} platforms
+                          {results.length > 0 && ` · Best match ${Math.max(...results.map(r => r.score))}%`}
+                        </p>
+                      </div>
+                    </div>
+                    {savedId && (
+                      <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-lg" style={{ background: 'var(--v3-surface)', color: 'var(--v3-accent)' }}>
+                        <Save size={10} />
+                        Saved
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Platform Breakdown */}
+                  <div className="flex items-center gap-2">
+                    <Link2 size={12} style={{ color: 'var(--v3-text-muted)' }} />
+                    <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: 'var(--v3-text-muted)' }}>
+                      Platform Breakdown
+                    </span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {correlatePlatforms(results).map((pm) => (
