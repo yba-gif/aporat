@@ -1,289 +1,612 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Briefcase, Clock, AlertTriangle, Loader2, CheckCircle, XCircle,
   Search, AlertCircle, Shield, TrendingUp, ArrowUpRight, ArrowDownRight,
   Activity, Eye, Zap, BarChart3, Users, Globe, ChevronRight, Crosshair,
-  Radio, Target, Layers, Gauge, FileWarning, ArrowRight, Filter
+  Radio, Target, Layers, Gauge, FileWarning, ArrowRight, Filter,
+  Terminal, Wifi, Database, Cpu, Lock, Unlock, CircleDot, Radar,
+  ScanLine, Fingerprint, Network, MapPin
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip,
-  AreaChart, Area, PieChart, Pie, Cell
+  AreaChart, Area, PieChart, Pie, Cell, LineChart, Line, RadarChart,
+  PolarGrid, PolarAngleAxis, Radar as RechartsRadar
 } from 'recharts';
 import { useV3Dashboard, useV3Cases } from '@/api/v3-hooks';
-import { RiskBadge, StatusBadge, RiskScoreCircle } from '@/components/v3/V3Badges';
 
-/* ─── Shared helpers ─── */
-const fmt = (n: number) => n.toLocaleString();
-const pct = (n: number, t: number) => t === 0 ? 0 : Math.round((n / t) * 100);
+/* ═══════════════════════════════════════════════════
+   SHARED
+   ═══════════════════════════════════════════════════ */
 
 const TABS = [
-  { id: 'a', label: 'Command Center' },
-  { id: 'b', label: 'Situation Room' },
-  { id: 'c', label: 'Analyst Workspace' },
+  { id: 'gotham', label: 'GOTHAM', sub: 'Palantir × Terminal' },
+  { id: 'lattice', label: 'LATTICE', sub: 'Anduril × Military' },
+  { id: 'mercury', label: 'MERCURY', sub: 'Stripe × Linear' },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
 
-/* ─── Skeleton ─── */
-function DemoSkeleton() {
+interface DashboardProps {
+  stats: any;
+  cases: any[];
+  navigate: (path: string) => void;
+}
+
+/* ═══════════════════════════════════════════════════
+   VARIANT A — "GOTHAM"
+   Palantir Gotham × Bloomberg Terminal × Hacker aesthetic
+   Green phosphor on black, monospace everything, 
+   no border-radius, scan lines, grid overlay,
+   horizontal data strips, terminal-style feeds
+   ═══════════════════════════════════════════════════ */
+
+const GOTHAM = {
+  bg: '#020a02',
+  surface: '#071207',
+  border: '#0f2a0f',
+  accent: '#00ff41',
+  accentDim: '#00cc33',
+  accentMuted: 'rgba(0,255,65,0.08)',
+  amber: '#ffb000',
+  red: '#ff3333',
+  text: '#00ff41',
+  textDim: '#33aa55',
+  textMuted: '#1a5a2a',
+};
+
+function GothamDashboard({ stats, cases, navigate }: DashboardProps) {
+  const [tick, setTick] = useState(0);
+  const [glitchLine, setGlitchLine] = useState(-1);
+
+  useEffect(() => {
+    const interval = setInterval(() => setTick(t => t + 1), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const g = setInterval(() => {
+      setGlitchLine(Math.floor(Math.random() * 10));
+      setTimeout(() => setGlitchLine(-1), 100);
+    }, 5000);
+    return () => clearInterval(g);
+  }, []);
+
+  const timeStr = new Date().toLocaleTimeString('en-GB', { hour12: false });
+  const dateStr = new Date().toISOString().slice(0, 10);
+
+  const riskDist = useMemo(() => {
+    if (!stats) return { low: 0, medium: 0, high: 0, critical: 0 };
+    return stats.risk_distribution;
+  }, [stats]);
+
+  // Terminal-style sparkline using block chars
+  const sparkBlocks = useMemo(() => {
+    return Array.from({ length: 30 }, () => {
+      const v = Math.random();
+      if (v > 0.8) return '█';
+      if (v > 0.6) return '▓';
+      if (v > 0.4) return '▒';
+      if (v > 0.2) return '░';
+      return ' ';
+    }).join('');
+  }, [tick]);
+
   return (
-    <div className="space-y-4 p-6">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="h-20 rounded-md animate-pulse" style={{ background: 'var(--v3-border)' }} />
-      ))}
+    <div
+      className="h-full overflow-hidden relative"
+      style={{
+        background: GOTHAM.bg,
+        fontFamily: "'JetBrains Mono', 'Courier New', monospace",
+        color: GOTHAM.text,
+      }}
+    >
+      {/* Scan line overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-10"
+        style={{
+          background: `repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.015) 2px, rgba(0,255,65,0.015) 4px)`,
+        }}
+      />
+
+      {/* Grid overlay */}
+      <div
+        className="absolute inset-0 pointer-events-none z-[5]"
+        style={{
+          backgroundImage: `linear-gradient(${GOTHAM.border}44 1px, transparent 1px), linear-gradient(90deg, ${GOTHAM.border}44 1px, transparent 1px)`,
+          backgroundSize: '80px 80px',
+        }}
+      />
+
+      <div className="relative z-20 h-full flex flex-col">
+        {/* ── STATUS BAR ── */}
+        <div
+          className="flex items-center justify-between px-4 py-1.5 border-b shrink-0"
+          style={{ borderColor: GOTHAM.border, background: GOTHAM.surface }}
+        >
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-bold tracking-[0.3em]" style={{ color: GOTHAM.accentDim }}>
+              PORTOLAN//GOTHAM
+            </span>
+            <span className="text-[10px]" style={{ color: GOTHAM.textMuted }}>│</span>
+            <span className="text-[10px]" style={{ color: GOTHAM.textDim }}>
+              SYS.ONLINE
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: GOTHAM.accent }} />
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-[10px]" style={{ color: GOTHAM.textDim }}>{dateStr}</span>
+            <span className="text-[11px] font-bold tabular-nums" style={{ color: GOTHAM.accent }}>{timeStr}</span>
+          </div>
+        </div>
+
+        {/* ── THREAT STRIP ── */}
+        <div
+          className="flex items-center gap-3 px-4 py-1 border-b shrink-0"
+          style={{ borderColor: GOTHAM.border, background: (stats?.high_risk ?? 0) > 0 ? 'rgba(255,51,51,0.06)' : GOTHAM.surface }}
+        >
+          <Terminal size={10} style={{ color: GOTHAM.textDim }} />
+          <span className="text-[9px] tracking-[0.2em]" style={{ color: GOTHAM.textMuted }}>
+            SIGINT.FEED &gt;
+          </span>
+          <span className="text-[10px]" style={{ color: (stats?.high_risk ?? 0) > 0 ? GOTHAM.red : GOTHAM.textDim }}>
+            {(stats?.high_risk ?? 0) > 0
+              ? `⚠ ${stats.high_risk} HIGH-RISK ENTITIES FLAGGED — IMMEDIATE REVIEW REQUIRED`
+              : 'ALL SYSTEMS NOMINAL — NO CRITICAL ALERTS'}
+          </span>
+          <span className="ml-auto text-[9px]" style={{ color: GOTHAM.textMuted }}>
+            {sparkBlocks}
+          </span>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-3 space-y-3" style={{ scrollbarWidth: 'thin', scrollbarColor: `${GOTHAM.border} transparent` }}>
+          {/* ── KPI GRID — Terminal blocks ── */}
+          <div className="grid grid-cols-6 gap-2">
+            {[
+              { key: 'CASES.TOTAL', val: stats?.total_cases ?? 0, icon: Database },
+              { key: 'QUEUE.PENDING', val: stats?.pending_review ?? 0, icon: Clock, warn: true },
+              { key: 'RISK.HIGH', val: stats?.high_risk ?? 0, icon: AlertTriangle, crit: true },
+              { key: 'CASES.CLEARED', val: stats?.approved_today ?? 0, icon: Unlock },
+              { key: 'RISK.LOW', val: riskDist.low ?? 0, icon: Shield },
+              { key: 'RISK.CRIT', val: riskDist.critical ?? 0, icon: Zap, crit: true },
+            ].map(kpi => (
+              <div
+                key={kpi.key}
+                className="border p-3 relative overflow-hidden"
+                style={{
+                  borderColor: kpi.crit && kpi.val > 0 ? `${GOTHAM.red}66` : GOTHAM.border,
+                  background: GOTHAM.surface,
+                }}
+              >
+                {/* Corner bracket decoration */}
+                <div className="absolute top-0 left-0 w-2 h-2 border-t border-l" style={{ borderColor: GOTHAM.accent + '44' }} />
+                <div className="absolute top-0 right-0 w-2 h-2 border-t border-r" style={{ borderColor: GOTHAM.accent + '44' }} />
+                <div className="absolute bottom-0 left-0 w-2 h-2 border-b border-l" style={{ borderColor: GOTHAM.accent + '44' }} />
+                <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r" style={{ borderColor: GOTHAM.accent + '44' }} />
+
+                <div className="flex items-center gap-1.5 mb-2">
+                  <kpi.icon size={10} style={{ color: kpi.crit && kpi.val > 0 ? GOTHAM.red : GOTHAM.textDim }} />
+                  <span className="text-[8px] tracking-[0.2em]" style={{ color: GOTHAM.textMuted }}>{kpi.key}</span>
+                </div>
+                <div
+                  className="text-2xl font-bold leading-none"
+                  style={{
+                    color: kpi.crit && kpi.val > 0 ? GOTHAM.red : kpi.warn && kpi.val > 5 ? GOTHAM.amber : GOTHAM.accent,
+                    textShadow: `0 0 20px ${kpi.crit && kpi.val > 0 ? GOTHAM.red : GOTHAM.accent}44`,
+                  }}
+                >
+                  {String(kpi.val).padStart(3, '0')}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* ── MAIN GRID ── */}
+          <div className="grid grid-cols-12 gap-2">
+            {/* Entity Table — 8 cols */}
+            <div className="col-span-8 border" style={{ borderColor: GOTHAM.border, background: GOTHAM.surface }}>
+              <div className="px-3 py-2 border-b flex items-center gap-2" style={{ borderColor: GOTHAM.border }}>
+                <ScanLine size={10} style={{ color: GOTHAM.accentDim }} />
+                <span className="text-[8px] tracking-[0.25em]" style={{ color: GOTHAM.textDim }}>
+                  ENTITY.WATCHLIST
+                </span>
+                <span className="ml-auto text-[9px] px-1.5 py-0.5" style={{ background: GOTHAM.accentMuted, color: GOTHAM.accentDim }}>
+                  {cases.length} RECORDS
+                </span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-[10px]">
+                  <thead>
+                    <tr style={{ borderBottom: `1px solid ${GOTHAM.border}` }}>
+                      {['REF', 'ENTITY', 'NAT', 'THREAT', 'SCORE', 'STATE', 'TS'].map(h => (
+                        <th
+                          key={h}
+                          className="px-3 py-1.5 text-left"
+                          style={{ color: GOTHAM.textMuted, fontSize: '8px', letterSpacing: '0.2em' }}
+                        >
+                          {h}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {cases.slice(0, 10).map((c: any, i: number) => {
+                      const riskColor = c.risk_level === 'critical' ? GOTHAM.red
+                        : c.risk_level === 'high' ? GOTHAM.amber
+                        : c.risk_level === 'medium' ? GOTHAM.amber + 'aa'
+                        : GOTHAM.accentDim;
+                      return (
+                        <tr
+                          key={c.id}
+                          onClick={() => navigate(`/v3/cases/${c.id}`)}
+                          className="cursor-pointer transition-colors"
+                          style={{
+                            borderBottom: `1px solid ${GOTHAM.border}`,
+                            background: glitchLine === i ? GOTHAM.accentMuted : 'transparent',
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = GOTHAM.accentMuted)}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                        >
+                          <td className="px-3 py-1.5 font-bold" style={{ color: GOTHAM.accent }}>{c.case_id}</td>
+                          <td className="px-3 py-1.5" style={{ color: GOTHAM.text }}>
+                            {c.applicant.lastName?.toUpperCase()}, {c.applicant.firstName?.[0]}.
+                          </td>
+                          <td className="px-3 py-1.5" style={{ color: GOTHAM.textDim }}>{c.applicant.nationality}</td>
+                          <td className="px-3 py-1.5">
+                            <span
+                              className="px-1.5 py-0.5 text-[9px] font-bold uppercase"
+                              style={{ background: riskColor + '22', color: riskColor, border: `1px solid ${riskColor}44` }}
+                            >
+                              {c.risk_level}
+                            </span>
+                          </td>
+                          <td className="px-3 py-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-16 h-1" style={{ background: GOTHAM.border }}>
+                                <div className="h-full" style={{ width: `${c.risk_score}%`, background: riskColor }} />
+                              </div>
+                              <span style={{ color: riskColor, fontSize: '9px' }}>{c.risk_score}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-1.5">
+                            <span className="text-[9px]" style={{ color: c.status === 'approved' ? GOTHAM.accentDim : c.status === 'escalated' ? GOTHAM.red : GOTHAM.textDim }}>
+                              {c.status?.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="px-3 py-1.5 text-[9px]" style={{ color: GOTHAM.textMuted }}>
+                            {c.application_date?.slice(5, 10)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Right Column — 4 cols */}
+            <div className="col-span-4 space-y-2">
+              {/* Risk Matrix */}
+              <div className="border p-3" style={{ borderColor: GOTHAM.border, background: GOTHAM.surface }}>
+                <div className="flex items-center gap-2 mb-3">
+                  <Radar size={10} style={{ color: GOTHAM.accentDim }} />
+                  <span className="text-[8px] tracking-[0.25em]" style={{ color: GOTHAM.textMuted }}>THREAT.MATRIX</span>
+                </div>
+                {/* ASCII-style risk bars */}
+                {[
+                  { label: 'CRIT', val: riskDist.critical ?? 0, color: GOTHAM.red },
+                  { label: 'HIGH', val: riskDist.high ?? 0, color: GOTHAM.amber },
+                  { label: 'MED ', val: riskDist.medium ?? 0, color: GOTHAM.amber + 'aa' },
+                  { label: 'LOW ', val: riskDist.low ?? 0, color: GOTHAM.accentDim },
+                ].map(r => {
+                  const total = (stats?.total_cases ?? 1);
+                  const width = Math.max(2, (r.val / total) * 100);
+                  return (
+                    <div key={r.label} className="flex items-center gap-2 mb-1.5">
+                      <span className="text-[8px] w-8 shrink-0" style={{ color: r.color }}>{r.label}</span>
+                      <div className="flex-1 h-3 relative" style={{ background: GOTHAM.border }}>
+                        <div className="h-full relative overflow-hidden" style={{ width: `${width}%`, background: r.color + '33' }}>
+                          <div className="absolute inset-0" style={{ background: `repeating-linear-gradient(90deg, ${r.color}66 0px, ${r.color}66 2px, transparent 2px, transparent 4px)` }} />
+                        </div>
+                      </div>
+                      <span className="text-[9px] w-6 text-right font-bold" style={{ color: r.color }}>{r.val}</span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Activity Feed — Terminal style */}
+              <div className="border" style={{ borderColor: GOTHAM.border, background: GOTHAM.surface }}>
+                <div className="px-3 py-2 border-b flex items-center gap-2" style={{ borderColor: GOTHAM.border }}>
+                  <Terminal size={10} style={{ color: GOTHAM.accentDim }} />
+                  <span className="text-[8px] tracking-[0.25em]" style={{ color: GOTHAM.textMuted }}>SYS.LOG</span>
+                </div>
+                <div className="max-h-52 overflow-y-auto p-2 space-y-0.5" style={{ scrollbarWidth: 'thin', scrollbarColor: `${GOTHAM.border} transparent` }}>
+                  {(stats?.recent_activity || []).slice(0, 10).map((entry: any, i: number) => (
+                    <div key={entry.id} className="flex gap-2 py-0.5 text-[9px] leading-relaxed">
+                      <span style={{ color: GOTHAM.textMuted }}>
+                        {new Date(entry.timestamp).toLocaleTimeString('en-GB', { hour12: false }).slice(0, 5)}
+                      </span>
+                      <span style={{ color: GOTHAM.accentDim }}>│</span>
+                      <span className="flex-1" style={{ color: GOTHAM.textDim }}>{entry.description}</span>
+                    </div>
+                  ))}
+                  <div className="flex gap-2 py-0.5 text-[9px] animate-pulse">
+                    <span style={{ color: GOTHAM.accent }}>█</span>
+                    <span style={{ color: GOTHAM.textMuted }}>AWAITING INPUT_</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────────
-   ALTERNATIVE A — "COMMAND CENTER"
-   Bloomberg Terminal × Palantir Gotham
-   Maximum density, horizontal data strips
-   ───────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════
+   VARIANT B — "LATTICE"
+   Anduril Lattice × Military C2
+   Sand/khaki tones on deep navy, thick section dividers,
+   prominent threat level indicator, geographic emphasis,
+   stencil-style typography, status light system
+   ═══════════════════════════════════════════════════ */
 
-function DashboardA({ stats, cases, navigate }: DashboardProps) {
-  const riskDist = useMemo(() => {
-    if (!stats) return [];
-    return [
-      { name: 'Low', value: stats.risk_distribution.low || 0, color: 'var(--v3-green)' },
-      { name: 'Medium', value: stats.risk_distribution.medium || 0, color: 'var(--v3-amber)' },
-      { name: 'High', value: stats.risk_distribution.high || 0, color: '#F97316' },
-      { name: 'Critical', value: stats.risk_distribution.critical || 0, color: 'var(--v3-red)' },
-    ];
+const LATTICE = {
+  bg: '#0a0e1a',
+  surface: '#111827',
+  surfaceAlt: '#1a2235',
+  border: '#1f2937',
+  accent: '#60a5fa',
+  sand: '#d4a373',
+  sandDim: '#a07d5a',
+  red: '#ef4444',
+  amber: '#f59e0b',
+  green: '#34d399',
+  text: '#f1f5f9',
+  textDim: '#94a3b8',
+  textMuted: '#4b5563',
+};
+
+function LatticeDashboard({ stats, cases, navigate }: DashboardProps) {
+  const threatLevel = useMemo(() => {
+    const hr = stats?.high_risk ?? 0;
+    const cr = stats?.risk_distribution?.critical ?? 0;
+    if (cr > 2) return { level: 'CRITICAL', color: LATTICE.red, idx: 4 };
+    if (hr > 5) return { level: 'HIGH', color: LATTICE.amber, idx: 3 };
+    if (hr > 0) return { level: 'ELEVATED', color: LATTICE.sand, idx: 2 };
+    return { level: 'NORMAL', color: LATTICE.green, idx: 1 };
   }, [stats]);
 
-  const totalRisk = riskDist.reduce((s, d) => s + d.value, 0);
-
-  // Sparkline mock data
-  const sparkData = Array.from({ length: 14 }, (_, i) => ({
-    d: i,
-    cases: Math.floor(Math.random() * 8 + 2),
-    risk: Math.floor(Math.random() * 5 + 1),
-  }));
+  const caseBySeverity = useMemo(() => {
+    const crit = cases.filter(c => c.risk_level === 'critical');
+    const high = cases.filter(c => c.risk_level === 'high');
+    const rest = cases.filter(c => c.risk_level !== 'critical' && c.risk_level !== 'high');
+    return [...crit, ...high, ...rest];
+  }, [cases]);
 
   return (
-    <div className="space-y-0">
-      {/* ── Threat Ticker Strip ── */}
+    <div className="h-full overflow-hidden flex flex-col" style={{ background: LATTICE.bg, fontFamily: "'Inter', system-ui, sans-serif" }}>
+      {/* ── TOP BAR — Threat Level ── */}
       <div
-        className="flex items-center gap-6 px-5 py-2 border-b overflow-x-auto"
-        style={{ background: 'rgba(239,68,68,0.06)', borderColor: 'var(--v3-border)' }}
+        className="flex items-center justify-between px-6 py-3 border-b shrink-0"
+        style={{ borderColor: LATTICE.border, background: LATTICE.surface }}
       >
-        <div className="flex items-center gap-2 shrink-0">
-          <Radio size={12} className="v3-pulse-red" style={{ color: 'var(--v3-red)' }} />
-          <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--v3-red)' }}>
-            THREAT ADVISORY
+        <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3">
+            <Shield size={16} style={{ color: LATTICE.accent }} />
+            <div>
+              <div className="text-[10px] font-semibold tracking-[0.2em] uppercase" style={{ color: LATTICE.textMuted }}>
+                Threat Condition
+              </div>
+              <div className="text-sm font-bold tracking-wider" style={{ color: threatLevel.color }}>
+                THREATCON {threatLevel.level}
+              </div>
+            </div>
+          </div>
+
+          {/* Threat level indicator bars */}
+          <div className="flex gap-1">
+            {[1, 2, 3, 4].map(i => (
+              <div
+                key={i}
+                className="w-8 h-5 rounded-sm transition-all duration-500"
+                style={{
+                  background: i <= threatLevel.idx ? threatLevel.color : LATTICE.border,
+                  opacity: i <= threatLevel.idx ? 1 : 0.3,
+                  boxShadow: i <= threatLevel.idx ? `0 0 12px ${threatLevel.color}44` : 'none',
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-6 text-[11px]" style={{ color: LATTICE.textDim }}>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: LATTICE.green }} />
+            <span>Systems Online</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Wifi size={12} />
+            <span>SIGINT Active</span>
+          </div>
+          <span className="font-mono text-xs" style={{ color: LATTICE.text }}>
+            {new Date().toLocaleTimeString('en-GB', { hour12: false })}
           </span>
         </div>
-        {(stats?.high_risk ?? 0) > 0 && (
-          <span className="text-[11px] shrink-0" style={{ color: 'var(--v3-text-secondary)' }}>
-            <strong style={{ color: 'var(--v3-red)' }}>{stats?.high_risk}</strong> high-risk cases require immediate review
-          </span>
-        )}
-        <span className="text-[11px] shrink-0" style={{ color: 'var(--v3-text-muted)' }}>
-          {stats?.pending_review ?? 0} pending · {stats?.total_cases ?? 0} total cases tracked
-        </span>
       </div>
 
-      <div className="p-5 space-y-4">
-        {/* ── KPI Strip — Horizontal, compact ── */}
-        <div className="grid grid-cols-6 gap-3">
-          {/* KPI Cards */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-4" style={{ scrollbarWidth: 'thin', scrollbarColor: `${LATTICE.border} transparent` }}>
+        {/* ── METRICS ROW ── */}
+        <div className="grid grid-cols-4 gap-4">
           {[
-            { label: 'ACTIVE CASES', value: stats?.total_cases ?? 0, icon: Briefcase, color: 'var(--v3-accent)', delta: '+3', up: true },
-            { label: 'PENDING REVIEW', value: stats?.pending_review ?? 0, icon: Clock, color: 'var(--v3-amber)', delta: '+2', up: true },
-            { label: 'HIGH RISK', value: stats?.high_risk ?? 0, icon: AlertTriangle, color: 'var(--v3-red)', delta: '+1', up: true, pulse: true },
-            { label: 'APPROVED', value: stats?.approved_today ?? 0, icon: CheckCircle, color: 'var(--v3-green)', delta: '−', up: false },
-          ].map(kpi => (
+            { label: 'Active Investigations', value: stats?.total_cases ?? 0, icon: Briefcase, color: LATTICE.accent, sub: 'Total portfolio' },
+            { label: 'Pending Triage', value: stats?.pending_review ?? 0, icon: Clock, color: LATTICE.amber, sub: 'Awaiting analyst', alert: (stats?.pending_review ?? 0) > 5 },
+            { label: 'Critical Entities', value: stats?.high_risk ?? 0, icon: Target, color: LATTICE.red, sub: 'Immediate action', alert: (stats?.high_risk ?? 0) > 0 },
+            { label: 'Resolved Today', value: stats?.approved_today ?? 0, icon: CheckCircle, color: LATTICE.green, sub: 'Cases cleared' },
+          ].map(m => (
             <div
-              key={kpi.label}
-              className="border rounded-none p-3 group transition-colors hover:border-[var(--v3-border-hover)]"
-              style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
+              key={m.label}
+              className="relative rounded-lg p-5 border overflow-hidden"
+              style={{
+                background: LATTICE.surface,
+                borderColor: m.alert ? m.color + '44' : LATTICE.border,
+              }}
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[9px] font-bold tracking-[0.15em]" style={{ color: 'var(--v3-text-muted)' }}>
-                  {kpi.label}
-                </span>
-                <kpi.icon size={12} style={{ color: kpi.color }} className={kpi.pulse ? 'v3-pulse-red' : ''} />
+              {/* Top accent line */}
+              <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: m.color }} />
+
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: LATTICE.textMuted }}>
+                    {m.label}
+                  </div>
+                  <div className="text-[10px]" style={{ color: LATTICE.textMuted }}>{m.sub}</div>
+                </div>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: m.color + '15' }}>
+                  <m.icon size={18} style={{ color: m.color }} />
+                </div>
               </div>
-              <div className="flex items-end gap-2">
-                <span className="text-xl font-bold font-mono leading-none" style={{ color: kpi.value > 0 && kpi.pulse ? kpi.color : 'var(--v3-text)' }}>
-                  {fmt(kpi.value)}
-                </span>
-                <span className="text-[10px] font-mono flex items-center gap-0.5" style={{ color: kpi.up ? 'var(--v3-amber)' : 'var(--v3-text-muted)' }}>
-                  {kpi.up ? <ArrowUpRight size={10} /> : null}
-                  {kpi.delta}
-                </span>
+              <div className="text-3xl font-bold" style={{ color: m.alert ? m.color : LATTICE.text }}>
+                {m.value}
               </div>
             </div>
           ))}
-
-          {/* Sparkline — Cases per day */}
-          <div
-            className="border rounded-none p-3"
-            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-          >
-            <span className="text-[9px] font-bold tracking-[0.15em]" style={{ color: 'var(--v3-text-muted)' }}>
-              14-DAY INTAKE
-            </span>
-            <div className="h-10 mt-1">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={sparkData}>
-                  <defs>
-                    <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="var(--v3-accent)" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="var(--v3-accent)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <Area type="monotone" dataKey="cases" stroke="var(--v3-accent)" fill="url(#sparkGrad)" strokeWidth={1.5} dot={false} />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Risk Heatbar */}
-          <div
-            className="border rounded-none p-3"
-            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-          >
-            <span className="text-[9px] font-bold tracking-[0.15em]" style={{ color: 'var(--v3-text-muted)' }}>
-              RISK SPECTRUM
-            </span>
-            <div className="flex h-3 rounded-sm overflow-hidden mt-2 mb-1.5">
-              {riskDist.map(d => (
-                <div
-                  key={d.name}
-                  style={{ width: `${pct(d.value, totalRisk)}%`, background: d.color, minWidth: d.value > 0 ? '4px' : '0' }}
-                />
-              ))}
-            </div>
-            <div className="flex justify-between text-[9px] font-mono" style={{ color: 'var(--v3-text-muted)' }}>
-              {riskDist.map(d => (
-                <span key={d.name} style={{ color: d.color }}>{d.value}</span>
-              ))}
-            </div>
-          </div>
         </div>
 
-        {/* ── Main Grid: Cases Table + Side Panels ── */}
-        <div className="grid grid-cols-12 gap-3">
-          {/* Cases Table — 8 cols */}
-          <div
-            className="col-span-8 border rounded-none overflow-hidden"
-            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-          >
-            <div className="px-4 py-2.5 border-b flex items-center justify-between" style={{ borderColor: 'var(--v3-border)' }}>
+        {/* ── MAIN CONTENT ── */}
+        <div className="grid grid-cols-3 gap-4">
+          {/* Priority Cases — 2 cols */}
+          <div className="col-span-2 rounded-lg border overflow-hidden" style={{ background: LATTICE.surface, borderColor: LATTICE.border }}>
+            <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: LATTICE.border }}>
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-bold tracking-[0.15em] uppercase" style={{ color: 'var(--v3-text)' }}>
-                  Priority Queue
-                </span>
-                <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>
-                  {cases.length}
+                <Crosshair size={14} style={{ color: LATTICE.accent }} />
+                <span className="text-xs font-bold" style={{ color: LATTICE.text }}>Priority Cases</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-mono" style={{ background: LATTICE.accent + '15', color: LATTICE.accent }}>
+                  {caseBySeverity.length}
                 </span>
               </div>
-              <button onClick={() => navigate('/v3/cases')} className="text-[10px] flex items-center gap-1 hover:underline" style={{ color: 'var(--v3-accent)' }}>
-                All Cases <ArrowRight size={10} />
+              <button onClick={() => navigate('/v3/cases')} className="text-[10px] font-semibold flex items-center gap-1" style={{ color: LATTICE.accent }}>
+                View All <ChevronRight size={12} />
               </button>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-[11px]">
-                <thead>
-                  <tr style={{ borderBottom: '1px solid var(--v3-border)', background: 'rgba(255,255,255,0.02)' }}>
-                    {['ID', 'Applicant', 'Nationality', 'Risk', 'Score', 'Status', 'Date'].map(h => (
-                      <th key={h} className="px-3 py-2 text-left font-bold tracking-wide" style={{ color: 'var(--v3-text-muted)', fontSize: '9px', letterSpacing: '0.1em' }}>{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {cases.slice(0, 8).map((c, i) => (
-                    <tr
-                      key={c.id}
-                      onClick={() => navigate(`/v3/cases/${c.id}`)}
-                      className="cursor-pointer transition-colors hover:bg-white/[0.03]"
-                      style={{ borderBottom: '1px solid var(--v3-border)', animationDelay: `${i * 30}ms` }}
+
+            <div className="divide-y" style={{ borderColor: LATTICE.border }}>
+              {caseBySeverity.slice(0, 7).map((c: any) => {
+                const riskColor = c.risk_level === 'critical' ? LATTICE.red
+                  : c.risk_level === 'high' ? LATTICE.amber
+                  : c.risk_level === 'medium' ? LATTICE.sand
+                  : LATTICE.accent;
+                return (
+                  <div
+                    key={c.id}
+                    onClick={() => navigate(`/v3/cases/${c.id}`)}
+                    className="flex items-center gap-4 px-5 py-3 cursor-pointer transition-all hover:bg-white/[0.02]"
+                    style={{ borderColor: LATTICE.border }}
+                  >
+                    {/* Severity indicator */}
+                    <div className="w-1 h-8 rounded-full shrink-0" style={{ background: riskColor }} />
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-xs font-semibold" style={{ color: LATTICE.text }}>
+                          {c.applicant.firstName} {c.applicant.lastName}
+                        </span>
+                        <span className="text-[10px] font-mono" style={{ color: LATTICE.textMuted }}>{c.case_id}</span>
+                      </div>
+                      <div className="text-[10px]" style={{ color: LATTICE.textMuted }}>
+                        {c.applicant.nationality} → {c.travel_destination} · {c.consulate_location}
+                      </div>
+                    </div>
+
+                    {/* Risk score bar */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="w-20 h-2 rounded-full overflow-hidden" style={{ background: LATTICE.border }}>
+                        <div className="h-full rounded-full transition-all" style={{ width: `${c.risk_score}%`, background: riskColor }} />
+                      </div>
+                      <span className="text-[10px] font-mono font-bold w-6 text-right" style={{ color: riskColor }}>{c.risk_score}</span>
+                    </div>
+
+                    {/* Status chip */}
+                    <span
+                      className="text-[9px] font-bold uppercase px-2.5 py-1 rounded-full shrink-0"
+                      style={{
+                        background: c.status === 'escalated' ? LATTICE.red + '15' : c.status === 'approved' ? LATTICE.green + '15' : LATTICE.surfaceAlt,
+                        color: c.status === 'escalated' ? LATTICE.red : c.status === 'approved' ? LATTICE.green : LATTICE.textDim,
+                      }}
                     >
-                      <td className="px-3 py-2 font-mono font-bold" style={{ color: 'var(--v3-accent)' }}>{c.case_id}</td>
-                      <td className="px-3 py-2 font-medium" style={{ color: 'var(--v3-text)' }}>{c.applicant.firstName} {c.applicant.lastName}</td>
-                      <td className="px-3 py-2 font-mono" style={{ color: 'var(--v3-text-secondary)' }}>{c.applicant.nationality}</td>
-                      <td className="px-3 py-2"><RiskBadge level={c.risk_level as any} /></td>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-12 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--v3-border)' }}>
-                            <div
-                              className="h-full rounded-full"
-                              style={{
-                                width: `${c.risk_score}%`,
-                                background: c.risk_score < 30 ? 'var(--v3-green)' : c.risk_score < 60 ? 'var(--v3-amber)' : 'var(--v3-red)',
-                              }}
-                            />
-                          </div>
-                          <span className="font-mono text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>{c.risk_score}</span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2"><StatusBadge status={c.status as any} /></td>
-                      <td className="px-3 py-2 font-mono" style={{ color: 'var(--v3-text-muted)' }}>{c.application_date?.slice(5, 10)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      {c.status}
+                    </span>
+
+                    <ChevronRight size={14} style={{ color: LATTICE.textMuted }} />
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          {/* Right Column — 4 cols */}
-          <div className="col-span-4 space-y-3">
-            {/* Risk Donut */}
-            <div
-              className="border rounded-none p-4"
-              style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-            >
-              <span className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: 'var(--v3-text-muted)' }}>
-                Risk Distribution
-              </span>
-              <div className="flex items-center gap-4 mt-3">
-                <div className="w-24 h-24">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie data={riskDist} dataKey="value" cx="50%" cy="50%" innerRadius={28} outerRadius={42} paddingAngle={2} strokeWidth={0}>
-                        {riskDist.map((d, i) => <Cell key={i} fill={d.color} />)}
-                      </Pie>
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-                <div className="space-y-1.5">
-                  {riskDist.map(d => (
-                    <div key={d.name} className="flex items-center gap-2 text-[10px]">
-                      <span className="w-2 h-2 rounded-sm" style={{ background: d.color }} />
-                      <span style={{ color: 'var(--v3-text-secondary)' }}>{d.name}</span>
-                      <span className="font-mono font-bold ml-auto" style={{ color: d.color }}>{d.value}</span>
+          {/* Right panel */}
+          <div className="space-y-4">
+            {/* Risk Breakdown — Horizontal stacked */}
+            <div className="rounded-lg border p-5" style={{ background: LATTICE.surface, borderColor: LATTICE.border }}>
+              <div className="flex items-center gap-2 mb-4">
+                <BarChart3 size={14} style={{ color: LATTICE.accent }} />
+                <span className="text-xs font-bold" style={{ color: LATTICE.text }}>Risk Analysis</span>
+              </div>
+
+              {/* Stacked horizontal bar */}
+              <div className="h-6 rounded-lg overflow-hidden flex mb-4" style={{ background: LATTICE.border }}>
+                {[
+                  { val: stats?.risk_distribution?.critical ?? 0, color: LATTICE.red },
+                  { val: stats?.risk_distribution?.high ?? 0, color: LATTICE.amber },
+                  { val: stats?.risk_distribution?.medium ?? 0, color: LATTICE.sand },
+                  { val: stats?.risk_distribution?.low ?? 0, color: LATTICE.green },
+                ].map((seg, i) => {
+                  const total = stats?.total_cases ?? 1;
+                  const w = Math.max(0, (seg.val / total) * 100);
+                  return w > 0 ? (
+                    <div
+                      key={i}
+                      className="h-full transition-all duration-700 flex items-center justify-center text-[8px] font-bold"
+                      style={{ width: `${w}%`, background: seg.color, color: '#000', minWidth: '16px' }}
+                    >
+                      {seg.val}
                     </div>
-                  ))}
-                </div>
+                  ) : null;
+                })}
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: 'Critical', val: stats?.risk_distribution?.critical ?? 0, color: LATTICE.red },
+                  { label: 'High', val: stats?.risk_distribution?.high ?? 0, color: LATTICE.amber },
+                  { label: 'Medium', val: stats?.risk_distribution?.medium ?? 0, color: LATTICE.sand },
+                  { label: 'Low', val: stats?.risk_distribution?.low ?? 0, color: LATTICE.green },
+                ].map(r => (
+                  <div key={r.label} className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-sm" style={{ background: r.color }} />
+                    <span className="text-[10px]" style={{ color: LATTICE.textDim }}>{r.label}</span>
+                    <span className="text-[10px] font-bold font-mono ml-auto" style={{ color: LATTICE.text }}>{r.val}</span>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* Activity Feed */}
-            <div
-              className="border rounded-none overflow-hidden"
-              style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-            >
-              <div className="px-4 py-2.5 border-b flex items-center gap-2" style={{ borderColor: 'var(--v3-border)' }}>
-                <Activity size={12} style={{ color: 'var(--v3-accent)' }} />
-                <span className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: 'var(--v3-text-muted)' }}>
-                  Live Feed
-                </span>
+            {/* Activity */}
+            <div className="rounded-lg border overflow-hidden" style={{ background: LATTICE.surface, borderColor: LATTICE.border }}>
+              <div className="px-5 py-3 border-b flex items-center gap-2" style={{ borderColor: LATTICE.border }}>
+                <Activity size={14} style={{ color: LATTICE.accent }} />
+                <span className="text-xs font-bold" style={{ color: LATTICE.text }}>Operations Log</span>
               </div>
-              <div className="max-h-52 overflow-y-auto v3-scrollbar">
-                {(stats?.recent_activity || []).slice(0, 8).map(entry => (
-                  <div
-                    key={entry.id}
-                    className="flex items-start gap-2.5 px-4 py-2 border-b hover:bg-white/[0.02] transition-colors"
-                    style={{ borderColor: 'var(--v3-border)' }}
-                  >
-                    <div className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ background: 'var(--v3-accent)' }} />
+              <div className="max-h-60 overflow-y-auto" style={{ scrollbarWidth: 'thin', scrollbarColor: `${LATTICE.border} transparent` }}>
+                {(stats?.recent_activity || []).slice(0, 8).map((entry: any) => (
+                  <div key={entry.id} className="flex items-start gap-3 px-5 py-2.5 border-b hover:bg-white/[0.01] transition-colors" style={{ borderColor: LATTICE.border }}>
+                    <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: LATTICE.accent }} />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[10px] leading-relaxed truncate" style={{ color: 'var(--v3-text-secondary)' }}>{entry.description}</p>
+                      <p className="text-[11px] leading-relaxed" style={{ color: LATTICE.textDim }}>{entry.description}</p>
                     </div>
-                    <span className="text-[9px] font-mono shrink-0" style={{ color: 'var(--v3-text-muted)' }}>
+                    <span className="text-[9px] font-mono shrink-0 mt-0.5" style={{ color: LATTICE.textMuted }}>
                       {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
@@ -297,463 +620,335 @@ function DashboardA({ stats, cases, navigate }: DashboardProps) {
   );
 }
 
-/* ─────────────────────────────────────────────────
-   ALTERNATIVE B — "SITUATION ROOM"
-   Military C2 × Air Traffic Control
-   Central risk gauge, status columns, officer view
-   ───────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════
+   VARIANT C — "MERCURY"
+   Stripe Dashboard × Linear × Vercel
+   Ultra-clean, generous spacing, subtle gradients,
+   prominent numbers, glass morphism hints,
+   rounded corners, soft shadows, purple-blue accent
+   ═══════════════════════════════════════════════════ */
 
-function DashboardB({ stats, cases, navigate }: DashboardProps) {
-  const statusGroups = useMemo(() => {
-    const groups: Record<string, typeof cases> = { new: [], in_review: [], escalated: [], approved: [] };
-    cases.forEach(c => {
-      const key = c.status in groups ? c.status : 'new';
-      groups[key].push(c);
-    });
-    return groups;
-  }, [cases]);
+const MERCURY = {
+  bg: '#09090b',
+  surface: '#18181b',
+  surfaceHover: '#27272a',
+  border: '#27272a',
+  borderHover: '#3f3f46',
+  accent: '#a78bfa',
+  accentDim: '#7c3aed',
+  blue: '#60a5fa',
+  green: '#4ade80',
+  amber: '#fbbf24',
+  red: '#f87171',
+  text: '#fafafa',
+  textDim: '#a1a1aa',
+  textMuted: '#52525b',
+};
 
-  const avgRisk = useMemo(() => {
-    if (cases.length === 0) return 0;
-    return Math.round(cases.reduce((s, c) => s + c.risk_score, 0) / cases.length);
-  }, [cases]);
-
-  const riskColor = avgRisk < 30 ? 'var(--v3-green)' : avgRisk < 50 ? 'var(--v3-amber)' : avgRisk < 70 ? '#F97316' : 'var(--v3-red)';
-
-  return (
-    <div className="p-5 space-y-4">
-      {/* ── Top Section: Central gauge + flanking metrics ── */}
-      <div className="grid grid-cols-12 gap-4">
-        {/* Left metrics */}
-        <div className="col-span-3 space-y-3">
-          {[
-            { label: 'Total Cases', value: stats?.total_cases ?? 0, icon: Briefcase, color: 'var(--v3-accent)' },
-            { label: 'Pending Review', value: stats?.pending_review ?? 0, icon: Clock, color: 'var(--v3-amber)' },
-          ].map(m => (
-            <div
-              key={m.label}
-              className="border rounded-none p-4"
-              style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <m.icon size={14} style={{ color: m.color }} />
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--v3-text-muted)' }}>{m.label}</span>
-              </div>
-              <div className="text-3xl font-bold font-mono" style={{ color: 'var(--v3-text)' }}>{fmt(m.value)}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Center — Threat Level Gauge */}
-        <div className="col-span-6">
-          <div
-            className="border rounded-none p-6 flex flex-col items-center justify-center h-full relative"
-            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-          >
-            <div className="absolute top-4 left-5 flex items-center gap-2">
-              <Crosshair size={12} style={{ color: riskColor }} />
-              <span className="text-[9px] font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--v3-text-muted)' }}>
-                AGGREGATE THREAT LEVEL
-              </span>
-            </div>
-            <RiskScoreCircle score={avgRisk} size="lg" />
-            <div className="mt-3 text-center">
-              <div className="text-xs font-bold uppercase tracking-widest" style={{ color: riskColor }}>
-                {avgRisk < 30 ? 'LOW' : avgRisk < 50 ? 'MODERATE' : avgRisk < 70 ? 'ELEVATED' : 'SEVERE'}
-              </div>
-              <div className="text-[10px] mt-1" style={{ color: 'var(--v3-text-muted)' }}>
-                Across {stats?.total_cases ?? 0} active cases
-              </div>
-            </div>
-
-            {/* Risk bar at bottom */}
-            <div className="absolute bottom-4 left-5 right-5">
-              <div className="flex h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--v3-border)' }}>
-                {[
-                  { pct: pct(stats?.risk_distribution.low ?? 0, stats?.total_cases ?? 1), color: 'var(--v3-green)' },
-                  { pct: pct(stats?.risk_distribution.medium ?? 0, stats?.total_cases ?? 1), color: 'var(--v3-amber)' },
-                  { pct: pct(stats?.risk_distribution.high ?? 0, stats?.total_cases ?? 1), color: '#F97316' },
-                  { pct: pct(stats?.risk_distribution.critical ?? 0, stats?.total_cases ?? 1), color: 'var(--v3-red)' },
-                ].map((seg, i) => (
-                  <div key={i} style={{ width: `${seg.pct}%`, background: seg.color, minWidth: seg.pct > 0 ? '2px' : '0' }} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Right metrics */}
-        <div className="col-span-3 space-y-3">
-          {[
-            { label: 'High Risk', value: stats?.high_risk ?? 0, icon: AlertTriangle, color: 'var(--v3-red)' },
-            { label: 'Cleared Today', value: stats?.approved_today ?? 0, icon: CheckCircle, color: 'var(--v3-green)' },
-          ].map(m => (
-            <div
-              key={m.label}
-              className="border rounded-none p-4"
-              style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <m.icon size={14} style={{ color: m.color }} />
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--v3-text-muted)' }}>{m.label}</span>
-              </div>
-              <div className="text-3xl font-bold font-mono" style={{ color: m.value > 0 && m.color === 'var(--v3-red)' ? m.color : 'var(--v3-text)' }}>
-                {fmt(m.value)}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── Status Columns — Kanban-style ── */}
-      <div className="grid grid-cols-4 gap-3">
-        {[
-          { key: 'new', label: 'INCOMING', color: 'var(--v3-text-secondary)', icon: Layers },
-          { key: 'in_review', label: 'IN REVIEW', color: 'var(--v3-amber)', icon: Eye },
-          { key: 'escalated', label: 'ESCALATED', color: 'var(--v3-red)', icon: AlertTriangle },
-          { key: 'approved', label: 'CLEARED', color: 'var(--v3-green)', icon: CheckCircle },
-        ].map(col => (
-          <div
-            key={col.key}
-            className="border rounded-none overflow-hidden"
-            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-          >
-            <div className="px-3 py-2 border-b flex items-center justify-between" style={{ borderColor: 'var(--v3-border)' }}>
-              <div className="flex items-center gap-2">
-                <col.icon size={12} style={{ color: col.color }} />
-                <span className="text-[9px] font-bold tracking-[0.15em]" style={{ color: col.color }}>{col.label}</span>
-              </div>
-              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--v3-text-secondary)' }}>
-                {(statusGroups[col.key] || []).length}
-              </span>
-            </div>
-            <div className="max-h-48 overflow-y-auto v3-scrollbar p-2 space-y-1.5">
-              {(statusGroups[col.key] || []).slice(0, 5).map(c => (
-                <div
-                  key={c.id}
-                  onClick={() => navigate(`/v3/cases/${c.id}`)}
-                  className="p-2 rounded-sm border cursor-pointer transition-all hover:border-[var(--v3-border-hover)] hover:bg-white/[0.02]"
-                  style={{ borderColor: 'var(--v3-border)' }}
-                >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-mono font-bold" style={{ color: 'var(--v3-accent)' }}>{c.case_id}</span>
-                    <RiskBadge level={c.risk_level as any} />
-                  </div>
-                  <span className="text-[10px]" style={{ color: 'var(--v3-text-secondary)' }}>
-                    {c.applicant.firstName} {c.applicant.lastName}
-                  </span>
-                </div>
-              ))}
-              {(statusGroups[col.key] || []).length === 0 && (
-                <div className="text-center py-6 text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>Empty</div>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── Bottom: Activity ── */}
-      <div
-        className="border rounded-none overflow-hidden"
-        style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-      >
-        <div className="px-4 py-2.5 border-b flex items-center gap-2" style={{ borderColor: 'var(--v3-border)' }}>
-          <Activity size={12} style={{ color: 'var(--v3-accent)' }} />
-          <span className="text-[9px] font-bold tracking-[0.15em] uppercase" style={{ color: 'var(--v3-text-muted)' }}>
-            Operations Log
-          </span>
-        </div>
-        <div className="grid grid-cols-2 divide-x" style={{ borderColor: 'var(--v3-border)' }}>
-          <div className="max-h-40 overflow-y-auto v3-scrollbar" style={{ borderColor: 'var(--v3-border)' }}>
-            {(stats?.recent_activity || []).slice(0, 6).map(entry => (
-              <div key={entry.id} className="flex items-center gap-3 px-4 py-2 border-b transition-colors hover:bg-white/[0.02]" style={{ borderColor: 'var(--v3-border)' }}>
-                <div className="w-1 h-1 rounded-full shrink-0" style={{ background: 'var(--v3-accent)' }} />
-                <p className="text-[10px] flex-1 truncate" style={{ color: 'var(--v3-text-secondary)' }}>{entry.description}</p>
-                <span className="text-[9px] font-mono shrink-0" style={{ color: 'var(--v3-text-muted)' }}>
-                  {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-            ))}
-          </div>
-          <div className="max-h-40 overflow-y-auto v3-scrollbar" style={{ borderColor: 'var(--v3-border)' }}>
-            {(stats?.recent_activity || []).slice(6, 12).map(entry => (
-              <div key={entry.id} className="flex items-center gap-3 px-4 py-2 border-b transition-colors hover:bg-white/[0.02]" style={{ borderColor: 'var(--v3-border)' }}>
-                <div className="w-1 h-1 rounded-full shrink-0" style={{ background: 'var(--v3-accent)' }} />
-                <p className="text-[10px] flex-1 truncate" style={{ color: 'var(--v3-text-secondary)' }}>{entry.description}</p>
-                <span className="text-[9px] font-mono shrink-0" style={{ color: 'var(--v3-text-muted)' }}>
-                  {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────────────────────────────
-   ALTERNATIVE C — "ANALYST WORKSPACE"
-   Linear × Notion × Stripe
-   Clean, scannable, card-based, search-first
-   ───────────────────────────────────────────────── */
-
-function DashboardC({ stats, cases, navigate }: DashboardProps) {
-  const [view, setView] = useState<'overview' | 'risk'>('overview');
-
-  const riskDist = useMemo(() => {
+function MercuryDashboard({ stats, cases, navigate }: DashboardProps) {
+  const riskData = useMemo(() => {
     if (!stats) return [];
     return [
-      { name: 'Low', value: stats.risk_distribution.low || 0, color: 'var(--v3-green)' },
-      { name: 'Medium', value: stats.risk_distribution.medium || 0, color: 'var(--v3-amber)' },
-      { name: 'High', value: stats.risk_distribution.high || 0, color: '#F97316' },
-      { name: 'Critical', value: stats.risk_distribution.critical || 0, color: 'var(--v3-red)' },
+      { name: 'Low', value: stats.risk_distribution.low || 0, fill: MERCURY.green },
+      { name: 'Medium', value: stats.risk_distribution.medium || 0, fill: MERCURY.amber },
+      { name: 'High', value: stats.risk_distribution.high || 0, fill: '#fb923c' },
+      { name: 'Critical', value: stats.risk_distribution.critical || 0, fill: MERCURY.red },
     ];
   }, [stats]);
 
-  const barData = riskDist.map(d => ({ name: d.name, value: d.value }));
+  const trendData = useMemo(() => {
+    return Array.from({ length: 7 }, (_, i) => ({
+      day: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i],
+      cases: Math.floor(Math.random() * 10 + 3),
+      risk: Math.floor(Math.random() * 6 + 1),
+    }));
+  }, []);
 
   return (
-    <div className="p-5 space-y-5">
-      {/* ── Header with inline tabs ── */}
-      <div className="flex items-center justify-between">
+    <div className="h-full overflow-y-auto" style={{ background: MERCURY.bg, fontFamily: "'Inter', system-ui, sans-serif", scrollbarWidth: 'thin', scrollbarColor: `${MERCURY.border} transparent` }}>
+      <div className="max-w-6xl mx-auto px-8 py-8 space-y-8">
+        {/* ── HEADER ── */}
         <div>
-          <h1 className="text-lg font-bold" style={{ color: 'var(--v3-text)' }}>Intelligence Overview</h1>
-          <p className="text-[11px] mt-0.5" style={{ color: 'var(--v3-text-muted)' }}>
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          <h1 className="text-2xl font-semibold tracking-tight" style={{ color: MERCURY.text }}>
+            Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}
+          </h1>
+          <p className="text-sm mt-1" style={{ color: MERCURY.textMuted }}>
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} · {stats?.total_cases ?? 0} active cases
           </p>
         </div>
-        <div className="flex gap-1 p-0.5 rounded-md border" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
-          {['overview', 'risk'].map(v => (
-            <button
-              key={v}
-              onClick={() => setView(v as any)}
-              className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest rounded-sm transition-colors"
-              style={{
-                background: view === v ? 'var(--v3-surface)' : 'transparent',
-                color: view === v ? 'var(--v3-text)' : 'var(--v3-text-muted)',
-              }}
+
+        {/* ── BENTO GRID ── */}
+        <div className="grid grid-cols-4 gap-4">
+          {[
+            {
+              label: 'Total Cases', value: stats?.total_cases ?? 0, sub: 'All investigations',
+              gradient: `linear-gradient(135deg, ${MERCURY.accent}08, ${MERCURY.blue}08)`,
+              iconBg: MERCURY.accent, icon: Briefcase,
+            },
+            {
+              label: 'Pending Review', value: stats?.pending_review ?? 0, sub: 'Awaiting decision',
+              gradient: `linear-gradient(135deg, ${MERCURY.amber}08, ${MERCURY.amber}04)`,
+              iconBg: MERCURY.amber, icon: Clock,
+            },
+            {
+              label: 'High Risk', value: stats?.high_risk ?? 0, sub: 'Flagged entities',
+              gradient: `linear-gradient(135deg, ${MERCURY.red}08, ${MERCURY.red}04)`,
+              iconBg: MERCURY.red, icon: AlertTriangle,
+            },
+            {
+              label: 'Approved', value: stats?.approved_today ?? 0, sub: 'Cases cleared',
+              gradient: `linear-gradient(135deg, ${MERCURY.green}08, ${MERCURY.green}04)`,
+              iconBg: MERCURY.green, icon: CheckCircle,
+            },
+          ].map(m => (
+            <div
+              key={m.label}
+              className="rounded-xl p-5 border transition-all duration-200 hover:border-[#3f3f46] group"
+              style={{ background: m.gradient, borderColor: MERCURY.border }}
             >
-              {v}
-            </button>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-[11px] font-medium" style={{ color: MERCURY.textDim }}>{m.label}</span>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: m.iconBg + '15' }}>
+                  <m.icon size={15} style={{ color: m.iconBg }} />
+                </div>
+              </div>
+              <div className="text-3xl font-semibold tracking-tight" style={{ color: MERCURY.text }}>{m.value}</div>
+              <div className="text-[10px] mt-1" style={{ color: MERCURY.textMuted }}>{m.sub}</div>
+            </div>
           ))}
         </div>
-      </div>
 
-      {view === 'overview' ? (
-        <>
-          {/* ── Metric Cards — 2-row layout ── */}
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { label: 'Total Cases', value: stats?.total_cases ?? 0, sub: 'All time', icon: Briefcase, color: 'var(--v3-accent)' },
-              { label: 'Awaiting Review', value: stats?.pending_review ?? 0, sub: 'Action needed', icon: Clock, color: 'var(--v3-amber)' },
-              { label: 'High Risk', value: stats?.high_risk ?? 0, sub: 'Requires attention', icon: Shield, color: 'var(--v3-red)' },
-              { label: 'Cleared', value: stats?.approved_today ?? 0, sub: 'Approved', icon: CheckCircle, color: 'var(--v3-green)' },
-            ].map(m => (
-              <div
-                key={m.label}
-                className="border rounded-md p-4 group cursor-default transition-all hover:border-[var(--v3-border-hover)]"
-                style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-md flex items-center justify-center" style={{ background: `${m.color}15` }}>
-                    <m.icon size={14} style={{ color: m.color }} />
-                  </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--v3-text-muted)' }}>{m.label}</span>
-                </div>
-                <div className="text-2xl font-bold font-mono" style={{ color: 'var(--v3-text)' }}>{fmt(m.value)}</div>
-                <div className="text-[10px] mt-1" style={{ color: 'var(--v3-text-muted)' }}>{m.sub}</div>
+        {/* ── MIDDLE ROW ── */}
+        <div className="grid grid-cols-5 gap-4">
+          {/* Weekly Trend — 3 cols */}
+          <div className="col-span-3 rounded-xl border p-5" style={{ background: MERCURY.surface, borderColor: MERCURY.border }}>
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm font-semibold" style={{ color: MERCURY.text }}>Weekly Trend</span>
+              <div className="flex gap-4 text-[10px]">
+                <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: MERCURY.accent }} />Cases</span>
+                <span className="flex items-center gap-1.5" style={{ color: MERCURY.textMuted }}><span className="w-2 h-2 rounded-full" style={{ background: MERCURY.red }} />High Risk</span>
               </div>
-            ))}
+            </div>
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={trendData}>
+                  <defs>
+                    <linearGradient id="mercGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={MERCURY.accent} stopOpacity={0.2} />
+                      <stop offset="100%" stopColor={MERCURY.accent} stopOpacity={0} />
+                    </linearGradient>
+                    <linearGradient id="mercRedGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor={MERCURY.red} stopOpacity={0.15} />
+                      <stop offset="100%" stopColor={MERCURY.red} stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="day" tick={{ fontSize: 10, fill: MERCURY.textMuted }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 10, fill: MERCURY.textMuted }} axisLine={false} tickLine={false} width={24} />
+                  <Tooltip
+                    contentStyle={{ background: MERCURY.surface, border: `1px solid ${MERCURY.border}`, borderRadius: '8px', fontSize: '11px', color: MERCURY.text }}
+                  />
+                  <Area type="monotone" dataKey="cases" stroke={MERCURY.accent} fill="url(#mercGrad)" strokeWidth={2} dot={false} />
+                  <Area type="monotone" dataKey="risk" stroke={MERCURY.red} fill="url(#mercRedGrad)" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </div>
 
-          {/* ── Case Cards — Clean list ── */}
-          <div
-            className="border rounded-md overflow-hidden"
-            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-          >
-            <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'var(--v3-border)' }}>
-              <span className="text-xs font-bold" style={{ color: 'var(--v3-text)' }}>Recent Cases</span>
-              <button onClick={() => navigate('/v3/cases')} className="text-[10px] font-medium flex items-center gap-1" style={{ color: 'var(--v3-accent)' }}>
-                View all <ChevronRight size={12} />
-              </button>
+          {/* Risk Distribution — 2 cols */}
+          <div className="col-span-2 rounded-xl border p-5" style={{ background: MERCURY.surface, borderColor: MERCURY.border }}>
+            <span className="text-sm font-semibold" style={{ color: MERCURY.text }}>Risk Distribution</span>
+            <div className="flex items-center gap-6 mt-4">
+              <div className="w-32 h-32">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={riskData} dataKey="value" cx="50%" cy="50%" innerRadius={36} outerRadius={56} paddingAngle={3} strokeWidth={0}>
+                      {riskData.map((d, i) => <Cell key={i} fill={d.fill} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex-1 space-y-3">
+                {riskData.map(d => {
+                  const total = stats?.total_cases ?? 1;
+                  const pctVal = Math.round((d.value / total) * 100);
+                  return (
+                    <div key={d.name}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-medium flex items-center gap-2" style={{ color: MERCURY.textDim }}>
+                          <span className="w-2 h-2 rounded-full" style={{ background: d.fill }} />
+                          {d.name}
+                        </span>
+                        <span className="text-[11px] font-semibold font-mono" style={{ color: MERCURY.text }}>{d.value}</span>
+                      </div>
+                      <div className="h-1 rounded-full overflow-hidden" style={{ background: MERCURY.border }}>
+                        <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pctVal}%`, background: d.fill }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <div className="divide-y" style={{ borderColor: 'var(--v3-border)' }}>
-              {cases.slice(0, 6).map(c => (
+          </div>
+        </div>
+
+        {/* ── CASES LIST ── */}
+        <div className="rounded-xl border overflow-hidden" style={{ background: MERCURY.surface, borderColor: MERCURY.border }}>
+          <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: MERCURY.border }}>
+            <span className="text-sm font-semibold" style={{ color: MERCURY.text }}>Recent Cases</span>
+            <button onClick={() => navigate('/v3/cases')} className="text-[11px] font-medium flex items-center gap-1 hover:gap-2 transition-all" style={{ color: MERCURY.accent }}>
+              View all cases <ArrowRight size={12} />
+            </button>
+          </div>
+          <div>
+            {cases.slice(0, 6).map((c: any, i: number) => {
+              const riskColor = c.risk_level === 'critical' ? MERCURY.red
+                : c.risk_level === 'high' ? '#fb923c'
+                : c.risk_level === 'medium' ? MERCURY.amber
+                : MERCURY.green;
+              return (
                 <div
                   key={c.id}
                   onClick={() => navigate(`/v3/cases/${c.id}`)}
-                  className="flex items-center gap-4 px-5 py-3 cursor-pointer transition-colors hover:bg-white/[0.02]"
-                  style={{ borderColor: 'var(--v3-border)' }}
+                  className="flex items-center gap-5 px-6 py-3.5 border-b cursor-pointer transition-all hover:bg-white/[0.02]"
+                  style={{ borderColor: MERCURY.border }}
                 >
-                  {/* Risk indicator dot */}
+                  {/* Avatar/initials */}
                   <div
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{
-                      background: c.risk_level === 'low' ? 'var(--v3-green)' :
-                        c.risk_level === 'medium' ? 'var(--v3-amber)' :
-                        c.risk_level === 'high' ? '#F97316' : 'var(--v3-red)'
-                    }}
-                  />
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0"
+                    style={{ background: `${riskColor}15`, color: riskColor }}
+                  >
+                    {c.applicant.firstName?.[0]}{c.applicant.lastName?.[0]}
+                  </div>
+
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium" style={{ color: 'var(--v3-text)' }}>
+                      <span className="text-[13px] font-medium" style={{ color: MERCURY.text }}>
                         {c.applicant.firstName} {c.applicant.lastName}
                       </span>
-                      <span className="text-[10px] font-mono" style={{ color: 'var(--v3-text-muted)' }}>{c.case_id}</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded" style={{ background: MERCURY.surfaceHover, color: MERCURY.textMuted }}>
+                        {c.case_id}
+                      </span>
                     </div>
-                    <span className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>
-                      {c.applicant.nationality} → {c.travel_destination} · {c.consulate_location}
+                    <span className="text-[10px]" style={{ color: MERCURY.textMuted }}>
+                      {c.applicant.nationality} → {c.travel_destination}
                     </span>
                   </div>
-                  <StatusBadge status={c.status as any} />
-                  <RiskBadge level={c.risk_level as any} />
-                  <span className="text-[10px] font-mono shrink-0" style={{ color: 'var(--v3-text-muted)' }}>
-                    {c.application_date?.slice(0, 10)}
-                  </span>
-                  <ChevronRight size={14} style={{ color: 'var(--v3-text-muted)' }} />
-                </div>
-              ))}
-            </div>
-          </div>
 
-          {/* ── Activity — Minimal ── */}
-          <div
-            className="border rounded-md overflow-hidden"
-            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-          >
-            <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--v3-border)' }}>
-              <span className="text-xs font-bold" style={{ color: 'var(--v3-text)' }}>Activity</span>
-            </div>
-            <div className="max-h-48 overflow-y-auto v3-scrollbar divide-y" style={{ borderColor: 'var(--v3-border)' }}>
-              {(stats?.recent_activity || []).slice(0, 8).map(entry => (
-                <div key={entry.id} className="flex items-center gap-3 px-5 py-2.5 hover:bg-white/[0.02] transition-colors" style={{ borderColor: 'var(--v3-border)' }}>
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: 'var(--v3-accent-muted)' }}>
-                    <Activity size={10} style={{ color: 'var(--v3-accent)' }} />
+                  {/* Score */}
+                  <div className="flex items-center gap-3 shrink-0">
+                    <div className="text-right">
+                      <div className="text-[10px]" style={{ color: MERCURY.textMuted }}>Risk Score</div>
+                      <div className="text-sm font-semibold font-mono" style={{ color: riskColor }}>{c.risk_score}</div>
+                    </div>
+                    <div className="w-8 h-8 rounded-full relative">
+                      <svg width={32} height={32} className="-rotate-90">
+                        <circle cx={16} cy={16} r={13} fill="none" stroke={MERCURY.border} strokeWidth={2} />
+                        <circle
+                          cx={16} cy={16} r={13} fill="none" stroke={riskColor} strokeWidth={2}
+                          strokeDasharray={`${(c.risk_score / 100) * 81.7} 81.7`}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </div>
                   </div>
-                  <p className="text-[11px] flex-1" style={{ color: 'var(--v3-text-secondary)' }}>{entry.description}</p>
-                  <span className="text-[10px] font-mono" style={{ color: 'var(--v3-text-muted)' }}>
-                    {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      ) : (
-        /* ── Risk Analysis View ── */
-        <>
-          <div className="grid grid-cols-2 gap-4">
-            {/* Risk Bar Chart */}
-            <div
-              className="border rounded-md p-5"
-              style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-            >
-              <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--v3-text-muted)' }}>
-                Distribution by Level
-              </span>
-              <div className="h-56 mt-3">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barData} barSize={32}>
-                    <XAxis dataKey="name" tick={{ fontSize: 10, fill: 'var(--v3-text-muted)' }} axisLine={false} tickLine={false} />
-                    <YAxis tick={{ fontSize: 10, fill: 'var(--v3-text-muted)' }} axisLine={false} tickLine={false} />
-                    <Tooltip
-                      cursor={{ fill: 'rgba(255,255,255,0.03)' }}
-                      contentStyle={{ background: 'var(--v3-surface)', border: '1px solid var(--v3-border)', borderRadius: '4px', fontSize: '11px', color: 'var(--v3-text)' }}
-                    />
-                    <Bar dataKey="value" radius={[2, 2, 0, 0]}>
-                      {riskDist.map((d, i) => <Cell key={i} fill={d.color} />)}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
 
-            {/* Highest risk cases */}
-            <div
-              className="border rounded-md overflow-hidden"
-              style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
-            >
-              <div className="px-5 py-3 border-b" style={{ borderColor: 'var(--v3-border)' }}>
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--v3-text-muted)' }}>
-                  Highest Risk Cases
+                  {/* Status */}
+                  <span
+                    className="text-[10px] font-medium px-3 py-1 rounded-full shrink-0 capitalize"
+                    style={{
+                      background: c.status === 'approved' ? MERCURY.green + '12' : c.status === 'escalated' ? MERCURY.red + '12' : MERCURY.surfaceHover,
+                      color: c.status === 'approved' ? MERCURY.green : c.status === 'escalated' ? MERCURY.red : MERCURY.textDim,
+                    }}
+                  >
+                    {c.status?.replace('_', ' ')}
+                  </span>
+
+                  <ChevronRight size={14} style={{ color: MERCURY.textMuted }} />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── ACTIVITY ── */}
+        <div className="rounded-xl border overflow-hidden" style={{ background: MERCURY.surface, borderColor: MERCURY.border }}>
+          <div className="px-6 py-4 border-b" style={{ borderColor: MERCURY.border }}>
+            <span className="text-sm font-semibold" style={{ color: MERCURY.text }}>Activity</span>
+          </div>
+          <div className="divide-y" style={{ borderColor: MERCURY.border }}>
+            {(stats?.recent_activity || []).slice(0, 6).map((entry: any) => (
+              <div key={entry.id} className="flex items-center gap-4 px-6 py-3 hover:bg-white/[0.01] transition-colors" style={{ borderColor: MERCURY.border }}>
+                <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: MERCURY.accent + '12' }}>
+                  <Activity size={12} style={{ color: MERCURY.accent }} />
+                </div>
+                <p className="text-[11px] flex-1" style={{ color: MERCURY.textDim }}>{entry.description}</p>
+                <span className="text-[10px] font-mono" style={{ color: MERCURY.textMuted }}>
+                  {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
-              <div className="divide-y" style={{ borderColor: 'var(--v3-border)' }}>
-                {[...cases].sort((a, b) => b.risk_score - a.risk_score).slice(0, 6).map(c => (
-                  <div
-                    key={c.id}
-                    onClick={() => navigate(`/v3/cases/${c.id}`)}
-                    className="flex items-center gap-4 px-5 py-3 cursor-pointer hover:bg-white/[0.02] transition-colors"
-                    style={{ borderColor: 'var(--v3-border)' }}
-                  >
-                    <RiskScoreCircle score={c.risk_score} size="sm" />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs font-medium" style={{ color: 'var(--v3-text)' }}>
-                        {c.applicant.firstName} {c.applicant.lastName}
-                      </span>
-                      <div className="text-[10px] font-mono" style={{ color: 'var(--v3-text-muted)' }}>{c.case_id}</div>
-                    </div>
-                    <RiskBadge level={c.risk_level as any} />
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
-        </>
-      )}
+        </div>
+
+        <div className="h-8" />
+      </div>
     </div>
   );
 }
 
-/* ─── SHARED TYPES ─── */
-interface DashboardProps {
-  stats: any;
-  cases: any[];
-  navigate: (path: string) => void;
+/* ═══════════════════════════════════════════════════
+   DEMO PAGE — Tab Switcher
+   ═══════════════════════════════════════════════════ */
+
+function DemoSkeleton() {
+  return (
+    <div className="flex items-center justify-center h-full" style={{ background: '#0a0e1a' }}>
+      <Loader2 size={24} className="animate-spin" style={{ color: '#60a5fa' }} />
+    </div>
+  );
 }
 
-/* ─── DEMO PAGE ─── */
 export default function V3Demo() {
   const navigate = useNavigate();
   const { data: stats, loading: statsLoading } = useV3Dashboard();
   const { data: casesData, loading: casesLoading } = useV3Cases({ page: 1, per_page: 20 });
-  const [activeTab, setActiveTab] = useState<TabId>('a');
+  const [activeTab, setActiveTab] = useState<TabId>('gotham');
 
   const cases = casesData?.items || [];
 
   if (statsLoading || casesLoading) return <DemoSkeleton />;
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Tab Switcher */}
-      <div className="shrink-0 px-5 pt-4 pb-0 flex items-center gap-4">
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em]" style={{ color: 'var(--v3-text-muted)' }}>
-          DASHBOARD VARIANTS
-        </span>
-        <div className="flex gap-1 p-0.5 rounded-md border" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
-          {TABS.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className="px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-sm transition-all"
-              style={{
-                background: activeTab === tab.id ? 'var(--v3-surface)' : 'transparent',
-                color: activeTab === tab.id ? 'var(--v3-accent)' : 'var(--v3-text-muted)',
-                borderBottom: activeTab === tab.id ? '2px solid var(--v3-accent)' : '2px solid transparent',
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+    <div className="h-full flex flex-col" style={{ background: '#09090b' }}>
+      {/* ── Tab Switcher ── */}
+      <div
+        className="shrink-0 flex items-center gap-1 px-4 py-2 border-b"
+        style={{ borderColor: '#27272a', background: '#09090b' }}
+      >
+        {TABS.map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className="relative px-5 py-2 rounded-lg text-[11px] font-semibold tracking-wide transition-all"
+            style={{
+              background: activeTab === tab.id ? '#27272a' : 'transparent',
+              color: activeTab === tab.id ? '#fafafa' : '#52525b',
+            }}
+          >
+            <span>{tab.label}</span>
+            <span className="block text-[8px] font-normal tracking-wider mt-0.5" style={{ color: '#52525b' }}>{tab.sub}</span>
+            {activeTab === tab.id && (
+              <div className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full" style={{ background: tab.id === 'gotham' ? '#00ff41' : tab.id === 'lattice' ? '#60a5fa' : '#a78bfa' }} />
+            )}
+          </button>
+        ))}
       </div>
 
-      {/* Dashboard Content */}
-      <div className="flex-1 overflow-y-auto v3-scrollbar">
-        {activeTab === 'a' && <DashboardA stats={stats} cases={cases} navigate={navigate} />}
-        {activeTab === 'b' && <DashboardB stats={stats} cases={cases} navigate={navigate} />}
-        {activeTab === 'c' && <DashboardC stats={stats} cases={cases} navigate={navigate} />}
+      {/* ── Content ── */}
+      <div className="flex-1 overflow-hidden">
+        {activeTab === 'gotham' && <GothamDashboard stats={stats} cases={cases} navigate={navigate} />}
+        {activeTab === 'lattice' && <LatticeDashboard stats={stats} cases={cases} navigate={navigate} />}
+        {activeTab === 'mercury' && <MercuryDashboard stats={stats} cases={cases} navigate={navigate} />}
       </div>
     </div>
   );
