@@ -490,8 +490,8 @@ export default function V3Graph() {
           }, tip: 'Focus subject' },
         ].map(({ icon: Icon, action, tip }) => (
           <Button key={tip} size="icon" variant="ghost" onClick={action} title={tip}
-            className="w-9 h-9 backdrop-blur-md border rounded-md"
-            style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
+            className="w-9 h-9 backdrop-blur-md border rounded-xl"
+            style={{ background: panelBg, borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
             <Icon size={15} />
           </Button>
         ))}
