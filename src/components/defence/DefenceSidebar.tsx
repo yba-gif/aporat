@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Shield, AlertTriangle, Map, Radar, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Shield, AlertTriangle, Map, Radar, ScanFace, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StatusDot } from './StatusDot';
 
