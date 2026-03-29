@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User, UserCircle, Save, Shield, Briefcase, MapPin, Eye, Network, Clock, Target, Brain, ChevronRight } from 'lucide-react';
+import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User, UserCircle, Save, Shield, Briefcase, MapPin, Eye, Network, Clock, Target, Brain, ChevronRight, Sparkles, ScanSearch } from 'lucide-react';
 import { toast } from 'sonner';
 import { FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -411,6 +411,8 @@ export default function DefenceFaceSearch() {
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [dossierLoading, setDossierLoading] = useState(false);
   const [searchProgress, setSearchProgress] = useState('');
+  const [enrichment, setEnrichment] = useState<any>(null);
+  const [enriching, setEnriching] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -471,6 +473,7 @@ export default function DefenceFaceSearch() {
     setDossier(null);
     setActiveTab('results');
     setSearchProgress('');
+    setEnrichment(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -507,6 +510,55 @@ export default function DefenceFaceSearch() {
       setDossierLoading(false);
     }
   }, [results, potentialName]);
+
+  const enrichProfiles = useCallback(async () => {
+    if (results.length === 0) return;
+    setEnriching(true);
+    try {
+      const platforms = correlatePlatforms(results);
+      const allAccounts = platforms.flatMap(p =>
+        p.accounts.map(a => ({ platform: p.platform, ...a }))
+      );
+
+      // Only send profiles with actual profile URLs (not post URLs)
+      const profileUrls = allAccounts
+        .filter(a => a.bestScore >= 70)
+        .map(a => ({
+          platform: a.platform,
+          username: a.username,
+          profileUrl: a.profileUrl,
+          bestScore: a.bestScore,
+        }));
+
+      if (profileUrls.length === 0) {
+        toast.error('No high-confidence profiles to enrich');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('scrape-profiles', {
+        body: { profiles: profileUrls },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setEnrichment(data);
+
+      // Update name if AI found a better one
+      if (data?.extractedName && data.nameConfidence !== 'LOW') {
+        setPotentialName(data.extractedName);
+        toast.success(`Identity confirmed: ${data.extractedName}`);
+      } else if (data?.enriched) {
+        toast.success(`Scraped ${data.scrapedCount} profiles — no strong name match`);
+      } else {
+        toast.info(data?.reason || 'Could not enrich profiles');
+      }
+    } catch (err: any) {
+      toast.error('Profile enrichment failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setEnriching(false);
+    }
+  }, [results]);
 
   const exportReport = useCallback(async () => {
     if (results.length === 0) return;
@@ -1051,13 +1103,84 @@ export default function DefenceFaceSearch() {
                         </p>
                       </div>
                     </div>
-                    {savedId && (
-                      <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-lg" style={{ background: 'var(--v3-surface)', color: 'var(--v3-accent)' }}>
-                        <Save size={10} />
-                        Saved
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {savedId && (
+                        <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-lg" style={{ background: 'var(--v3-surface)', color: 'var(--v3-accent)' }}>
+                          <Save size={10} />
+                          Saved
+                        </div>
+                      )}
+                      <button
+                        onClick={enrichProfiles}
+                        disabled={enriching || enrichment?.enriched}
+                        className="flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all disabled:opacity-40"
+                        style={{ background: enrichment?.enriched ? 'rgba(34,197,94,0.1)' : 'var(--v3-accent-muted)', color: enrichment?.enriched ? '#22c55e' : 'var(--v3-accent)' }}
+                      >
+                        {enriching ? <Loader2 size={10} className="animate-spin" /> : enrichment?.enriched ? <CheckCircle2 size={10} /> : <ScanSearch size={10} />}
+                        {enriching ? 'Scraping...' : enrichment?.enriched ? 'Enriched' : 'Enrich Profiles'}
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Enrichment results */}
+                  {enrichment?.enriched && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-lg border p-3 space-y-2"
+                      style={{ borderColor: 'rgba(34,197,94,0.2)', background: 'rgba(34,197,94,0.05)' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={12} className="text-emerald-400" />
+                        <span className="text-[10px] font-semibold tracking-wider uppercase text-emerald-400">
+                          Profile Intelligence
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{
+                          background: enrichment.nameConfidence === 'HIGH' ? 'rgba(34,197,94,0.15)' : enrichment.nameConfidence === 'MEDIUM' ? 'rgba(251,191,36,0.15)' : 'rgba(161,161,170,0.15)',
+                          color: enrichment.nameConfidence === 'HIGH' ? '#22c55e' : enrichment.nameConfidence === 'MEDIUM' ? '#fbbf24' : '#a1a1aa',
+                        }}>
+                          {enrichment.nameConfidence} CONFIDENCE
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                        {enrichment.extractedName && (
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Full Name</p>
+                            <p className="text-[12px] font-semibold" style={{ color: 'var(--v3-text)' }}>{enrichment.extractedName}</p>
+                          </div>
+                        )}
+                        {enrichment.occupation && (
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Occupation</p>
+                            <p className="text-[12px]" style={{ color: 'var(--v3-text-secondary)' }}>{enrichment.occupation}</p>
+                          </div>
+                        )}
+                        {enrichment.location && (
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Location</p>
+                            <p className="text-[12px]" style={{ color: 'var(--v3-text-secondary)' }}>{enrichment.location}</p>
+                          </div>
+                        )}
+                        {enrichment.organization && (
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Organization</p>
+                            <p className="text-[12px]" style={{ color: 'var(--v3-text-secondary)' }}>{enrichment.organization}</p>
+                          </div>
+                        )}
+                      </div>
+                      {enrichment.bio && (
+                        <div>
+                          <p className="text-[9px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--v3-text-muted)' }}>Bio</p>
+                          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{enrichment.bio}</p>
+                        </div>
+                      )}
+                      {enrichment.crossReferenceNotes && (
+                        <p className="text-[10px] italic" style={{ color: 'var(--v3-text-muted)' }}>
+                          {enrichment.crossReferenceNotes}
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
 
                   {/* Platform Breakdown */}
                   <div className="flex items-center gap-2">
