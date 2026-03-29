@@ -422,7 +422,7 @@ export default function V3Graph() {
         </div>
 
         <div className="pointer-events-auto">
-          <div className="backdrop-blur-md border rounded-md px-2" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+          <div className="backdrop-blur-md border rounded-xl px-3" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
             <div className="relative">
               <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2" style={{ color: 'var(--v3-text-muted)' }} />
               <Input
