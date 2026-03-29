@@ -29,9 +29,7 @@ const DefenceDashboard = lazy(() => import("./pages/v3/defence/DefenceDashboard"
 const DefenceAlerts = lazy(() => import("./pages/v3/defence/DefenceAlerts"));
 const DefenceMap = lazy(() => import("./pages/v3/defence/DefenceMap"));
 const DefencePersonnel = lazy(() => import("./pages/v3/defence/DefencePersonnel"));
-const DefenceInstallations = lazy(() => import("./pages/v3/defence/DefenceInstallations"));
 const DefenceScan = lazy(() => import("./pages/v3/defence/DefenceScan"));
-const DefenceGeofence = lazy(() => import("./pages/v3/defence/DefenceGeofence"));
 
 const queryClient = new QueryClient();
 
@@ -70,9 +68,7 @@ const App = () => (
                <Route path="alerts" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceAlerts /></Suspense>} />
                <Route path="map" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceMap /></Suspense>} />
                <Route path="personnel" element={<Suspense fallback={<DefenceRouteFallback />}><DefencePersonnel /></Suspense>} />
-               <Route path="installations" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceInstallations /></Suspense>} />
                <Route path="scan" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceScan /></Suspense>} />
-               <Route path="geofence" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceGeofence /></Suspense>} />
             </Route>
             {/* Public pages */}
             <Route path="/government" element={<Government />} />
