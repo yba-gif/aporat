@@ -562,21 +562,27 @@ export default function DefenceFaceSearch() {
   }, [results, potentialName, testingMode]);
 
   const startSearch = async () => {
-    if (!selectedFile) return;
+    if (selectedFiles.length === 0) return;
 
     try {
       stopPolling();
 
-      // Step 1: Upload
-      setSearchState('uploading');
-      setProgress(0);
-
-      const formData = new FormData();
-      formData.append('image', selectedFile);
-
       const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
       const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
       const baseUrl = `https://${projectId}.supabase.co/functions/v1`;
+
+      // Upload and search each image
+      const allResults: FaceResult[] = [];
+
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        setSearchProgress(`Image ${i + 1}/${selectedFiles.length}: Uploading...`);
+        setSearchState('uploading');
+        setProgress((i / selectedFiles.length) * 50);
+
+        // Step 1: Upload
+        const formData = new FormData();
+        formData.append('image', file);
 
       const uploadRes = await fetch(`${baseUrl}/facecheck-search?action=upload`, {
         method: 'POST',
