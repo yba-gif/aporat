@@ -883,7 +883,7 @@ export default function DefenceFaceSearch() {
                   />
                 </div>
                 <p className="text-[10px] mt-1.5 text-center" style={{ color: 'var(--v3-text-muted)' }}>
-                  {searchState === 'uploading' ? 'Uploading image...' : `Scanning faces — ${Math.round(progress)}%`}
+                  {searchProgress || (searchState === 'uploading' ? 'Uploading image...' : `Scanning faces — ${Math.round(progress)}%`)}
                 </p>
               </div>
             )}
