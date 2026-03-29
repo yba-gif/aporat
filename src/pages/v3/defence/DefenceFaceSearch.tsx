@@ -155,6 +155,61 @@ const PLATFORM_RULES: PlatformRule[] = [
     buildProfileUrl: (u) => `https://strava.com/athletes/${u}`,
   },
   {
+    pattern: /tumblr\.com/i, platform: 'Tumblr', icon: '📝', color: '#36465D',
+    extractUsername: (url) => {
+      const m = url.match(/([A-Za-z0-9_-]+)\.tumblr\.com/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://${u}.tumblr.com`,
+  },
+  {
+    pattern: /xing\.com/i, platform: 'Xing', icon: '💚', color: '#006567',
+    extractUsername: (url) => {
+      const m = url.match(/xing\.com\/profile\/([A-Za-z0-9_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://xing.com/profile/${u}`,
+  },
+  {
+    pattern: /telegram\.me|t\.me/i, platform: 'Telegram', icon: '✈️', color: '#0088CC',
+    extractUsername: (url) => {
+      const m = url.match(/(?:telegram\.me|t\.me)\/([A-Za-z0-9_]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://t.me/${u}`,
+  },
+  {
+    pattern: /flickr\.com/i, platform: 'Flickr', icon: '📷', color: '#0063DC',
+    extractUsername: (url) => {
+      const m = url.match(/flickr\.com\/(?:people|photos)\/([A-Za-z0-9@_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://flickr.com/people/${u}`,
+  },
+  {
+    pattern: /dribbble\.com/i, platform: 'Dribbble', icon: '🏀', color: '#EA4C89',
+    extractUsername: (url) => extractPath(url, 0),
+    buildProfileUrl: (u) => `https://dribbble.com/${u}`,
+  },
+  {
+    pattern: /behance\.net/i, platform: 'Behance', icon: '🎨', color: '#1769FF',
+    extractUsername: (url) => extractPath(url, 0),
+    buildProfileUrl: (u) => `https://behance.net/${u}`,
+  },
+  {
+    pattern: /soundcloud\.com/i, platform: 'SoundCloud', icon: '🔊', color: '#FF5500',
+    extractUsername: (url) => extractPath(url, 0),
+    buildProfileUrl: (u) => `https://soundcloud.com/${u}`,
+  },
+  {
+    pattern: /spotify\.com/i, platform: 'Spotify', icon: '🎧', color: '#1DB954',
+    extractUsername: (url) => {
+      const m = url.match(/spotify\.com\/user\/([A-Za-z0-9_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://open.spotify.com/user/${u}`,
+  },
+  {
     pattern: /wikitia\.com|wikipedia\.org/i, platform: 'Wiki', icon: '📖', color: '#636978',
     extractUsername: () => null,
     buildProfileUrl: (u) => u,
