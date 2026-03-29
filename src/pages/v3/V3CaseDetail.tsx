@@ -225,7 +225,9 @@ export default function V3CaseDetail() {
         body: { case_id: caseData.id, action: 'narrative' },
       });
       if (error) throw error;
+      const now = new Date().toISOString();
       setNarrative(data.narrative);
+      setNarrativeGeneratedAt(now);
       // Persist to database (upsert)
       await supabase.from('v3_case_narratives').upsert(
         { case_id: caseData.id, narrative: data.narrative, generated_at: new Date().toISOString() },
