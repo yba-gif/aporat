@@ -39,7 +39,10 @@ serve(async (req) => {
 
       const uploadRes = await fetch(`${FACECHECK_API}/upload_pic`, {
         method: 'POST',
-        headers: { 'accept': 'application/json' },
+        headers: {
+          'accept': 'application/json',
+          'Authorization': FACECHECK_API_TOKEN,
+        },
         body: uploadForm,
       });
 
