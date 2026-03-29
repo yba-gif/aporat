@@ -362,7 +362,7 @@ export default function V3CaseDetail() {
 
         {/* RIGHT COLUMN */}
         <div className="space-y-4">
-          <div className="border rounded-md p-4 sticky top-0" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+          <div className="rounded-xl border p-5 sticky top-0" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
             <div className="text-[10px] font-semibold tracking-widest mb-4" style={{ color: 'var(--v3-text-muted)' }}>RISK ASSESSMENT</div>
             <div className="flex justify-center mb-4">
               <RiskScoreCircle score={Math.round(caseData.risk_score)} size="lg" />
