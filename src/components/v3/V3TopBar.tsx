@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search, Bell, ChevronRight } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { Search, ChevronRight } from 'lucide-react';
 
 const routeLabels: Record<string, string> = {
   '/v3/dashboard': 'Dashboard',
@@ -20,15 +18,6 @@ interface V3TopBarProps {
 
 export function V3TopBar({ onSearchClick }: V3TopBarProps) {
   const location = useLocation();
-  const [initials, setInitials] = useState('OY');
-
-  useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.email) {
-        setInitials(user.email.substring(0, 2).toUpperCase());
-      }
-    });
-  }, []);
 
   const pathParts = location.pathname.split('/').filter(Boolean);
   const currentLabel = routeLabels[location.pathname] || pathParts[pathParts.length - 1];
@@ -36,7 +25,7 @@ export function V3TopBar({ onSearchClick }: V3TopBarProps) {
 
   return (
     <header
-      className="h-12 flex items-center justify-between px-5 border-b shrink-0"
+      className="h-12 flex items-center px-5 border-b shrink-0 gap-4"
       style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)' }}
     >
       {/* Breadcrumb */}
@@ -56,10 +45,10 @@ export function V3TopBar({ onSearchClick }: V3TopBarProps) {
         )}
       </div>
 
-      {/* Search */}
+      {/* Search - pushed right */}
       <button
         onClick={onSearchClick}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs transition-all hover:border-[var(--v3-border-hover)] hover:bg-[var(--v3-surface)]"
+        className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs transition-all hover:border-[var(--v3-border-hover)] hover:bg-[var(--v3-surface)]"
         style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-muted)', background: 'transparent' }}
       >
         <Search size={13} />
@@ -68,25 +57,6 @@ export function V3TopBar({ onSearchClick }: V3TopBarProps) {
           ⌘K
         </kbd>
       </button>
-
-      {/* Right */}
-      <div className="flex items-center gap-3">
-        <button className="relative p-2 rounded-lg hover:bg-[var(--v3-surface)] transition-colors" style={{ color: 'var(--v3-text-secondary)' }}>
-          <Bell size={16} />
-          <span
-            className="absolute top-1 right-1 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center"
-            style={{ background: 'var(--v3-red)', color: 'white' }}
-          >
-            3
-          </span>
-        </button>
-        <div
-          className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-semibold"
-          style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}
-        >
-          {initials}
-        </div>
-      </div>
     </header>
   );
 }
