@@ -662,7 +662,7 @@ export default function V3Graph() {
             exit={{ y: 20, opacity: 0 }}
             className="absolute bottom-14 left-3 pointer-events-auto z-10"
           >
-            <div className="backdrop-blur-md border rounded-md p-3 w-64" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+            <div className="backdrop-blur-md border rounded-xl p-4 w-64" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold" style={{ color: 'var(--v3-text)' }}>{selectedNode.label}</span>
                 <span className={cn('text-xs font-bold font-mono', riskColor(selectedNode.riskScore))}>{selectedNode.riskScore}</span>
