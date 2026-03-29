@@ -518,7 +518,7 @@ export default function V3Graph() {
 
       {/* Stats overlay */}
       <div className="absolute bottom-3 right-3 pointer-events-auto z-10">
-        <div className="backdrop-blur-md border rounded-md px-3 py-2 flex items-center gap-4" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+        <div className="backdrop-blur-md border rounded-xl px-4 py-3 flex items-center gap-4" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
           <div className="text-center">
             <div className="text-sm font-bold text-red-400">{NODES.filter(n => n.flagged).length}</div>
             <div className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>Flagged</div>
