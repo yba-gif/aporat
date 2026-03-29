@@ -512,7 +512,7 @@ export default function DefenceFaceSearch() {
         throw new Error(searchData?.error || 'Search failed');
       }
 
-  const saveSearch = useCallback(async (parsedResults: FaceResult[]) => {
+      const saveSearch = async (parsedResults: FaceResult[]) => {
     try {
       const platforms = correlatePlatforms(parsedResults);
       const name = inferPotentialName(parsedResults);
@@ -539,7 +539,7 @@ export default function DefenceFaceSearch() {
     } catch {
       // Non-critical, don't block UI
     }
-  }, [testingMode]);
+      };
 
       // If we got output immediately
       if (searchData?.output) {
