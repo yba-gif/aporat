@@ -412,7 +412,7 @@ export default function V3Graph() {
       {/* Top bar */}
       <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none z-10">
         <div className="pointer-events-auto flex items-center gap-3">
-          <div className="backdrop-blur-md border rounded-md px-3 py-2 flex items-center gap-3" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+          <div className="backdrop-blur-md border rounded-xl px-4 py-3 flex items-center gap-3" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
             <Network size={16} style={{ color: 'var(--v3-accent)' }} />
             <div>
               <h2 className="text-xs font-bold" style={{ color: 'var(--v3-text)' }}>Ahmad Rezaee — Fraud Network</h2>
