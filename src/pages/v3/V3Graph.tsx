@@ -499,7 +499,7 @@ export default function V3Graph() {
 
       {/* Bottom legend */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-auto z-10 hidden md:block">
-        <div className="backdrop-blur-md border rounded-md px-4 py-2 flex items-center gap-5" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+        <div className="backdrop-blur-md border rounded-xl px-5 py-2.5 flex items-center gap-5" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
           {[
             { label: 'KNOWS', color: '#94A3B8' },
             { label: 'EMPLOYED_BY', color: '#F59E0B' },
