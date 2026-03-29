@@ -463,6 +463,38 @@ export type Database = {
           },
         ]
       }
+      v3_case_narratives: {
+        Row: {
+          case_id: string
+          created_at: string
+          generated_at: string
+          id: string
+          narrative: string
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          narrative: string
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          generated_at?: string
+          id?: string
+          narrative?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "v3_case_narratives_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: true
+            referencedRelation: "v3_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       v3_cases: {
         Row: {
           applicant: Json
