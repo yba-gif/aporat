@@ -26,7 +26,7 @@ export default function V3Layout() {
       <V3Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         {!isGraphRoute && <V3TopBar onSearchClick={() => setCmdOpen(true)} />}
-        <main className={`flex-1 overflow-y-auto v3-scrollbar ${isGraphRoute ? '' : 'p-6'}`} style={isGraphRoute ? { overflow: 'hidden' } : undefined}>
+        <main className={`flex-1 overflow-y-auto v3-scrollbar ${isGraphRoute ? '' : ''}`} style={isGraphRoute ? { overflow: 'hidden' } : { scrollbarWidth: 'thin', scrollbarColor: 'var(--v3-border) transparent' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
@@ -34,6 +34,7 @@ export default function V3Layout() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
+              className="h-full"
             >
               <Outlet />
             </motion.div>

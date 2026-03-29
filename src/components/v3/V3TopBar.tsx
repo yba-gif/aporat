@@ -11,6 +11,7 @@ const routeLabels: Record<string, string> = {
   '/v3/personnel': 'Personnel Database',
   '/v3/queue': 'Scan Queue',
   '/v3/settings': 'Settings',
+  '/v3/demo': 'Demo',
 };
 
 interface V3TopBarProps {
@@ -35,10 +36,11 @@ export function V3TopBar({ onSearchClick }: V3TopBarProps) {
 
   return (
     <header
-      className="h-12 flex items-center justify-between px-4 border-b shrink-0"
-      style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
+      className="h-12 flex items-center justify-between px-5 border-b shrink-0"
+      style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)' }}
     >
-      <div className="flex items-center gap-1.5 text-sm">
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-1.5 text-[13px]">
         <span style={{ color: 'var(--v3-text-muted)' }}>Platform</span>
         <ChevronRight size={12} style={{ color: 'var(--v3-text-muted)' }} />
         {isCaseDetail ? (
@@ -54,24 +56,36 @@ export function V3TopBar({ onSearchClick }: V3TopBarProps) {
         )}
       </div>
 
+      {/* Search */}
       <button
         onClick={onSearchClick}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-md border text-xs transition-colors hover:border-[var(--v3-border-hover)]"
-        style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-muted)', background: 'var(--v3-bg)' }}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs transition-all hover:border-[var(--v3-border-hover)] hover:bg-[var(--v3-surface)]"
+        style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-muted)', background: 'transparent' }}
       >
         <Search size={13} />
-        <span>Search cases, people, findings...</span>
-        <kbd className="ml-6 px-1.5 py-0.5 rounded text-[10px] border" style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-muted)' }}>
+        <span>Search...</span>
+        <kbd className="ml-8 px-1.5 py-0.5 rounded text-[10px] border" style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-muted)' }}>
           ⌘K
         </kbd>
       </button>
 
+      {/* Right */}
       <div className="flex items-center gap-3">
-        <button className="relative p-2 rounded-md hover:bg-white/5 transition-colors" style={{ color: 'var(--v3-text-secondary)' }}>
+        <button className="relative p-2 rounded-lg hover:bg-[var(--v3-surface)] transition-colors" style={{ color: 'var(--v3-text-secondary)' }}>
           <Bell size={16} />
-          <span className="absolute top-1 right-1 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center" style={{ background: 'var(--v3-red)', color: 'white' }}>3</span>
+          <span
+            className="absolute top-1 right-1 w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center"
+            style={{ background: 'var(--v3-red)', color: 'white' }}
+          >
+            3
+          </span>
         </button>
-        <div className="w-8 h-8 rounded-md flex items-center justify-center text-xs font-bold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>{initials}</div>
+        <div
+          className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-semibold"
+          style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}
+        >
+          {initials}
+        </div>
       </div>
     </header>
   );
