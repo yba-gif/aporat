@@ -448,7 +448,227 @@ export async function generateFaceSearchReport(data: ReportData): Promise<void> 
     y += 6;
   }
 
-  // ─── CONFIDENCE NOTE ────────────────────────────────────
+  // ─── USERNAME ENUMERATION ─────────────────────────────────
+  if (data.usernameEnum?.success && data.usernameEnum.results && data.usernameEnum.results.length > 0) {
+    y = checkPageBreak(doc, y, 50);
+    y = sectionHeader(doc, 'USERNAME ENUMERATION (300+ PLATFORMS)', ML, y);
+
+    const totalFound = data.usernameEnum.results.reduce((sum, r) => sum + r.totalFound, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...COLORS.midGray);
+    doc.text(`Checked ${data.usernameEnum.totalPlatformsChecked || 0} platforms | Found ${totalFound} matching accounts`, ML, y);
+    y += 6;
+
+    // Build flat table of all found platforms
+    const enumRows: string[][] = [];
+    for (const result of data.usernameEnum.results) {
+      if (result.platforms) {
+        for (const p of result.platforms.slice(0, 40)) {
+          enumRows.push([
+            `@${result.username}`,
+            p.platform,
+            p.category || '-',
+            p.url,
+          ]);
+        }
+      }
+    }
+
+    if (enumRows.length > 0) {
+      y = checkPageBreak(doc, y, 30);
+      autoTable(doc, {
+        startY: y,
+        margin: { left: ML, right: MR },
+        head: [['Username', 'Platform', 'Category', 'URL']],
+        body: enumRows.slice(0, 60),
+        theme: 'plain',
+        styles: {
+          fontSize: 6.5,
+          cellPadding: 2,
+          textColor: COLORS.darkGray,
+          lineWidth: 0.2,
+          lineColor: COLORS.paleGray,
+        },
+        headStyles: {
+          fillColor: COLORS.black,
+          textColor: COLORS.white,
+          fontStyle: 'bold',
+          fontSize: 6.5,
+        },
+        alternateRowStyles: { fillColor: [248, 248, 252] },
+        columnStyles: {
+          0: { cellWidth: 28, fontStyle: 'bold' },
+          1: { cellWidth: 30 },
+          2: { cellWidth: 22 },
+          3: { fontSize: 5.5, textColor: COLORS.midGray },
+        },
+      });
+      y = (doc as any).lastAutoTable.finalY + 8;
+
+      if (enumRows.length > 60) {
+        doc.setFont('helvetica', 'italic');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLORS.midGray);
+        doc.text(`+ ${enumRows.length - 60} additional accounts not shown`, ML, y);
+        y += 6;
+      }
+    }
+  }
+
+  // ─── TELEGRAM INTELLIGENCE ────────────────────────────────
+  if (data.telegramOsint && data.telegramOsint.totalFound && data.telegramOsint.totalFound > 0) {
+    y = checkPageBreak(doc, y, 50);
+    y = sectionHeader(doc, 'TELEGRAM INTELLIGENCE', ML, y);
+
+    const foundProfiles = data.telegramOsint.results?.filter(r => r.exists) || [];
+
+    for (const profile of foundProfiles) {
+      y = checkPageBreak(doc, y, 20);
+      // Profile header
+      doc.setFillColor(0, 136, 204);
+      doc.roundedRect(ML, y, CW, 5, 1, 1, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(...COLORS.white);
+      doc.text(`@${profile.username}  |  ${(profile.profileType || 'user').toUpperCase()}${profile.memberCount ? `  |  ${profile.memberCount} members` : ''}`, ML + 3, y + 3.5);
+      y += 8;
+
+      if (profile.displayName) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...COLORS.black);
+        doc.text(profile.displayName, ML, y);
+        y += 5;
+      }
+      if (profile.bio) {
+        y = wrappedText(doc, profile.bio, ML, y, CW, 8, COLORS.darkGray);
+        y += 2;
+      }
+      y += 3;
+    }
+
+    if (data.telegramOsint.aiAnalysis?.intelligenceNotes) {
+      y = checkPageBreak(doc, y, 20);
+      doc.setFillColor(248, 248, 252);
+      doc.roundedRect(ML, y, CW, 4, 1, 1, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(...COLORS.midGray);
+      doc.text('AI ANALYSIS', ML + 3, y + 3);
+      y += 7;
+      y = wrappedText(doc, data.telegramOsint.aiAnalysis.intelligenceNotes, ML, y, CW, 8, COLORS.darkGray);
+      y += 2;
+
+      if (data.telegramOsint.aiAnalysis.riskIndicators && data.telegramOsint.aiAnalysis.riskIndicators.length > 0) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLORS.red);
+        doc.text('Risk Indicators: ' + data.telegramOsint.aiAnalysis.riskIndicators.join(' | '), ML, y);
+        y += 5;
+      }
+    }
+    y += 4;
+  }
+
+  // ─── BREACH INTELLIGENCE ──────────────────────────────────
+  if (data.breachData) {
+    y = checkPageBreak(doc, y, 50);
+    y = sectionHeader(doc, 'BREACH INTELLIGENCE', ML, y);
+
+    if (data.breachData.breachesFound && data.breachData.breaches && data.breachData.breaches.length > 0) {
+      // Summary bar
+      const breachColor = data.breachData.totalBreaches >= 3 ? COLORS.red : data.breachData.totalBreaches >= 1 ? COLORS.amber : COLORS.green;
+      doc.setFillColor(...breachColor);
+      doc.roundedRect(ML, y, CW, 10, 2, 2, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...COLORS.white);
+      doc.text(`${data.breachData.totalBreaches} DATA BREACH${data.breachData.totalBreaches !== 1 ? 'ES' : ''} DETECTED`, W / 2, y + 6.5, { align: 'center' });
+      y += 14;
+
+      // Breach table
+      autoTable(doc, {
+        startY: y,
+        margin: { left: ML, right: MR },
+        head: [['Breach', 'Date', 'Severity', 'Data Exposed', 'Description']],
+        body: data.breachData.breaches.map(b => [
+          b.name,
+          b.date || 'Unknown',
+          (b.severity || 'unknown').toUpperCase(),
+          (b.dataExposed || []).join(', ') || '-',
+          (b.description || '-').slice(0, 100),
+        ]),
+        theme: 'plain',
+        styles: {
+          fontSize: 7,
+          cellPadding: 2.5,
+          textColor: COLORS.darkGray,
+          lineWidth: 0.2,
+          lineColor: COLORS.paleGray,
+        },
+        headStyles: {
+          fillColor: COLORS.red,
+          textColor: COLORS.white,
+          fontStyle: 'bold',
+          fontSize: 6.5,
+        },
+        alternateRowStyles: { fillColor: [252, 248, 248] },
+        columnStyles: {
+          0: { cellWidth: 28, fontStyle: 'bold' },
+          2: { cellWidth: 18, fontStyle: 'bold' },
+          4: { fontSize: 6.5 },
+        },
+        didParseCell: (hookData: any) => {
+          if (hookData.column.index === 2 && hookData.section === 'body') {
+            const val = hookData.cell.raw;
+            if (val === 'CRITICAL' || val === 'HIGH') hookData.cell.styles.textColor = COLORS.red;
+            else if (val === 'MEDIUM') hookData.cell.styles.textColor = COLORS.amber;
+            else hookData.cell.styles.textColor = COLORS.green;
+          }
+        },
+      });
+      y = (doc as any).lastAutoTable.finalY + 6;
+    } else {
+      doc.setFillColor(...COLORS.green);
+      doc.roundedRect(ML, y, CW, 10, 2, 2, 'F');
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.setTextColor(...COLORS.white);
+      doc.text('NO KNOWN DATA BREACHES DETECTED', W / 2, y + 6.5, { align: 'center' });
+      y += 14;
+    }
+
+    if (data.breachData.riskSummary) {
+      y = checkPageBreak(doc, y, 20);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(...COLORS.midGray);
+      doc.text('RISK SUMMARY', ML, y);
+      y += 4;
+      y = wrappedText(doc, data.breachData.riskSummary, ML, y, CW, 8.5, COLORS.darkGray);
+      y += 4;
+    }
+
+    if (data.breachData.recommendations && data.breachData.recommendations.length > 0) {
+      y = checkPageBreak(doc, y, 20);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(...COLORS.midGray);
+      doc.text('BREACH RECOMMENDATIONS', ML, y);
+      y += 4;
+      for (const rec of data.breachData.recommendations) {
+        y = checkPageBreak(doc, y, 8);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8);
+        doc.setTextColor(...COLORS.darkGray);
+        doc.text(`• ${rec}`, ML + 2, y);
+        y += 4.5;
+      }
+      y += 4;
+    }
+  }
+
   y = checkPageBreak(doc, y, 30);
   y = sectionHeader(doc, 'DATA CONFIDENCE', ML, y);
   y = wrappedText(doc, data.narrative.confidenceNote, ML, y, CW, 9, COLORS.midGray);
