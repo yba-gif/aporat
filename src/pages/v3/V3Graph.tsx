@@ -267,7 +267,7 @@ export default function V3Graph() {
       group.add(new THREE.Mesh(ringGeo, ringMat));
       const glow = new THREE.RingGeometry(size * 2.0, size * 2.6, 32);
       const glowMat = new THREE.MeshBasicMaterial({
-        color: 0xef4444,
+        color: 0xf87171,
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.12,
