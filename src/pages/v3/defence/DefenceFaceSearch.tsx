@@ -193,6 +193,13 @@ export default function DefenceFaceSearch() {
       .slice(0, 20);
   };
 
+  const getResultImage = (result: FaceResult & Record<string, any>): string | null => {
+    if (result.base64) return `data:image/jpeg;base64,${result.base64}`;
+    if (result.image_url) return result.image_url;
+    if ((result as any).thumbnail) return (result as any).thumbnail;
+    return null;
+  };
+
   return (
     <div className="p-6 space-y-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -393,9 +400,9 @@ export default function DefenceFaceSearch() {
                       onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--v3-surface-hover)'; }}
                       onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
                     >
-                      {result.base64 ? (
+                      {getResultImage(result) ? (
                         <img
-                          src={`data:image/jpeg;base64,${result.base64}`}
+                          src={getResultImage(result)!}
                           alt="Match"
                           className="w-14 h-14 rounded-lg object-cover shrink-0"
                         />
