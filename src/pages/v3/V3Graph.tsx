@@ -545,7 +545,7 @@ export default function V3Graph() {
             exit={{ x: 400, opacity: 0 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="absolute top-0 right-0 w-80 h-full border-l z-20 overflow-y-auto v3-scrollbar"
-            style={{ background: 'rgba(11,17,32,0.95)', borderColor: 'var(--v3-border)' }}
+            style={{ background: 'rgba(9,9,11,0.96)', borderColor: 'var(--v3-border)' }}
           >
             <div className="p-5 space-y-5">
               <div className="flex items-start justify-between">
