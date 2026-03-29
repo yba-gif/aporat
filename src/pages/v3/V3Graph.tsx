@@ -617,7 +617,7 @@ export default function V3Graph() {
                   {dossierConnections.map((c, i) => (
                     <button key={i}
                       onClick={() => { if (c.other) { setDossierNode(c.other); handleNodeClick(c.other); } }}
-                      className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-white/5 text-left transition-colors"
+                      className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg hover:bg-white/5 text-left transition-colors"
                     >
                       <div className="w-1.5 h-1.5 rounded-full" style={{ background: EDGE_COLORS[c.edgeType] }} />
                       <span className="text-[11px] flex-1 truncate" style={{ color: 'var(--v3-text-secondary)' }}>{c.other?.label ?? '?'}</span>
