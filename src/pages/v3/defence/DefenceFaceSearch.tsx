@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+
 import { toast } from 'sonner';
 
 interface FaceResult {
