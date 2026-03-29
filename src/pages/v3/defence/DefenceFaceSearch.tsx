@@ -1,0 +1,412 @@
+import { useState, useRef, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface FaceResult {
+  url: string;
+  score: number;
+  base64?: string;
+  image_url?: string;
+  group?: number;
+}
+
+type SearchState = 'idle' | 'uploading' | 'searching' | 'complete' | 'error';
+
+export default function DefenceFaceSearch() {
+  const [searchState, setSearchState] = useState<SearchState>('idle');
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [results, setResults] = useState<FaceResult[]>([]);
+  const [progress, setProgress] = useState(0);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [testingMode, setTestingMode] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Image must be under 10MB');
+      return;
+    }
+    setSelectedFile(file);
+    setResults([]);
+    setErrorMsg('');
+    const reader = new FileReader();
+    reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+    reader.readAsDataURL(file);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      setSelectedFile(file);
+      setResults([]);
+      setErrorMsg('');
+      const reader = new FileReader();
+      reader.onload = (ev) => setImagePreview(ev.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
+  const clearImage = () => {
+    setSelectedFile(null);
+    setImagePreview(null);
+    setResults([]);
+    setSearchState('idle');
+    setErrorMsg('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const startSearch = async () => {
+    if (!selectedFile) return;
+
+    try {
+      // Step 1: Upload
+      setSearchState('uploading');
+      setProgress(0);
+
+      const formData = new FormData();
+      formData.append('image', selectedFile);
+
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const baseUrl = `https://${projectId}.supabase.co/functions/v1`;
+
+      const uploadRes = await fetch(`${baseUrl}/facecheck-search?action=upload`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${anonKey}` },
+        body: formData,
+      });
+
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok || !uploadData.id_search) {
+        throw new Error(uploadData.error || 'Upload failed');
+      }
+
+      const idSearch = uploadData.id_search;
+
+      // Step 2: Start search
+      setSearchState('searching');
+      setProgress(10);
+
+      const { data: searchData, error: searchError } = await supabase.functions.invoke('facecheck-search', {
+        body: { id_search: idSearch, testing: testingMode },
+        headers: { 'Content-Type': 'application/json' },
+        method: 'POST',
+      });
+
+      // If we got output immediately
+      if (searchData?.output) {
+        setResults(parseResults(searchData.output));
+        setSearchState('complete');
+        setProgress(100);
+        return;
+      }
+
+      // Step 3: Poll for results
+      let attempts = 0;
+      const maxAttempts = 60;
+
+      pollRef.current = setInterval(async () => {
+        attempts++;
+        if (attempts > maxAttempts) {
+          clearInterval(pollRef.current!);
+          setSearchState('error');
+          setErrorMsg('Search timed out after 5 minutes');
+          return;
+        }
+
+        setProgress(Math.min(10 + (attempts / maxAttempts) * 85, 95));
+
+        try {
+          const url = new URL(`${baseUrl}/facecheck-search`);
+          url.searchParams.set('action', 'status');
+
+          const statusRes = await fetch(url.toString(), {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${anonKey}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id_search: idSearch, testing: testingMode }),
+          });
+
+          const statusData = await statusRes.json();
+
+          if (statusData.output) {
+            clearInterval(pollRef.current!);
+            setResults(parseResults(statusData.output));
+            setSearchState('complete');
+            setProgress(100);
+          } else if (statusData.error) {
+            clearInterval(pollRef.current!);
+            setSearchState('error');
+            setErrorMsg(statusData.error);
+          }
+        } catch {
+          // Continue polling on network errors
+        }
+      }, 5000);
+
+    } catch (err: any) {
+      setSearchState('error');
+      setErrorMsg(err.message || 'Search failed');
+    }
+  };
+
+  const parseResults = (output: any): FaceResult[] => {
+    if (!output?.items) return [];
+    return output.items
+      .filter((item: any) => item.score > 0)
+      .sort((a: any, b: any) => b.score - a.score)
+      .slice(0, 20);
+  };
+
+  return (
+    <div className="p-6 space-y-6 max-w-6xl mx-auto">
+      {/* Header */}
+      <div>
+        <h1 className="text-lg font-semibold" style={{ color: 'var(--v3-text)' }}>Face Search</h1>
+        <p className="text-[13px] mt-1" style={{ color: 'var(--v3-text-muted)' }}>
+          Upload a face image to search across the internet using FaceCheck.id reverse image search
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Upload Panel */}
+        <div className="lg:col-span-1 space-y-4">
+          <div
+            className="rounded-xl border p-6"
+            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
+          >
+            <h2 className="text-[13px] font-semibold mb-4" style={{ color: 'var(--v3-text)' }}>
+              Upload Image
+            </h2>
+
+            {!imagePreview ? (
+              <div
+                onDrop={handleDrop}
+                onDragOver={(e) => e.preventDefault()}
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 cursor-pointer transition-colors hover:border-[var(--v3-accent)]"
+                style={{ borderColor: 'var(--v3-border)' }}
+              >
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'var(--v3-accent-muted)' }}>
+                  <Upload size={20} style={{ color: 'var(--v3-accent)' }} />
+                </div>
+                <div className="text-center">
+                  <p className="text-[13px] font-medium" style={{ color: 'var(--v3-text-secondary)' }}>
+                    Drop image or click to upload
+                  </p>
+                  <p className="text-[11px] mt-1" style={{ color: 'var(--v3-text-muted)' }}>
+                    JPG, PNG up to 10MB
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="relative">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-full rounded-xl object-cover max-h-[240px]"
+                />
+                <button
+                  onClick={clearImage}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center bg-black/60 text-white hover:bg-black/80 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            )}
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+
+            {/* Testing mode toggle */}
+            <div className="flex items-center justify-between mt-4 py-3 px-3 rounded-lg" style={{ background: 'var(--v3-bg)' }}>
+              <div>
+                <p className="text-[12px] font-medium" style={{ color: 'var(--v3-text-secondary)' }}>Testing Mode</p>
+                <p className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>No credits consumed</p>
+              </div>
+              <button
+                onClick={() => setTestingMode(!testingMode)}
+                className={`w-9 h-5 rounded-full transition-colors relative ${testingMode ? 'bg-[var(--v3-accent)]' : 'bg-zinc-600'}`}
+              >
+                <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${testingMode ? 'left-[18px]' : 'left-0.5'}`} />
+              </button>
+            </div>
+
+            {/* Search button */}
+            <button
+              onClick={startSearch}
+              disabled={!selectedFile || searchState === 'uploading' || searchState === 'searching'}
+              className="w-full mt-4 py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{
+                background: selectedFile ? 'var(--v3-accent)' : 'var(--v3-surface-hover)',
+                color: selectedFile ? 'white' : 'var(--v3-text-muted)',
+              }}
+            >
+              {searchState === 'uploading' && <Loader2 size={14} className="animate-spin" />}
+              {searchState === 'searching' && <Loader2 size={14} className="animate-spin" />}
+              {searchState === 'idle' && <Search size={14} />}
+              {searchState === 'complete' && <CheckCircle2 size={14} />}
+              {searchState === 'uploading' ? 'Uploading...' :
+               searchState === 'searching' ? 'Searching...' :
+               searchState === 'complete' ? 'Search Again' : 'Search Face'}
+            </button>
+
+            {/* Progress bar */}
+            {(searchState === 'uploading' || searchState === 'searching') && (
+              <div className="mt-3">
+                <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--v3-bg)' }}>
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: 'var(--v3-accent)' }}
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
+                <p className="text-[10px] mt-1.5 text-center" style={{ color: 'var(--v3-text-muted)' }}>
+                  {searchState === 'uploading' ? 'Uploading image...' : `Scanning faces — ${Math.round(progress)}%`}
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Warning */}
+          {!testingMode && (
+            <motion.div
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border p-4 flex items-start gap-3"
+              style={{ background: 'rgba(251, 191, 36, 0.08)', borderColor: 'rgba(251, 191, 36, 0.2)' }}
+            >
+              <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-[12px] font-medium text-amber-300">Production Mode Active</p>
+                <p className="text-[11px] text-amber-400/70 mt-0.5">Each search costs 3 credits (0.30 USD)</p>
+              </div>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Results Panel */}
+        <div className="lg:col-span-2">
+          <div
+            className="rounded-xl border min-h-[400px]"
+            style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
+          >
+            <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--v3-border)' }}>
+              <h2 className="text-[13px] font-semibold" style={{ color: 'var(--v3-text)' }}>
+                Results {results.length > 0 && <span className="font-normal" style={{ color: 'var(--v3-text-muted)' }}>({results.length})</span>}
+              </h2>
+              {testingMode && results.length > 0 && (
+                <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400">
+                  TEST MODE
+                </span>
+              )}
+            </div>
+
+            {searchState === 'error' && (
+              <div className="p-8 flex flex-col items-center gap-3">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-red-500/10">
+                  <AlertTriangle size={20} className="text-red-400" />
+                </div>
+                <p className="text-[13px] font-medium text-red-400">{errorMsg}</p>
+              </div>
+            )}
+
+            {searchState === 'idle' && results.length === 0 && (
+              <div className="p-12 flex flex-col items-center gap-3">
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center" style={{ background: 'var(--v3-accent-muted)' }}>
+                  <ImageIcon size={24} style={{ color: 'var(--v3-accent)' }} />
+                </div>
+                <p className="text-[13px] font-medium" style={{ color: 'var(--v3-text-secondary)' }}>
+                  Upload an image to begin
+                </p>
+                <p className="text-[11px]" style={{ color: 'var(--v3-text-muted)' }}>
+                  Face search will find matching faces across the internet
+                </p>
+              </div>
+            )}
+
+            {(searchState === 'uploading' || searchState === 'searching') && results.length === 0 && (
+              <div className="p-12 flex flex-col items-center gap-3">
+                <Loader2 size={28} className="animate-spin" style={{ color: 'var(--v3-accent)' }} />
+                <p className="text-[13px] font-medium" style={{ color: 'var(--v3-text-secondary)' }}>
+                  {searchState === 'uploading' ? 'Processing image...' : 'Scanning facial databases...'}
+                </p>
+              </div>
+            )}
+
+            {results.length > 0 && (
+              <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <AnimatePresence>
+                  {results.map((result, i) => (
+                    <motion.a
+                      key={`${result.url}-${i}`}
+                      href={result.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="rounded-xl border p-3 flex items-start gap-3 transition-colors group cursor-pointer"
+                      style={{ borderColor: 'var(--v3-border)' }}
+                      onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--v3-surface-hover)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      {result.base64 ? (
+                        <img
+                          src={`data:image/jpeg;base64,${result.base64}`}
+                          alt="Match"
+                          className="w-14 h-14 rounded-lg object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 rounded-lg shrink-0 flex items-center justify-center" style={{ background: 'var(--v3-bg)' }}>
+                          <ImageIcon size={18} style={{ color: 'var(--v3-text-muted)' }} />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                              result.score > 90 ? 'bg-red-500/10 text-red-400' :
+                              result.score > 70 ? 'bg-amber-500/10 text-amber-400' :
+                              'bg-zinc-500/10 text-zinc-400'
+                            }`}
+                          >
+                            {result.score}%
+                          </span>
+                          <ExternalLink size={11} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--v3-text-muted)' }} />
+                        </div>
+                        <p className="text-[11px] truncate mt-1" style={{ color: 'var(--v3-text-muted)' }}>
+                          {result.url}
+                        </p>
+                      </div>
+                    </motion.a>
+                  ))}
+                </AnimatePresence>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
