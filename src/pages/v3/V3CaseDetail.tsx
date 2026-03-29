@@ -63,6 +63,7 @@ export default function V3CaseDetail() {
 
   // New state for intelligence features
   const [scanning, setScanning] = useState(false);
+  const [scanProgress, setScanProgress] = useState<{ progress: number; status: string; tools: string[] } | null>(null);
   const [narrativeLoading, setNarrativeLoading] = useState(false);
   const [narrative, setNarrative] = useState<string | null>(null);
   const [correlations, setCorrelations] = useState<Array<{ case_id: string; match_type: string; detail: string; risk_level: string; shared_attribute: string }> | null>(null);
