@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
+import { CompassLogo } from '@/components/CompassLogo';
 
 const NAV_SECTIONS = [
   {
@@ -68,6 +69,7 @@ export function V3Sidebar() {
     >
       {/* Brand */}
       <div className="flex items-center justify-between h-14 px-3 border-b" style={{ borderColor: 'var(--v3-border)' }}>
+        <CompassLogo className="w-6 h-6 shrink-0 text-[var(--v3-text)]" />
         {!collapsed && (
           <span className="text-[13px] font-semibold tracking-wide" style={{ color: 'var(--v3-text)' }}>
             Portolan
