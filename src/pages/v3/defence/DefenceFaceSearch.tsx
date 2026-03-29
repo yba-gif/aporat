@@ -379,8 +379,8 @@ function inferPotentialName(results: FaceResult[]): string | null {
 
 export default function DefenceFaceSearch() {
   const [searchState, setSearchState] = useState<SearchState>('idle');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [results, setResults] = useState<FaceResult[]>([]);
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
@@ -391,6 +391,7 @@ export default function DefenceFaceSearch() {
   const [activeTab, setActiveTab] = useState<ResultTab>('results');
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [dossierLoading, setDossierLoading] = useState(false);
+  const [searchProgress, setSearchProgress] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -403,42 +404,46 @@ export default function DefenceFaceSearch() {
 
   useEffect(() => stopPolling, [stopPolling]);
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error('Image must be under 10MB');
-      return;
-    }
-    setSelectedFile(file);
+  const addFiles = useCallback((files: File[]) => {
+    const valid = files.filter(f => {
+      if (!f.type.startsWith('image/')) { toast.error(`${f.name} is not an image`); return false; }
+      if (f.size > 10 * 1024 * 1024) { toast.error(`${f.name} exceeds 10MB`); return false; }
+      return true;
+    });
+    if (valid.length === 0) return;
+    const total = selectedFiles.length + valid.length;
+    if (total > 5) { toast.error('Maximum 5 images allowed'); return; }
+    setSelectedFiles(prev => [...prev, ...valid]);
     setResults([]);
     setErrorMsg('');
-    const reader = new FileReader();
-    reader.onload = (ev) => setImagePreview(ev.target?.result as string);
-    reader.readAsDataURL(file);
-  }, []);
+    valid.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (ev) => setImagePreviews(prev => [...prev, ev.target?.result as string]);
+      reader.readAsDataURL(file);
+    });
+  }, [selectedFiles]);
+
+  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    addFiles(files);
+  }, [addFiles]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setSelectedFile(file);
-      setResults([]);
-      setErrorMsg('');
-      const reader = new FileReader();
-      reader.onload = (ev) => setImagePreview(ev.target?.result as string);
-      reader.readAsDataURL(file);
-    }
-  }, []);
+    const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+    if (files.length > 0) addFiles(files);
+  }, [addFiles]);
+
+  const removeImage = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   const clearImage = () => {
     stopPolling();
-    setSelectedFile(null);
-    setImagePreview(null);
+    setSelectedFiles([]);
+    setImagePreviews([]);
     setResults([]);
     setSearchState('idle');
     setErrorMsg('');
@@ -446,6 +451,7 @@ export default function DefenceFaceSearch() {
     setSavedId(null);
     setDossier(null);
     setActiveTab('results');
+    setSearchProgress('');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -555,56 +561,7 @@ export default function DefenceFaceSearch() {
     }
   }, [results, potentialName, testingMode]);
 
-  const startSearch = async () => {
-    if (!selectedFile) return;
-
-    try {
-      stopPolling();
-
-      // Step 1: Upload
-      setSearchState('uploading');
-      setProgress(0);
-
-      const formData = new FormData();
-      formData.append('image', selectedFile);
-
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const baseUrl = `https://${projectId}.supabase.co/functions/v1`;
-
-      const uploadRes = await fetch(`${baseUrl}/facecheck-search?action=upload`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${anonKey}` },
-        body: formData,
-      });
-
-      const uploadData = await uploadRes.json();
-      if (!uploadRes.ok || !uploadData.id_search) {
-        throw new Error(uploadData.error || 'Upload failed');
-      }
-
-      const idSearch = uploadData.id_search;
-
-      // Step 2: Start search
-      setSearchState('searching');
-      setProgress(10);
-
-      const searchRes = await fetch(`${baseUrl}/facecheck-search?action=search`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${anonKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id_search: idSearch, testing: testingMode }),
-      });
-
-      const searchData = await searchRes.json();
-
-      if (!searchRes.ok || searchData?.error) {
-        throw new Error(searchData?.error || 'Search failed');
-      }
-
-      const saveSearch = async (parsedResults: FaceResult[]) => {
+  const saveSearch = async (parsedResults: FaceResult[]) => {
     try {
       const platforms = correlatePlatforms(parsedResults);
       const name = inferPotentialName(parsedResults);
@@ -629,34 +586,22 @@ export default function DefenceFaceSearch() {
         toast.success('Search saved to intelligence database');
       }
     } catch {
-      // Non-critical, don't block UI
+      // Non-critical
     }
-      };
+  };
 
-      // If we got output immediately
-      if (searchData?.output) {
-        const parsed = parseResults(searchData.output);
-        setResults(parsed);
-        setSearchState('complete');
-        setProgress(100);
-        saveSearch(parsed);
-        return;
-      }
-
-      // Step 3: Poll for results
+  const pollForResults = (baseUrl: string, anonKey: string, idSearch: string): Promise<FaceResult[]> => {
+    return new Promise((resolve, reject) => {
       let attempts = 0;
       const maxAttempts = 60;
 
-      pollRef.current = setInterval(async () => {
+      const interval = setInterval(async () => {
         attempts++;
         if (attempts > maxAttempts) {
-          stopPolling();
-          setSearchState('error');
-          setErrorMsg('Search timed out after 5 minutes');
+          clearInterval(interval);
+          reject(new Error('Search timed out after 5 minutes'));
           return;
         }
-
-        setProgress(Math.min(10 + (attempts / maxAttempts) * 85, 95));
 
         try {
           const url = new URL(`${baseUrl}/facecheck-search`);
@@ -674,26 +619,118 @@ export default function DefenceFaceSearch() {
           const statusData = await statusRes.json();
 
           if (statusData.output) {
-            stopPolling();
-            const parsed = parseResults(statusData.output);
-            setResults(parsed);
-            setSearchState('complete');
-            setProgress(100);
-            saveSearch(parsed);
+            clearInterval(interval);
+            resolve(parseResults(statusData.output));
           } else if (!statusRes.ok || statusData.error) {
-            stopPolling();
-            setSearchState('error');
-            setErrorMsg(statusData.error || 'Unable to fetch search status');
+            clearInterval(interval);
+            reject(new Error(statusData.error || 'Search failed'));
           }
         } catch {
-          // Continue polling on network errors
+          // Continue polling
         }
       }, 5000);
+
+      pollRef.current = interval;
+    });
+  };
+
+  const startSearch = async () => {
+    if (selectedFiles.length === 0) return;
+
+    try {
+      stopPolling();
+      setSearchState('uploading');
+      setProgress(0);
+      setResults([]);
+
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const baseUrl = `https://${projectId}.supabase.co/functions/v1`;
+
+      const allResults: FaceResult[] = [];
+      const totalFiles = selectedFiles.length;
+
+      for (let i = 0; i < totalFiles; i++) {
+        const file = selectedFiles[i];
+        const fileLabel = totalFiles > 1 ? `[${i + 1}/${totalFiles}] ` : '';
+
+        // Upload
+        setSearchProgress(`${fileLabel}Uploading ${file.name}...`);
+        setSearchState('uploading');
+        setProgress(((i * 2) / (totalFiles * 2)) * 100);
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const uploadRes = await fetch(`${baseUrl}/facecheck-search?action=upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${anonKey}` },
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || !uploadData.id_search) {
+          throw new Error(uploadData.error || `Upload failed for image ${i + 1}`);
+        }
+
+        const idSearch = uploadData.id_search;
+
+        // Start search
+        setSearchState('searching');
+        setSearchProgress(`${fileLabel}Scanning faces...`);
+        setProgress(((i * 2 + 1) / (totalFiles * 2)) * 100);
+
+        const searchRes = await fetch(`${baseUrl}/facecheck-search?action=search`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${anonKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id_search: idSearch, testing: testingMode }),
+        });
+
+        const searchData = await searchRes.json();
+        if (!searchRes.ok || searchData?.error) {
+          throw new Error(searchData?.error || `Search failed for image ${i + 1}`);
+        }
+
+        // Get results
+        let imageResults: FaceResult[];
+        if (searchData?.output) {
+          imageResults = parseResults(searchData.output);
+        } else {
+          setSearchProgress(`${fileLabel}Waiting for results...`);
+          imageResults = await pollForResults(baseUrl, anonKey, idSearch);
+        }
+
+        allResults.push(...imageResults);
+      }
+
+      // Deduplicate by URL, keeping highest score
+      const urlMap = new Map<string, FaceResult>();
+      for (const r of allResults) {
+        const existing = urlMap.get(r.url);
+        if (!existing || r.score > existing.score) {
+          urlMap.set(r.url, r);
+        }
+      }
+      const dedupedResults = Array.from(urlMap.values()).sort((a, b) => b.score - a.score);
+
+      setResults(dedupedResults);
+      setSearchState('complete');
+      setProgress(100);
+      setSearchProgress('');
+      saveSearch(dedupedResults);
+
+      if (totalFiles > 1) {
+        toast.success(`Cross-referenced ${totalFiles} images — ${dedupedResults.length} unique matches found`);
+      }
 
     } catch (err: any) {
       stopPolling();
       setSearchState('error');
       setErrorMsg(err.message || 'Search failed');
+      setSearchProgress('');
     }
   };
 
@@ -729,49 +766,72 @@ export default function DefenceFaceSearch() {
             style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
           >
             <h2 className="text-[13px] font-semibold mb-4" style={{ color: 'var(--v3-text)' }}>
-              Upload Image
+              Upload Images <span className="font-normal text-[11px]" style={{ color: 'var(--v3-text-muted)' }}>(up to 5)</span>
             </h2>
 
-            {!imagePreview ? (
+            {/* Drop zone - always show if under 5 images */}
+            {imagePreviews.length < 5 && (
               <div
                 onDrop={handleDrop}
                 onDragOver={(e) => e.preventDefault()}
                 onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 cursor-pointer transition-colors hover:border-[var(--v3-accent)]"
+                className="border-2 border-dashed rounded-xl p-6 flex flex-col items-center gap-3 cursor-pointer transition-colors hover:border-[var(--v3-accent)]"
                 style={{ borderColor: 'var(--v3-border)' }}
               >
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'var(--v3-accent-muted)' }}>
-                  <Upload size={20} style={{ color: 'var(--v3-accent)' }} />
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'var(--v3-accent-muted)' }}>
+                  <Upload size={18} style={{ color: 'var(--v3-accent)' }} />
                 </div>
                 <div className="text-center">
-                  <p className="text-[13px] font-medium" style={{ color: 'var(--v3-text-secondary)' }}>
-                    Drop image or click to upload
+                  <p className="text-[12px] font-medium" style={{ color: 'var(--v3-text-secondary)' }}>
+                    {imagePreviews.length === 0 ? 'Drop images or click to upload' : 'Add more images'}
                   </p>
-                  <p className="text-[11px] mt-1" style={{ color: 'var(--v3-text-muted)' }}>
-                    JPG, PNG up to 10MB
+                  <p className="text-[10px] mt-0.5" style={{ color: 'var(--v3-text-muted)' }}>
+                    JPG, PNG up to 10MB each
                   </p>
                 </div>
               </div>
-            ) : (
-              <div className="relative">
-                <img
-                  src={imagePreview}
-                  alt="Preview"
-                  className="w-full rounded-xl object-cover max-h-[240px]"
-                />
-                <button
-                  onClick={clearImage}
-                  className="absolute top-2 right-2 w-7 h-7 rounded-lg flex items-center justify-center bg-black/60 text-white hover:bg-black/80 transition-colors"
-                >
-                  <X size={14} />
-                </button>
+            )}
+
+            {/* Image previews grid */}
+            {imagePreviews.length > 0 && (
+              <div className={`grid gap-2 mt-3 ${imagePreviews.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
+                {imagePreviews.map((preview, idx) => (
+                  <div key={idx} className="relative group">
+                    <img
+                      src={preview}
+                      alt={`Preview ${idx + 1}`}
+                      className="w-full rounded-lg object-cover"
+                      style={{ maxHeight: imagePreviews.length === 1 ? '200px' : '120px' }}
+                    />
+                    <button
+                      onClick={() => removeImage(idx)}
+                      className="absolute top-1.5 right-1.5 w-6 h-6 rounded-md flex items-center justify-center bg-black/60 text-white hover:bg-black/80 transition-colors opacity-0 group-hover:opacity-100"
+                    >
+                      <X size={12} />
+                    </button>
+                    <span className="absolute bottom-1.5 left-1.5 text-[9px] px-1.5 py-0.5 rounded-md bg-black/60 text-white font-medium">
+                      #{idx + 1}
+                    </span>
+                  </div>
+                ))}
               </div>
+            )}
+
+            {imagePreviews.length > 0 && (
+              <button
+                onClick={clearImage}
+                className="w-full mt-2 text-[11px] py-1.5 rounded-lg transition-colors"
+                style={{ color: 'var(--v3-text-muted)' }}
+              >
+                Clear all
+              </button>
             )}
 
             <input
               ref={fileInputRef}
               type="file"
               accept="image/*"
+              multiple
               className="hidden"
               onChange={handleFileSelect}
             />
@@ -793,11 +853,11 @@ export default function DefenceFaceSearch() {
             {/* Search button */}
             <button
               onClick={startSearch}
-              disabled={!selectedFile || searchState === 'uploading' || searchState === 'searching'}
+              disabled={selectedFiles.length === 0 || searchState === 'uploading' || searchState === 'searching'}
               className="w-full mt-4 py-2.5 rounded-xl text-[13px] font-semibold flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               style={{
-                background: selectedFile ? 'var(--v3-accent)' : 'var(--v3-surface-hover)',
-                color: selectedFile ? 'white' : 'var(--v3-text-muted)',
+                background: selectedFiles.length > 0 ? 'var(--v3-accent)' : 'var(--v3-surface-hover)',
+                color: selectedFiles.length > 0 ? 'white' : 'var(--v3-text-muted)',
               }}
             >
               {searchState === 'uploading' && <Loader2 size={14} className="animate-spin" />}
@@ -806,7 +866,8 @@ export default function DefenceFaceSearch() {
               {searchState === 'complete' && <CheckCircle2 size={14} />}
               {searchState === 'uploading' ? 'Uploading...' :
                searchState === 'searching' ? 'Searching...' :
-               searchState === 'complete' ? 'Search Again' : 'Search Face'}
+               searchState === 'complete' ? 'Search Again' :
+               selectedFiles.length > 1 ? `Search ${selectedFiles.length} Faces` : 'Search Face'}
             </button>
 
             {/* Progress bar */}
@@ -822,7 +883,7 @@ export default function DefenceFaceSearch() {
                   />
                 </div>
                 <p className="text-[10px] mt-1.5 text-center" style={{ color: 'var(--v3-text-muted)' }}>
-                  {searchState === 'uploading' ? 'Uploading image...' : `Scanning faces — ${Math.round(progress)}%`}
+                  {searchProgress || (searchState === 'uploading' ? 'Uploading image...' : `Scanning faces — ${Math.round(progress)}%`)}
                 </p>
               </div>
             )}
@@ -839,7 +900,7 @@ export default function DefenceFaceSearch() {
               <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
               <div>
                 <p className="text-[12px] font-medium text-amber-300">Production Mode Active</p>
-                <p className="text-[11px] text-amber-400/70 mt-0.5">Each search costs 3 credits (0.30 USD)</p>
+                <p className="text-[11px] text-amber-400/70 mt-0.5">Each image search costs 3 credits (0.30 USD) — {selectedFiles.length} image{selectedFiles.length !== 1 ? 's' : ''} = {selectedFiles.length * 3} credits</p>
               </div>
             </motion.div>
           )}
