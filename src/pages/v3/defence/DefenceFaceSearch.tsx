@@ -645,8 +645,30 @@ export default function DefenceFaceSearch() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setTelegramOsint(data);
-      const found = data?.totalFound || 0;
+      // Add confidence scoring by cross-referencing display names with the subject
+      const subjectName = (potentialName || enrichment?.name || '').toLowerCase().trim();
+      const enrichedResults = data?.results?.map((r: any) => {
+        if (!r.exists) return r;
+        const displayLower = (r.displayName || '').toLowerCase().trim();
+        let confidence: 'high' | 'medium' | 'low' = 'low';
+        let confidenceReason = 'Username correlation only';
+        if (subjectName && displayLower) {
+          const subjectParts = subjectName.split(/\s+/);
+          const displayParts = displayLower.split(/\s+/);
+          const matchingParts = subjectParts.filter(p => displayParts.some(d => d.includes(p) || p.includes(d)));
+          if (matchingParts.length >= 2 || displayLower === subjectName) {
+            confidence = 'high';
+            confidenceReason = 'Display name matches subject';
+          } else if (matchingParts.length === 1) {
+            confidence = 'medium';
+            confidenceReason = 'Partial name match';
+          }
+        }
+        return { ...r, confidence, confidenceReason };
+      }) || [];
+      const enrichedData = { ...data, results: enrichedResults };
+      setTelegramOsint(enrichedData);
+      const found = enrichedData?.totalFound || 0;
       if (found > 0) {
         toast.success(`Found ${found} Telegram profile${found > 1 ? 's' : ''}`);
       } else {
@@ -1487,6 +1509,12 @@ export default function DefenceFaceSearch() {
                               {profile.profilePhoto && (
                                 <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>📷 Has photo</span>
                               )}
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold tracking-wider uppercase" style={{
+                                background: profile.confidence === 'high' ? 'rgba(34,197,94,0.12)' : profile.confidence === 'medium' ? 'rgba(251,191,36,0.12)' : 'rgba(239,68,68,0.1)',
+                                color: profile.confidence === 'high' ? '#22c55e' : profile.confidence === 'medium' ? '#fbbf24' : '#ef4444',
+                              }}>
+                                {profile.confidence || 'low'} conf
+                              </span>
                             </div>
                             {profile.memberCount && (
                               <span className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>
@@ -1495,7 +1523,12 @@ export default function DefenceFaceSearch() {
                             )}
                           </div>
                           {profile.displayName && (
-                            <p className="text-[11px] font-semibold" style={{ color: 'var(--v3-text)' }}>{profile.displayName}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-[11px] font-semibold" style={{ color: 'var(--v3-text)' }}>{profile.displayName}</p>
+                              {profile.confidenceReason && (
+                                <span className="text-[9px] italic" style={{ color: 'var(--v3-text-muted)' }}>— {profile.confidenceReason}</span>
+                              )}
+                            </div>
                           )}
                           {profile.bio && (
                             <p className="text-[10px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{profile.bio}</p>
