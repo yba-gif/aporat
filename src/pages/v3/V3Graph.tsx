@@ -278,7 +278,7 @@ export default function V3Graph() {
     if (isSelected || isHovered) {
       const ringGeo = new THREE.RingGeometry(size * 1.4, size * 1.7, 32);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: isSelected ? 0x06B6D4 : 0xffffff,
+        color: isSelected ? 0xA78BFA : 0xffffff,
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.7,
