@@ -619,6 +619,50 @@ export default function DefenceFaceSearch() {
     }
   }, [enrichment, usernameEnum, enumerating, enumerateUsernames]);
 
+  // Telegram OSINT lookup
+  const telegramLookup = useCallback(async () => {
+    if (results.length === 0) return;
+    setTelegramLoading(true);
+    try {
+      const platforms = correlatePlatforms(results);
+      const allAccounts = platforms.flatMap(p => p.accounts);
+      const usernames = [...new Set(
+        allAccounts
+          .sort((a, b) => b.bestScore - a.bestScore)
+          .slice(0, 5)
+          .map(a => a.username)
+      )];
+
+      if (usernames.length === 0) return;
+
+      const { data, error } = await supabase.functions.invoke('telegram-osint', {
+        body: { usernames },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setTelegramOsint(data);
+      const found = data?.totalFound || 0;
+      if (found > 0) {
+        toast.success(`Found ${found} Telegram profile${found > 1 ? 's' : ''}`);
+      } else {
+        toast.info('No Telegram profiles found');
+      }
+    } catch (err: any) {
+      toast.error('Telegram lookup failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setTelegramLoading(false);
+    }
+  }, [results]);
+
+  // Auto-trigger Telegram OSINT after username enumeration completes
+  useEffect(() => {
+    if (usernameEnum?.success && !telegramOsint && !telegramLoading) {
+      telegramLookup();
+    }
+  }, [usernameEnum, telegramOsint, telegramLoading, telegramLookup]);
+
   const exportReport = useCallback(async () => {
     if (results.length === 0) return;
     setExporting(true);
