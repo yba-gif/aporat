@@ -584,7 +584,7 @@ export default function V3Graph() {
               <p className="text-xs leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{dossierNode.detail}</p>
 
               {(dossierNode.riskScore >= 60 || dossierNode.flagged) && (
-                <div className="bg-red-500/5 border border-red-500/10 rounded-md p-3 space-y-1.5">
+                <div className="bg-red-500/5 border border-red-500/10 rounded-xl p-4 space-y-1.5">
                   <p className="text-[10px] font-semibold uppercase tracking-wider text-red-400 flex items-center gap-1.5">
                     <FileWarning size={10} /> Risk Indicators
                   </p>
