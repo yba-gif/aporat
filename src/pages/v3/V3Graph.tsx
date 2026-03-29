@@ -633,7 +633,7 @@ export default function V3Graph() {
               <div className="space-y-2 pt-2 border-t" style={{ borderColor: 'var(--v3-border)' }}>
                 {dossierNode.caseId && (
                   <Button variant="outline" size="sm" onClick={() => navigate(`/v3/cases/${dossierNode.caseId}`)}
-                    className="w-full border rounded-md text-xs justify-start gap-2"
+                    className="w-full border rounded-xl text-xs justify-start gap-2"
                     style={{ background: 'var(--v3-accent-muted)', borderColor: 'var(--v3-border)', color: 'var(--v3-accent)' }}>
                     <ExternalLink size={12} /> Open in Case Detail
                   </Button>
