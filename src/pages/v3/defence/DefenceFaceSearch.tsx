@@ -1488,54 +1488,84 @@ export default function DefenceFaceSearch() {
                         </div>
                       )}
 
-                      {telegramOsint?.results?.filter((r: any) => r.exists).map((profile: any) => (
-                        <div key={profile.username} className="rounded-md border p-2.5 space-y-1.5" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-surface)' }}>
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <a
-                                href={`https://t.me/${profile.username}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[12px] font-bold hover:underline"
-                                style={{ color: '#0088cc' }}
+                      {(() => {
+                        const allExisting = telegramOsint?.results?.filter((r: any) => r.exists) || [];
+                        const highMed = allExisting.filter((p: any) => p.confidence === 'high' || p.confidence === 'medium');
+                        const lowOnly = allExisting.filter((p: any) => !p.confidence || p.confidence === 'low');
+                        const visible = showLowConfTelegram ? allExisting : highMed;
+
+                        return (
+                          <>
+                            {visible.map((profile: any) => (
+                              <div key={profile.username} className="rounded-md border p-2.5 space-y-1.5" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-surface)' }}>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    <a
+                                      href={`https://t.me/${profile.username}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-[12px] font-bold hover:underline"
+                                      style={{ color: '#0088cc' }}
+                                    >
+                                      @{profile.username}
+                                    </a>
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{
+                                      background: profile.profileType === 'channel' ? 'rgba(139,92,246,0.1)' : profile.profileType === 'group' ? 'rgba(59,130,246,0.1)' : profile.profileType === 'bot' ? 'rgba(251,191,36,0.1)' : 'rgba(34,197,94,0.1)',
+                                      color: profile.profileType === 'channel' ? '#8b5cf6' : profile.profileType === 'group' ? '#3b82f6' : profile.profileType === 'bot' ? '#fbbf24' : '#22c55e',
+                                    }}>
+                                      {profile.profileType?.toUpperCase() || 'USER'}
+                                    </span>
+                                    {profile.profilePhoto && (
+                                      <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>📷 Has photo</span>
+                                    )}
+                                    <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold tracking-wider uppercase" style={{
+                                      background: profile.confidence === 'high' ? 'rgba(34,197,94,0.12)' : profile.confidence === 'medium' ? 'rgba(251,191,36,0.12)' : 'rgba(239,68,68,0.1)',
+                                      color: profile.confidence === 'high' ? '#22c55e' : profile.confidence === 'medium' ? '#fbbf24' : '#ef4444',
+                                    }}>
+                                      {profile.confidence || 'low'} conf
+                                    </span>
+                                  </div>
+                                  {profile.memberCount && (
+                                    <span className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>
+                                      {profile.memberCount} {profile.profileType === 'channel' ? 'subscribers' : 'members'}
+                                    </span>
+                                  )}
+                                </div>
+                                {profile.displayName && (
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-[11px] font-semibold" style={{ color: 'var(--v3-text)' }}>{profile.displayName}</p>
+                                    {profile.confidenceReason && (
+                                      <span className="text-[9px] italic" style={{ color: 'var(--v3-text-muted)' }}>— {profile.confidenceReason}</span>
+                                    )}
+                                  </div>
+                                )}
+                                {profile.bio && (
+                                  <p className="text-[10px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{profile.bio}</p>
+                                )}
+                              </div>
+                            ))}
+
+                            {lowOnly.length > 0 && !showLowConfTelegram && (
+                              <button
+                                onClick={() => setShowLowConfTelegram(true)}
+                                className="w-full text-center text-[10px] font-medium py-1.5 rounded-md border border-dashed hover:opacity-80 transition-opacity"
+                                style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-muted)' }}
                               >
-                                @{profile.username}
-                              </a>
-                              <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{
-                                background: profile.profileType === 'channel' ? 'rgba(139,92,246,0.1)' : profile.profileType === 'group' ? 'rgba(59,130,246,0.1)' : profile.profileType === 'bot' ? 'rgba(251,191,36,0.1)' : 'rgba(34,197,94,0.1)',
-                                color: profile.profileType === 'channel' ? '#8b5cf6' : profile.profileType === 'group' ? '#3b82f6' : profile.profileType === 'bot' ? '#fbbf24' : '#22c55e',
-                              }}>
-                                {profile.profileType?.toUpperCase() || 'USER'}
-                              </span>
-                              {profile.profilePhoto && (
-                                <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>📷 Has photo</span>
-                              )}
-                              <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold tracking-wider uppercase" style={{
-                                background: profile.confidence === 'high' ? 'rgba(34,197,94,0.12)' : profile.confidence === 'medium' ? 'rgba(251,191,36,0.12)' : 'rgba(239,68,68,0.1)',
-                                color: profile.confidence === 'high' ? '#22c55e' : profile.confidence === 'medium' ? '#fbbf24' : '#ef4444',
-                              }}>
-                                {profile.confidence || 'low'} conf
-                              </span>
-                            </div>
-                            {profile.memberCount && (
-                              <span className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>
-                                {profile.memberCount} {profile.profileType === 'channel' ? 'subscribers' : 'members'}
-                              </span>
+                                Show {lowOnly.length} low-confidence match{lowOnly.length > 1 ? 'es' : ''} (username correlation only)
+                              </button>
                             )}
-                          </div>
-                          {profile.displayName && (
-                            <div className="flex items-center gap-2">
-                              <p className="text-[11px] font-semibold" style={{ color: 'var(--v3-text)' }}>{profile.displayName}</p>
-                              {profile.confidenceReason && (
-                                <span className="text-[9px] italic" style={{ color: 'var(--v3-text-muted)' }}>— {profile.confidenceReason}</span>
-                              )}
-                            </div>
-                          )}
-                          {profile.bio && (
-                            <p className="text-[10px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{profile.bio}</p>
-                          )}
-                        </div>
-                      ))}
+                            {showLowConfTelegram && lowOnly.length > 0 && (
+                              <button
+                                onClick={() => setShowLowConfTelegram(false)}
+                                className="w-full text-center text-[10px] font-medium py-1 rounded-md hover:opacity-80 transition-opacity"
+                                style={{ color: 'var(--v3-text-muted)' }}
+                              >
+                                Hide low-confidence matches
+                              </button>
+                            )}
+                          </>
+                        );
+                      })()}
 
                       {telegramOsint?.aiAnalysis && (
                         <div className="space-y-1.5 pt-1 border-t" style={{ borderColor: 'rgba(0,136,204,0.15)' }}>
