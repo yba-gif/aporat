@@ -639,7 +639,7 @@ export default function V3Graph() {
                   </Button>
                 )}
                 <Button variant="outline" size="sm"
-                  className="w-full border rounded-md text-xs justify-start gap-2"
+                  className="w-full border rounded-xl text-xs justify-start gap-2"
                   style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
                   <Activity size={12} /> View Full Dossier
                 </Button>
