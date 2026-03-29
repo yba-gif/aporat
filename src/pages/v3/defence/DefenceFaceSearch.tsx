@@ -20,29 +20,147 @@ interface PlatformMatch {
   color: string;
   results: FaceResult[];
   avgScore: number;
+  accounts: { username: string; profileUrl: string; postCount: number; bestScore: number }[];
 }
 
-const PLATFORM_RULES: { pattern: RegExp; platform: string; icon: string; color: string }[] = [
-  { pattern: /instagram\.com|instagr\.am/i, platform: 'Instagram', icon: '📸', color: '#E1306C' },
-  { pattern: /twitter\.com|x\.com/i, platform: 'X / Twitter', icon: '𝕏', color: '#1DA1F2' },
-  { pattern: /linkedin\.com/i, platform: 'LinkedIn', icon: '💼', color: '#0A66C2' },
-  { pattern: /facebook\.com|fb\.com/i, platform: 'Facebook', icon: '📘', color: '#1877F2' },
-  { pattern: /youtube\.com|youtu\.be/i, platform: 'YouTube', icon: '▶️', color: '#FF0000' },
-  { pattern: /tiktok\.com/i, platform: 'TikTok', icon: '🎵', color: '#00F2EA' },
-  { pattern: /reddit\.com/i, platform: 'Reddit', icon: '🟠', color: '#FF4500' },
-  { pattern: /medium\.com/i, platform: 'Medium', icon: '✍️', color: '#00AB6C' },
-  { pattern: /github\.com/i, platform: 'GitHub', icon: '🐙', color: '#8B5CF6' },
-  { pattern: /forbes\.com/i, platform: 'Forbes', icon: '📰', color: '#B5985A' },
-  { pattern: /crunchbase\.com/i, platform: 'Crunchbase', icon: '🏢', color: '#0288D1' },
-  { pattern: /quora\.com/i, platform: 'Quora', icon: '❓', color: '#B92B27' },
-  { pattern: /pinterest\.com/i, platform: 'Pinterest', icon: '📌', color: '#E60023' },
-  { pattern: /vk\.com/i, platform: 'VKontakte', icon: '🔵', color: '#4680C2' },
-  { pattern: /strava\.com/i, platform: 'Strava', icon: '🏃', color: '#FC4C02' },
-  { pattern: /wikitia\.com|wikipedia\.org/i, platform: 'Wiki', icon: '📖', color: '#636978' },
+interface PlatformRule {
+  pattern: RegExp;
+  platform: string;
+  icon: string;
+  color: string;
+  extractUsername: (url: string) => string | null;
+  buildProfileUrl: (username: string) => string;
+}
+
+const extractPath = (url: string, index: number): string | null => {
+  try {
+    const parts = new URL(url).pathname.split('/').filter(Boolean);
+    return parts[index] || null;
+  } catch { return null; }
+};
+
+const PLATFORM_RULES: PlatformRule[] = [
+  {
+    pattern: /instagram\.com|instagr\.am/i, platform: 'Instagram', icon: '📸', color: '#E1306C',
+    extractUsername: (url) => {
+      const m = url.match(/instagram\.com\/(?!p\/|reel\/|stories\/|explore\/)([A-Za-z0-9._]+)/i);
+      if (m) return m[1];
+      // from post URLs like /p/xxx/ — can't extract user
+      const post = url.match(/instagram\.com\/p\/([A-Za-z0-9_-]+)/i);
+      if (post) return null; // will be grouped as unknown account
+      return null;
+    },
+    buildProfileUrl: (u) => `https://instagram.com/${u}`,
+  },
+  {
+    pattern: /twitter\.com|x\.com/i, platform: 'X / Twitter', icon: '𝕏', color: '#1DA1F2',
+    extractUsername: (url) => {
+      const m = url.match(/(?:twitter\.com|x\.com)\/(?!search|i\/|hashtag|explore|settings)([A-Za-z0-9_]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://x.com/${u}`,
+  },
+  {
+    pattern: /linkedin\.com/i, platform: 'LinkedIn', icon: '💼', color: '#0A66C2',
+    extractUsername: (url) => {
+      const m = url.match(/linkedin\.com\/in\/([A-Za-z0-9_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://linkedin.com/in/${u}`,
+  },
+  {
+    pattern: /facebook\.com|fb\.com/i, platform: 'Facebook', icon: '📘', color: '#1877F2',
+    extractUsername: (url) => {
+      const m = url.match(/facebook\.com\/(?!photo|groups|watch|events|marketplace)([A-Za-z0-9.]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://facebook.com/${u}`,
+  },
+  {
+    pattern: /youtube\.com|youtu\.be/i, platform: 'YouTube', icon: '▶️', color: '#FF0000',
+    extractUsername: (url) => {
+      const m = url.match(/youtube\.com\/(?:@|c\/|channel\/|user\/)([A-Za-z0-9_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://youtube.com/@${u}`,
+  },
+  {
+    pattern: /tiktok\.com/i, platform: 'TikTok', icon: '🎵', color: '#00F2EA',
+    extractUsername: (url) => {
+      const m = url.match(/tiktok\.com\/@([A-Za-z0-9._]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://tiktok.com/@${u}`,
+  },
+  {
+    pattern: /reddit\.com/i, platform: 'Reddit', icon: '🟠', color: '#FF4500',
+    extractUsername: (url) => {
+      const m = url.match(/reddit\.com\/u(?:ser)?\/([A-Za-z0-9_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://reddit.com/u/${u}`,
+  },
+  {
+    pattern: /medium\.com/i, platform: 'Medium', icon: '✍️', color: '#00AB6C',
+    extractUsername: (url) => {
+      const m = url.match(/medium\.com\/@([A-Za-z0-9._]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://medium.com/@${u}`,
+  },
+  {
+    pattern: /github\.com/i, platform: 'GitHub', icon: '🐙', color: '#8B5CF6',
+    extractUsername: (url) => extractPath(url, 0),
+    buildProfileUrl: (u) => `https://github.com/${u}`,
+  },
+  {
+    pattern: /forbes\.com/i, platform: 'Forbes', icon: '📰', color: '#B5985A',
+    extractUsername: () => null,
+    buildProfileUrl: (u) => `https://forbes.com/${u}`,
+  },
+  {
+    pattern: /crunchbase\.com/i, platform: 'Crunchbase', icon: '🏢', color: '#0288D1',
+    extractUsername: (url) => {
+      const m = url.match(/crunchbase\.com\/person\/([A-Za-z0-9_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://crunchbase.com/person/${u}`,
+  },
+  {
+    pattern: /quora\.com/i, platform: 'Quora', icon: '❓', color: '#B92B27',
+    extractUsername: (url) => {
+      const m = url.match(/quora\.com\/profile\/([A-Za-z0-9_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://quora.com/profile/${u}`,
+  },
+  {
+    pattern: /pinterest\.com/i, platform: 'Pinterest', icon: '📌', color: '#E60023',
+    extractUsername: (url) => extractPath(url, 0),
+    buildProfileUrl: (u) => `https://pinterest.com/${u}`,
+  },
+  {
+    pattern: /vk\.com/i, platform: 'VKontakte', icon: '🔵', color: '#4680C2',
+    extractUsername: (url) => extractPath(url, 0),
+    buildProfileUrl: (u) => `https://vk.com/${u}`,
+  },
+  {
+    pattern: /strava\.com/i, platform: 'Strava', icon: '🏃', color: '#FC4C02',
+    extractUsername: (url) => {
+      const m = url.match(/strava\.com\/athletes\/([A-Za-z0-9_-]+)/i);
+      return m?.[1] || null;
+    },
+    buildProfileUrl: (u) => `https://strava.com/athletes/${u}`,
+  },
+  {
+    pattern: /wikitia\.com|wikipedia\.org/i, platform: 'Wiki', icon: '📖', color: '#636978',
+    extractUsername: () => null,
+    buildProfileUrl: (u) => u,
+  },
 ];
 
 function correlatePlatforms(results: FaceResult[]): PlatformMatch[] {
-  const map = new Map<string, { platform: string; icon: string; color: string; results: FaceResult[] }>();
+  const map = new Map<string, { platform: string; icon: string; color: string; rule: PlatformRule | null; results: FaceResult[] }>();
 
   for (const r of results) {
     const rule = PLATFORM_RULES.find(p => p.pattern.test(r.url));
@@ -52,6 +170,7 @@ function correlatePlatforms(results: FaceResult[]): PlatformMatch[] {
         platform: key,
         icon: rule?.icon || '🌐',
         color: rule?.color || '#71717A',
+        rule: rule || null,
         results: [],
       });
     }
@@ -59,7 +178,39 @@ function correlatePlatforms(results: FaceResult[]): PlatformMatch[] {
   }
 
   return Array.from(map.values())
-    .map(g => ({ ...g, avgScore: Math.round(g.results.reduce((s, r) => s + r.score, 0) / g.results.length) }))
+    .map(g => {
+      const avgScore = Math.round(g.results.reduce((s, r) => s + r.score, 0) / g.results.length);
+
+      // Extract unique accounts
+      const accountMap = new Map<string, { postCount: number; bestScore: number; profileUrl: string }>();
+      let unknownPosts = 0;
+
+      for (const r of g.results) {
+        const username = g.rule?.extractUsername(r.url) || null;
+        if (username) {
+          const key = username.toLowerCase();
+          const existing = accountMap.get(key);
+          if (existing) {
+            existing.postCount++;
+            existing.bestScore = Math.max(existing.bestScore, r.score);
+          } else {
+            accountMap.set(key, {
+              postCount: 1,
+              bestScore: r.score,
+              profileUrl: g.rule!.buildProfileUrl(username),
+            });
+          }
+        } else {
+          unknownPosts++;
+        }
+      }
+
+      const accounts = Array.from(accountMap.entries())
+        .map(([username, data]) => ({ username, ...data }))
+        .sort((a, b) => b.bestScore - a.bestScore);
+
+      return { ...g, avgScore, accounts };
+    })
     .sort((a, b) => b.avgScore - a.avgScore);
 }
 
@@ -469,21 +620,59 @@ export default function DefenceFaceSearch() {
                           </span>
                         </div>
                         <div className="space-y-1 pt-1 border-t" style={{ borderColor: 'var(--v3-border)' }}>
-                          {pm.results.slice(0, 3).map((r, i) => (
-                            <a
-                              key={i}
-                              href={r.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-[10px] truncate block hover:underline"
-                              style={{ color: pm.color }}
-                            >
-                              {r.url.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40)}…
-                            </a>
-                          ))}
-                          {pm.results.length > 3 && (
+                          {pm.accounts.length > 0 ? (
+                            pm.accounts.slice(0, 4).map((acc) => (
+                              <a
+                                key={acc.username}
+                                href={acc.profileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-between gap-1 group/acc"
+                              >
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                  <User size={10} style={{ color: pm.color }} className="shrink-0" />
+                                  <span className="text-[11px] font-medium truncate group-hover/acc:underline" style={{ color: pm.color }}>
+                                    @{acc.username}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  {acc.postCount > 1 && (
+                                    <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>
+                                      {acc.postCount} hits
+                                    </span>
+                                  )}
+                                  <span className={`text-[9px] font-bold px-1 py-px rounded ${
+                                    acc.bestScore > 90 ? 'bg-red-500/10 text-red-400' :
+                                    acc.bestScore > 70 ? 'bg-amber-500/10 text-amber-400' :
+                                    'bg-zinc-500/10 text-zinc-400'
+                                  }`}>
+                                    {acc.bestScore}%
+                                  </span>
+                                </div>
+                              </a>
+                            ))
+                          ) : (
+                            pm.results.slice(0, 2).map((r, i) => (
+                              <a
+                                key={i}
+                                href={r.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] truncate block hover:underline"
+                                style={{ color: pm.color }}
+                              >
+                                {r.url.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40)}…
+                              </a>
+                            ))
+                          )}
+                          {pm.accounts.length > 4 && (
                             <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>
-                              +{pm.results.length - 3} more
+                              +{pm.accounts.length - 4} more accounts
+                            </span>
+                          )}
+                          {pm.accounts.length > 0 && pm.results.length - pm.accounts.reduce((s, a) => s + a.postCount, 0) > 0 && (
+                            <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>
+                              +{pm.results.length - pm.accounts.reduce((s, a) => s + a.postCount, 0)} unattributed
                             </span>
                           )}
                         </div>
