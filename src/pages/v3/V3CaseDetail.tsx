@@ -4,7 +4,8 @@ import {
   ArrowLeft, FileText, CheckCircle, Loader2, XCircle, AlertTriangle,
   ExternalLink, ChevronDown, ChevronRight, Search as SearchIcon,
   Instagram, Facebook, Twitter, Globe, Shield, CreditCard, Plane,
-  Network, Fingerprint, Clock, User, Upload, Brain, Activity
+  Network, Fingerprint, Clock, User, Upload, Brain, Activity,
+  Zap, BookOpen, Link2, Scan, Sparkles
 } from 'lucide-react';
 import { useV3Case } from '@/api/v3-hooks';
 import { v3Cases as casesApi } from '@/api/v3-supabase';
@@ -13,12 +14,14 @@ import type { Finding } from '@/api/client';
 import { RiskBadge, StatusBadge, RiskScoreCircle } from '@/components/v3/V3Badges';
 import { V3SocialGraph } from '@/components/v3/V3SocialGraph';
 import { V3ConfirmDialog } from '@/components/v3/V3ConfirmDialog';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const sourceIcons: Record<string, typeof Instagram> = {
   instagram: Instagram, facebook: Facebook, twitter: Twitter,
   tiktok: Globe, linkedin: Globe, strava: Activity,
   public_records: FileText, financial: CreditCard, travel: Plane, darkweb: Shield,
+  perplexity: Globe, ai_analysis: Brain,
 };
 
 const categoryLabels: Record<string, string> = {
@@ -58,6 +61,13 @@ export default function V3CaseDetail() {
   const [rationaleOpen, setRationaleOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{ type: 'reject' | 'escalate' | 'approve' } | null>(null);
 
+  // New state for intelligence features
+  const [scanning, setScanning] = useState(false);
+  const [narrativeLoading, setNarrativeLoading] = useState(false);
+  const [narrative, setNarrative] = useState<string | null>(null);
+  const [correlations, setCorrelations] = useState<Array<{ case_id: string; match_type: string; detail: string; risk_level: string; shared_attribute: string }> | null>(null);
+  const [correlationLoading, setCorrelationLoading] = useState(false);
+
   const groupedFindings = useMemo(() => {
     if (!caseData) return {};
     let findings = caseData.findings || [];
@@ -70,6 +80,36 @@ export default function V3CaseDetail() {
     });
     return groups;
   }, [caseData, findingFilter]);
+
+  // Check for document discrepancies
+  const docDiscrepancies = useMemo(() => {
+    if (!caseData?.documents || !caseData?.findings) return [];
+    const discreps: Array<{ doc: string; field: string; docValue: string; osintValue: string }> = [];
+    
+    for (const doc of caseData.documents) {
+      const fields = doc.extracted_fields || {};
+      for (const finding of caseData.findings) {
+        if (fields.full_name && finding.category === 'social_media' && finding.detail) {
+          const docName = String(fields.full_name).toLowerCase();
+          const applicantName = `${caseData.applicant.firstName} ${caseData.applicant.lastName}`.toLowerCase();
+          if (docName && applicantName && !docName.includes(applicantName.split(' ')[1]) && doc.type === 'passport') {
+            // Only flag if passport name doesn't match
+          }
+        }
+      }
+      if (fields.passport_number && caseData.applicant.passportNumber) {
+        if (String(fields.passport_number) !== String(caseData.applicant.passportNumber)) {
+          discreps.push({
+            doc: doc.name,
+            field: 'Passport Number',
+            docValue: String(fields.passport_number),
+            osintValue: String(caseData.applicant.passportNumber),
+          });
+        }
+      }
+    }
+    return discreps;
+  }, [caseData]);
 
   if (loading) {
     return (
@@ -106,6 +146,61 @@ export default function V3CaseDetail() {
     });
   };
 
+  // === INTELLIGENCE ACTIONS ===
+
+  const runDeepScan = async () => {
+    setScanning(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('case-osint-scan', {
+        body: { case_id: caseData.id },
+      });
+      if (error) throw error;
+      toast.success(`Deep scan complete: ${data.findings_count} new findings`);
+      refetch();
+    } catch (e: any) {
+      toast.error(e.message || 'Scan failed');
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const generateNarrative = async () => {
+    setNarrativeLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('case-ai-narrative', {
+        body: { case_id: caseData.id, action: 'narrative' },
+      });
+      if (error) throw error;
+      setNarrative(data.narrative);
+      toast.success('AI narrative generated');
+      refetch();
+    } catch (e: any) {
+      toast.error(e.message || 'Narrative generation failed');
+    } finally {
+      setNarrativeLoading(false);
+    }
+  };
+
+  const runCorrelation = async () => {
+    setCorrelationLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('case-ai-narrative', {
+        body: { case_id: caseData.id, action: 'correlate' },
+      });
+      if (error) throw error;
+      setCorrelations(data.correlations);
+      if (data.correlations.length === 0) {
+        toast.info('No cross-case correlations found');
+      } else {
+        toast.success(`${data.correlations.length} correlations found`);
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Correlation failed');
+    } finally {
+      setCorrelationLoading(false);
+    }
+  };
+
   const ocrIcon = (status: string) => {
     if (status === 'completed') return <CheckCircle size={12} style={{ color: 'var(--v3-green)' }} />;
     if (status === 'processing') return <Loader2 size={12} className="animate-spin" style={{ color: 'var(--v3-amber)' }} />;
@@ -127,7 +222,6 @@ export default function V3CaseDetail() {
       activeTab === tab ? '' : 'border-transparent'
     }`;
 
-  // Adapt for SocialGraph — create a compat object
   const caseCompat = {
     ...caseData,
     caseId: caseData.case_id,
@@ -138,6 +232,21 @@ export default function V3CaseDetail() {
       riskImpact: f.risk_impact,
     })),
   };
+
+  const matchTypeLabels: Record<string, string> = {
+    same_origin_consulate: 'Same Origin + Consulate',
+    shared_surname: 'Shared Surname',
+    same_travel_pattern: 'Same Travel Pattern',
+    shared_financial_institution: 'Shared Financial Institution',
+  };
+
+  const matchTypeColors: Record<string, string> = {
+    same_origin_consulate: 'var(--v3-accent)',
+    shared_surname: 'var(--v3-amber)',
+    same_travel_pattern: 'var(--v3-green)',
+    shared_financial_institution: '#F97316',
+  };
+
 
   return (
     <div className="space-y-4">
@@ -170,11 +279,87 @@ export default function V3CaseDetail() {
           <StatusBadge status={caseData.status as any} />
         </div>
         <div className="flex items-center gap-2">
+          {/* Intelligence Actions */}
+          <button
+            onClick={runDeepScan}
+            disabled={scanning}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:border-[var(--v3-accent)]"
+            style={{ borderColor: 'var(--v3-border)', color: scanning ? 'var(--v3-text-muted)' : 'var(--v3-accent)', background: 'var(--v3-surface)' }}
+          >
+            {scanning ? <Loader2 size={13} className="animate-spin" /> : <Scan size={13} />}
+            {scanning ? 'Scanning...' : 'Deep Scan'}
+          </button>
+          <button
+            onClick={generateNarrative}
+            disabled={narrativeLoading}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:border-[var(--v3-accent)]"
+            style={{ borderColor: 'var(--v3-border)', color: narrativeLoading ? 'var(--v3-text-muted)' : 'var(--v3-accent)', background: 'var(--v3-surface)' }}
+          >
+            {narrativeLoading ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
+            {narrativeLoading ? 'Generating...' : 'AI Brief'}
+          </button>
+          <button
+            onClick={runCorrelation}
+            disabled={correlationLoading}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold border transition-all hover:border-[var(--v3-accent)]"
+            style={{ borderColor: 'var(--v3-border)', color: correlationLoading ? 'var(--v3-text-muted)' : 'var(--v3-accent)', background: 'var(--v3-surface)' }}
+          >
+            {correlationLoading ? <Loader2 size={13} className="animate-spin" /> : <Link2 size={13} />}
+            {correlationLoading ? 'Correlating...' : 'X-Case'}
+          </button>
+
+          <div className="w-px h-6 mx-1" style={{ background: 'var(--v3-border)' }} />
+
           <button onClick={() => handleAction('approve')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-green)', color: 'var(--v3-text-dark)' }}>Approve</button>
           <button onClick={() => handleAction('reject')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-red)', color: 'white' }}>Reject</button>
           <button onClick={() => handleAction('escalate')} className="px-4 py-2.5 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-amber-muted)', color: 'var(--v3-amber)' }}>Escalate</button>
         </div>
       </div>
+
+      {/* AI Narrative Panel */}
+      {narrative && (
+        <div className="rounded-xl border p-5 relative" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-accent)', borderWidth: '1px' }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles size={14} style={{ color: 'var(--v3-accent)' }} />
+              <span className="text-[10px] font-semibold tracking-widest" style={{ color: 'var(--v3-accent)' }}>AI INTELLIGENCE BRIEF</span>
+            </div>
+            <button onClick={() => setNarrative(null)} className="text-[10px] px-2 py-1 rounded-lg hover:bg-white/5" style={{ color: 'var(--v3-text-muted)' }}>Dismiss</button>
+          </div>
+          <div className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--v3-text-secondary)' }}>
+            {narrative}
+          </div>
+        </div>
+      )}
+
+      {/* Cross-Case Correlations Panel */}
+      {correlations && correlations.length > 0 && (
+        <div className="rounded-xl border p-5" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-amber)', borderWidth: '1px' }}>
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Link2 size={14} style={{ color: 'var(--v3-amber)' }} />
+              <span className="text-[10px] font-semibold tracking-widest" style={{ color: 'var(--v3-amber)' }}>CROSS-CASE CORRELATIONS ({correlations.length})</span>
+            </div>
+            <button onClick={() => setCorrelations(null)} className="text-[10px] px-2 py-1 rounded-lg hover:bg-white/5" style={{ color: 'var(--v3-text-muted)' }}>Dismiss</button>
+          </div>
+          <div className="space-y-2">
+            {correlations.map((corr, i) => (
+              <div key={i} className="flex items-center justify-between py-2 px-3 rounded-lg border" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-xs font-bold" style={{ color: 'var(--v3-text)' }}>{corr.case_id}</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: `${matchTypeColors[corr.match_type] || 'var(--v3-accent)'}20`, color: matchTypeColors[corr.match_type] || 'var(--v3-accent)' }}>
+                    {matchTypeLabels[corr.match_type] || corr.match_type}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px]" style={{ color: 'var(--v3-text-secondary)' }}>{corr.detail}</span>
+                  <RiskBadge level={corr.risk_level as any} className="text-[9px] px-1.5 py-0" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Three-column layout */}
       <div className="grid grid-cols-[280px_1fr_320px] gap-4">
@@ -214,6 +399,21 @@ export default function V3CaseDetail() {
               </div>
             ))}
           </div>
+
+          {/* Document Discrepancies */}
+          {docDiscrepancies.length > 0 && (
+            <div className="rounded-xl border p-5" style={{ background: 'rgba(239,68,68,0.05)', borderColor: 'var(--v3-red)' }}>
+              <div className="flex items-center gap-2 mb-3">
+                <AlertTriangle size={13} style={{ color: 'var(--v3-red)' }} />
+                <span className="text-[10px] font-semibold tracking-widest" style={{ color: 'var(--v3-red)' }}>DOC DISCREPANCIES</span>
+              </div>
+              {docDiscrepancies.map((d, i) => (
+                <div key={i} className="text-[11px] py-1.5 border-t" style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
+                  <span className="font-semibold" style={{ color: 'var(--v3-red)' }}>{d.field}</span>: Doc says <span className="font-mono">{d.docValue}</span>, profile says <span className="font-mono">{d.osintValue}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
           <div className="rounded-xl border p-5 grid grid-cols-3 gap-3" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
             {[
@@ -344,12 +544,19 @@ export default function V3CaseDetail() {
                     {Object.keys(doc.extracted_fields || {}).length > 0 && (
                       <table className="w-full text-[11px]">
                         <tbody>
-                          {Object.entries(doc.extracted_fields).map(([field, value]) => (
-                            <tr key={field} style={{ borderTop: '1px solid var(--v3-border)' }}>
-                              <td className="py-1.5 pr-4 font-medium" style={{ color: 'var(--v3-text-muted)' }}>{field}</td>
-                              <td className="py-1.5 font-mono" style={{ color: 'var(--v3-text)' }}>{value}</td>
-                            </tr>
-                          ))}
+                          {Object.entries(doc.extracted_fields).map(([field, value]) => {
+                            // Check if this field has a discrepancy
+                            const hasDiscrepancy = docDiscrepancies.some(d => d.doc === doc.name && d.field.toLowerCase().replace(' ', '_') === field.toLowerCase().replace(' ', '_'));
+                            return (
+                              <tr key={field} style={{ borderTop: '1px solid var(--v3-border)' }}>
+                                <td className="py-1.5 pr-4 font-medium" style={{ color: 'var(--v3-text-muted)' }}>{field}</td>
+                                <td className="py-1.5 font-mono flex items-center gap-2" style={{ color: hasDiscrepancy ? 'var(--v3-red)' : 'var(--v3-text)' }}>
+                                  {value}
+                                  {hasDiscrepancy && <AlertTriangle size={11} style={{ color: 'var(--v3-red)' }} />}
+                                </td>
+                              </tr>
+                            );
+                          })}
                         </tbody>
                       </table>
                     )}
