@@ -41,7 +41,7 @@ ${accountSummary || "No accounts identified"}
 High-confidence matches (>=80%): ${highConfidence.length}
 Medium-confidence matches (60-79%): ${mediumConfidence.length}
 
-Generate the following sections as JSON with these exact keys:
+Generate the following sections as JSON with these exact keys. Be specific and analytical, not generic:
 1. "executiveSummary" (3-4 sentences summarizing findings, threat level, and confidence)
 2. "keyFindings" (array of 3-5 string items, each one sentence)
 3. "riskAssessment" (2-3 sentences on OPSEC exposure risk level: LOW/MEDIUM/HIGH/CRITICAL)
@@ -49,6 +49,8 @@ Generate the following sections as JSON with these exact keys:
 5. "accountCorrelation" (2-3 sentences on patterns across identified accounts)
 6. "recommendations" (array of 3-4 string items, each one actionable recommendation)
 7. "confidenceNote" (1-2 sentences on data reliability and confidence levels)
+8. "osintEnrichment" (array of 3-5 objects with keys "tool", "purpose", "priority" where priority is HIGH/MEDIUM/LOW. Suggest specific OSINT tools from this list that should be run next based on the identified accounts: Sherlock/Maigret for username enumeration across 300+ platforms, Holehe for email-to-account discovery, Have I Been Pwned for breach exposure, Hunter.io for corporate email discovery, WhatsMyName for username pivoting, PhoneInfoga for phone number research, GHunt for Google account investigation, Osintgram for Instagram deep analysis. Only suggest tools relevant to what was found.)
+9. "digitalFootprint" (2-3 sentences assessing the subject's overall digital footprint size, diversity, and exposure level based on the platforms and accounts found)
 
 Return ONLY valid JSON, no markdown.`;
 
@@ -85,6 +87,8 @@ Return ONLY valid JSON, no markdown.`;
         accountCorrelation: "See account listing in appendix",
         recommendations: ["Conduct manual review of all identified accounts"],
         confidenceNote: "AI analysis failed. Rely on raw confidence scores.",
+        osintEnrichment: [{ tool: "Sherlock", purpose: "Enumerate additional accounts using identified usernames", priority: "HIGH" }],
+        digitalFootprint: "Manual assessment required. See raw data.",
       };
     }
 
