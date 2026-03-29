@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, Search, ExternalLink, AlertTriangle, CheckCircle2, Loader2, X, Image as ImageIcon, Globe, Link2, User } from 'lucide-react';
 
 import { toast } from 'sonner';
 
@@ -13,6 +13,55 @@ interface FaceResult {
 }
 
 type SearchState = 'idle' | 'uploading' | 'searching' | 'complete' | 'error';
+
+interface PlatformMatch {
+  platform: string;
+  icon: string;
+  color: string;
+  results: FaceResult[];
+  avgScore: number;
+}
+
+const PLATFORM_RULES: { pattern: RegExp; platform: string; icon: string; color: string }[] = [
+  { pattern: /instagram\.com|instagr\.am/i, platform: 'Instagram', icon: '📸', color: '#E1306C' },
+  { pattern: /twitter\.com|x\.com/i, platform: 'X / Twitter', icon: '𝕏', color: '#1DA1F2' },
+  { pattern: /linkedin\.com/i, platform: 'LinkedIn', icon: '💼', color: '#0A66C2' },
+  { pattern: /facebook\.com|fb\.com/i, platform: 'Facebook', icon: '📘', color: '#1877F2' },
+  { pattern: /youtube\.com|youtu\.be/i, platform: 'YouTube', icon: '▶️', color: '#FF0000' },
+  { pattern: /tiktok\.com/i, platform: 'TikTok', icon: '🎵', color: '#00F2EA' },
+  { pattern: /reddit\.com/i, platform: 'Reddit', icon: '🟠', color: '#FF4500' },
+  { pattern: /medium\.com/i, platform: 'Medium', icon: '✍️', color: '#00AB6C' },
+  { pattern: /github\.com/i, platform: 'GitHub', icon: '🐙', color: '#8B5CF6' },
+  { pattern: /forbes\.com/i, platform: 'Forbes', icon: '📰', color: '#B5985A' },
+  { pattern: /crunchbase\.com/i, platform: 'Crunchbase', icon: '🏢', color: '#0288D1' },
+  { pattern: /quora\.com/i, platform: 'Quora', icon: '❓', color: '#B92B27' },
+  { pattern: /pinterest\.com/i, platform: 'Pinterest', icon: '📌', color: '#E60023' },
+  { pattern: /vk\.com/i, platform: 'VKontakte', icon: '🔵', color: '#4680C2' },
+  { pattern: /strava\.com/i, platform: 'Strava', icon: '🏃', color: '#FC4C02' },
+  { pattern: /wikitia\.com|wikipedia\.org/i, platform: 'Wiki', icon: '📖', color: '#636978' },
+];
+
+function correlatePlatforms(results: FaceResult[]): PlatformMatch[] {
+  const map = new Map<string, { platform: string; icon: string; color: string; results: FaceResult[] }>();
+
+  for (const r of results) {
+    const rule = PLATFORM_RULES.find(p => p.pattern.test(r.url));
+    const key = rule?.platform || 'Other';
+    if (!map.has(key)) {
+      map.set(key, {
+        platform: key,
+        icon: rule?.icon || '🌐',
+        color: rule?.color || '#71717A',
+        results: [],
+      });
+    }
+    map.get(key)!.results.push(r);
+  }
+
+  return Array.from(map.values())
+    .map(g => ({ ...g, avgScore: Math.round(g.results.reduce((s, r) => s + r.score, 0) / g.results.length) }))
+    .sort((a, b) => b.avgScore - a.avgScore);
+}
 
 export default function DefenceFaceSearch() {
   const [searchState, setSearchState] = useState<SearchState>('idle');
@@ -383,7 +432,68 @@ export default function DefenceFaceSearch() {
             )}
 
             {results.length > 0 && (
-              <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-4 space-y-4">
+                {/* Correlated Intelligence */}
+                <div className="rounded-xl border p-4 space-y-3" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
+                  <div className="flex items-center gap-2 mb-1">
+                    <Link2 size={14} style={{ color: 'var(--v3-accent)' }} />
+                    <h3 className="text-[12px] font-semibold tracking-wide uppercase" style={{ color: 'var(--v3-text-secondary)' }}>
+                      Correlated Intelligence
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {correlatePlatforms(results).map((pm) => (
+                      <motion.div
+                        key={pm.platform}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="rounded-lg border p-3 space-y-1.5 cursor-default"
+                        style={{ borderColor: 'var(--v3-border)' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-base leading-none">{pm.icon}</span>
+                          <span className="text-[12px] font-semibold" style={{ color: 'var(--v3-text)' }}>{pm.platform}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>
+                            {pm.results.length} match{pm.results.length !== 1 ? 'es' : ''}
+                          </span>
+                          <span
+                            className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                              pm.avgScore > 90 ? 'bg-red-500/10 text-red-400' :
+                              pm.avgScore > 70 ? 'bg-amber-500/10 text-amber-400' :
+                              'bg-zinc-500/10 text-zinc-400'
+                            }`}
+                          >
+                            {pm.avgScore}%
+                          </span>
+                        </div>
+                        <div className="space-y-1 pt-1 border-t" style={{ borderColor: 'var(--v3-border)' }}>
+                          {pm.results.slice(0, 3).map((r, i) => (
+                            <a
+                              key={i}
+                              href={r.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[10px] truncate block hover:underline"
+                              style={{ color: pm.color }}
+                            >
+                              {r.url.replace(/^https?:\/\/(www\.)?/, '').slice(0, 40)}…
+                            </a>
+                          ))}
+                          {pm.results.length > 3 && (
+                            <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>
+                              +{pm.results.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* All Results Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <AnimatePresence>
                   {results.map((result, i) => (
                     <motion.a
@@ -430,6 +540,7 @@ export default function DefenceFaceSearch() {
                     </motion.a>
                   ))}
                 </AnimatePresence>
+              </div>
               </div>
             )}
           </div>
