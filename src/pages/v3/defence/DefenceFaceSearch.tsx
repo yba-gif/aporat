@@ -473,6 +473,7 @@ export default function DefenceFaceSearch() {
     setDossier(null);
     setActiveTab('results');
     setSearchProgress('');
+    setEnrichment(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
