@@ -874,6 +874,57 @@ export default function DefenceFaceSearch() {
                 </div>
               )}
             </div>
+            <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'var(--v3-border)' }}>
+              <div className="flex items-center gap-1">
+                {results.length > 0 && (
+                  <>
+                    <button
+                      onClick={() => setActiveTab('results')}
+                      className="text-[12px] font-medium px-3 py-1.5 rounded-lg transition-all"
+                      style={{
+                        background: activeTab === 'results' ? 'var(--v3-accent-muted)' : 'transparent',
+                        color: activeTab === 'results' ? 'var(--v3-accent)' : 'var(--v3-text-muted)',
+                      }}
+                    >
+                      Matches ({results.length})
+                    </button>
+                    <button
+                      onClick={() => dossier ? setActiveTab('dossier') : generateDossier()}
+                      disabled={dossierLoading}
+                      className="text-[12px] font-medium px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+                      style={{
+                        background: activeTab === 'dossier' ? 'var(--v3-accent-muted)' : 'transparent',
+                        color: activeTab === 'dossier' ? 'var(--v3-accent)' : 'var(--v3-text-muted)',
+                      }}
+                    >
+                      {dossierLoading ? <Loader2 size={11} className="animate-spin" /> : <Brain size={11} />}
+                      Intelligence Dossier
+                    </button>
+                  </>
+                )}
+                {results.length === 0 && (
+                  <span className="text-[13px] font-semibold" style={{ color: 'var(--v3-text)' }}>Results</span>
+                )}
+              </div>
+              {results.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {testingMode && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400">
+                      TEST MODE
+                    </span>
+                  )}
+                  <button
+                    onClick={exportReport}
+                    disabled={exporting}
+                    className="flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all disabled:opacity-40"
+                    style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}
+                  >
+                    {exporting ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
+                    {exporting ? 'Generating...' : 'Export Report'}
+                  </button>
+                </div>
+              )}
+            </div>
 
             {searchState === 'error' && (
               <div className="p-8 flex flex-col items-center gap-3">
