@@ -180,9 +180,9 @@ export default function V3CaseDetail() {
       <div className="grid grid-cols-[280px_1fr_320px] gap-4">
         {/* LEFT COLUMN */}
         <div className="space-y-4">
-          <div className="border rounded-md p-4" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+          <div className="rounded-xl border p-5" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-md flex items-center justify-center text-lg font-bold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>
                 {caseData.applicant.firstName?.[0]}{caseData.applicant.lastName?.[0]}
               </div>
               <div>
