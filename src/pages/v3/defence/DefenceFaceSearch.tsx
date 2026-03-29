@@ -476,6 +476,7 @@ export default function DefenceFaceSearch() {
     setActiveTab('results');
     setSearchProgress('');
     setEnrichment(null);
+    setUsernameEnum(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
