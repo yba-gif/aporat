@@ -241,6 +241,8 @@ export async function generateFaceSearchReport(data: ReportData): Promise<void> 
   }
 
   // ─── EXECUTIVE SUMMARY ──────────────────────────────────
+  y = checkPageBreak(doc, y, 40);
+  y = sectionHeader(doc, 'EXECUTIVE SUMMARY', ML, y);
   y = wrappedText(doc, data.narrative.executiveSummary, ML, y, CW, 9, COLORS.darkGray);
   y += 6;
 
