@@ -1533,6 +1533,109 @@ export default function DefenceFaceSearch() {
                     </motion.div>
                   )}
 
+                  {/* Breach Intelligence */}
+                  {(breachLoading || breachData) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-xl border p-4 space-y-3"
+                      style={{ borderColor: 'rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.03)' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Shield size={14} style={{ color: '#ef4444' }} />
+                        <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: '#ef4444' }}>
+                          Breach Intelligence
+                        </span>
+                        {breachData?.breachesFound && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-red-500/10 text-red-400">
+                            {breachData.totalBreaches} BREACH{breachData.totalBreaches !== 1 ? 'ES' : ''}
+                          </span>
+                        )}
+                        {!breachData?.breachesFound && breachData && (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-emerald-500/10 text-emerald-400">
+                            CLEAN
+                          </span>
+                        )}
+                      </div>
+
+                      {breachLoading && !breachData && (
+                        <div className="space-y-2">
+                          <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--v3-surface)' }}>
+                            <motion.div
+                              className="h-full rounded-full bg-red-500"
+                              initial={{ width: '0%' }}
+                              animate={{ width: '100%' }}
+                              transition={{ duration: 12, ease: 'linear' }}
+                            />
+                          </div>
+                          <span className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>Searching breach databases...</span>
+                        </div>
+                      )}
+
+                      {breachData?.breaches?.map((breach: any, i: number) => (
+                        <div key={i} className="rounded-md border p-2.5 space-y-1.5" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-surface)' }}>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[12px] font-bold" style={{ color: 'var(--v3-text)' }}>
+                              {breach.name}
+                            </span>
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                              breach.severity === 'critical' ? 'bg-red-500/10 text-red-400' :
+                              breach.severity === 'high' ? 'bg-orange-500/10 text-orange-400' :
+                              breach.severity === 'medium' ? 'bg-amber-500/10 text-amber-400' :
+                              'bg-zinc-500/10 text-zinc-400'
+                            }`}>
+                              {breach.severity?.toUpperCase()}
+                            </span>
+                          </div>
+                          {breach.date && (
+                            <p className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>📅 {breach.date}</p>
+                          )}
+                          <p className="text-[10px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>
+                            {breach.description}
+                          </p>
+                          {breach.dataExposed?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {breach.dataExposed.map((d: string, j: number) => (
+                                <span key={j} className="text-[9px] px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(239,68,68,0.08)', color: '#ef4444' }}>
+                                  {d}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {breach.affectedIdentifier && (
+                            <p className="text-[9px] font-mono" style={{ color: 'var(--v3-text-muted)' }}>
+                              Affected: {breach.affectedIdentifier}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+
+                      {breachData?.riskSummary && (
+                        <div className="space-y-1.5 pt-1 border-t" style={{ borderColor: 'rgba(239,68,68,0.15)' }}>
+                          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--v3-text-muted)' }}>Risk Summary</p>
+                          <p className="text-[10px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>
+                            {breachData.riskSummary}
+                          </p>
+                        </div>
+                      )}
+
+                      {breachData?.recommendations?.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--v3-text-muted)' }}>Recommendations</p>
+                          {breachData.recommendations.map((rec: string, i: number) => (
+                            <p key={i} className="text-[10px]" style={{ color: 'var(--v3-text-secondary)' }}>• {rec}</p>
+                          ))}
+                        </div>
+                      )}
+
+                      {!breachData?.breachesFound && breachData && !breachData?.breaches?.length && (
+                        <p className="text-[10px] italic" style={{ color: 'var(--v3-text-muted)' }}>
+                          No known data breaches found for the identified accounts
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
+
                   {/* Platform Breakdown */}
                   <div className="flex items-center gap-2">
                     <Link2 size={12} style={{ color: 'var(--v3-text-muted)' }} />
