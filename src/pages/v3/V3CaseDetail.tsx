@@ -313,7 +313,7 @@ export default function V3CaseDetail() {
                   return (
                     <div key={event.id} className="flex gap-3 relative">
                       <div className="flex flex-col items-center">
-                        <div className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 z-10" style={{ background: `${evColor}20`, border: `1px solid ${evColor}40` }}>
+                        <div className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 z-10" style={{ background: `${evColor}20`, border: `1px solid ${evColor}40` }}>
                           <EvIcon size={13} style={{ color: evColor }} />
                         </div>
                         {i < (caseData.events || []).length - 1 && <div className="w-px flex-1 my-1" style={{ background: 'var(--v3-border)' }} />}
