@@ -428,9 +428,18 @@ export default function V3CaseDetail() {
           </div>
           <div className="space-y-2">
             {correlations.map((corr, i) => (
-              <div key={i} className="flex items-center justify-between py-2 px-3 rounded-lg border" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
+              <button
+                key={i}
+                onClick={async () => {
+                  const { data } = await supabase.from('v3_cases').select('id').eq('case_id', corr.case_id).limit(1).single();
+                  if (data) navigate(`/v3/cases/${data.id}`);
+                  else toast.error(`Case ${corr.case_id} not found`);
+                }}
+                className="w-full flex items-center justify-between py-2 px-3 rounded-lg border transition-all hover:border-[var(--v3-accent)] cursor-pointer group"
+                style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}
+              >
                 <div className="flex items-center gap-3">
-                  <span className="font-mono text-xs font-bold" style={{ color: 'var(--v3-text)' }}>{corr.case_id}</span>
+                  <span className="font-mono text-xs font-bold group-hover:underline" style={{ color: 'var(--v3-accent)' }}>{corr.case_id}</span>
                   <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: `${matchTypeColors[corr.match_type] || 'var(--v3-accent)'}20`, color: matchTypeColors[corr.match_type] || 'var(--v3-accent)' }}>
                     {matchTypeLabels[corr.match_type] || corr.match_type}
                   </span>
@@ -438,8 +447,9 @@ export default function V3CaseDetail() {
                 <div className="flex items-center gap-3">
                   <span className="text-[11px]" style={{ color: 'var(--v3-text-secondary)' }}>{corr.detail}</span>
                   <RiskBadge level={corr.risk_level as any} className="text-[9px] px-1.5 py-0" />
+                  <ExternalLink size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: 'var(--v3-accent)' }} />
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>
