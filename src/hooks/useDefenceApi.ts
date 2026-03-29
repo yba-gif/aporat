@@ -205,7 +205,22 @@ export function useInstallations() {
 export function useScanStatus() {
   return useQuery({
     queryKey: ['defence', 'scan-status'],
-    queryFn: () => fetchWithFallback<CollectorStatus[]>('/scan/status', MOCK_COLLECTORS),
+    queryFn: async () => {
+      const raw = await fetchWithFallback<any[]>('/scan/status', MOCK_COLLECTORS);
+      // Normalize backend field names to our CollectorStatus interface
+      return raw
+        .filter((c: any) => c.platform === 'tiktok' || c.platform === 'strava')
+        .map((c: any): CollectorStatus => ({
+          platform: c.platform,
+          status: c.status ?? 'idle',
+          last_run_at: c.last_run_at ?? c.last_run ?? null,
+          last_success_at: c.last_success_at ?? c.last_success ?? null,
+          last_error: c.last_error ?? null,
+          items_collected_total: c.items_collected_total ?? c.items_total ?? 0,
+          items_collected_today: c.items_collected_today ?? c.items_today ?? 0,
+          alerts_generated_total: c.alerts_generated_total ?? 0,
+        }));
+    },
     refetchInterval: 15000,
   });
 }
