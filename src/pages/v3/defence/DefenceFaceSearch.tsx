@@ -417,6 +417,8 @@ export default function DefenceFaceSearch() {
   const [enumerating, setEnumerating] = useState(false);
   const [telegramOsint, setTelegramOsint] = useState<any>(null);
   const [telegramLoading, setTelegramLoading] = useState(false);
+  const [breachData, setBreachData] = useState<any>(null);
+  const [breachLoading, setBreachLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
