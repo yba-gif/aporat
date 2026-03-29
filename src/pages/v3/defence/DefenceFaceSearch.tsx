@@ -851,29 +851,6 @@ export default function DefenceFaceSearch() {
             className="rounded-xl border min-h-[400px]"
             style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}
           >
-            <div className="px-5 py-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--v3-border)' }}>
-              <h2 className="text-[13px] font-semibold" style={{ color: 'var(--v3-text)' }}>
-                Results {results.length > 0 && <span className="font-normal" style={{ color: 'var(--v3-text-muted)' }}>({results.length})</span>}
-              </h2>
-              {results.length > 0 && (
-                <div className="flex items-center gap-2">
-                  {testingMode && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/10 text-amber-400">
-                      TEST MODE
-                    </span>
-                  )}
-                  <button
-                    onClick={exportReport}
-                    disabled={exporting}
-                    className="flex items-center gap-1.5 text-[11px] font-medium px-3 py-1.5 rounded-lg transition-all disabled:opacity-40"
-                    style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}
-                  >
-                    {exporting ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
-                    {exporting ? 'Generating...' : 'Export Report'}
-                  </button>
-                </div>
-              )}
-            </div>
             <div className="px-5 py-3 border-b flex items-center justify-between" style={{ borderColor: 'var(--v3-border)' }}>
               <div className="flex items-center gap-1">
                 {results.length > 0 && (
