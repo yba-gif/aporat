@@ -18,6 +18,8 @@ interface ReportData {
     accountCorrelation: string;
     recommendations: string[];
     confidenceNote: string;
+    osintEnrichment?: { tool: string; purpose: string; priority: string }[];
+    digitalFootprint?: string;
   };
   searchImageBase64?: string;
 }
@@ -291,11 +293,68 @@ export async function generateFaceSearchReport(data: ReportData): Promise<void> 
   });
   y += 4;
 
+  // ─── DIGITAL FOOTPRINT ──────────────────────────────────
+  if (data.narrative.digitalFootprint) {
+    y = checkPageBreak(doc, y, 30);
+    y = sectionHeader(doc, 'DIGITAL FOOTPRINT ASSESSMENT', ML, y);
+    y = wrappedText(doc, data.narrative.digitalFootprint, ML, y, CW, 9, COLORS.darkGray);
+    y += 6;
+  }
+
   // ─── CONFIDENCE NOTE ────────────────────────────────────
   y = checkPageBreak(doc, y, 30);
   y = sectionHeader(doc, 'DATA CONFIDENCE', ML, y);
   y = wrappedText(doc, data.narrative.confidenceNote, ML, y, CW, 9, COLORS.midGray);
   y += 6;
+
+  // ─── OSINT ENRICHMENT RECOMMENDATIONS ───────────────────
+  if (data.narrative.osintEnrichment && data.narrative.osintEnrichment.length > 0) {
+    y = checkPageBreak(doc, y, 50);
+    y = sectionHeader(doc, 'RECOMMENDED OSINT ENRICHMENT', ML, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...COLORS.midGray);
+    doc.text('The following tools should be deployed to further investigate identified accounts and expand intelligence coverage.', ML, y);
+    y += 6;
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: ML, right: MR },
+      head: [['Priority', 'Tool', 'Purpose']],
+      body: data.narrative.osintEnrichment.map(e => [
+        e.priority,
+        e.tool,
+        e.purpose,
+      ]),
+      theme: 'plain',
+      styles: {
+        fontSize: 8,
+        cellPadding: 3,
+        textColor: COLORS.darkGray,
+        lineWidth: 0.2,
+        lineColor: COLORS.paleGray,
+      },
+      headStyles: {
+        fillColor: COLORS.black,
+        textColor: COLORS.white,
+        fontStyle: 'bold',
+        fontSize: 7,
+      },
+      columnStyles: {
+        0: { cellWidth: 18, fontStyle: 'bold', halign: 'center' },
+        1: { cellWidth: 30, fontStyle: 'bold' },
+      },
+      didParseCell: (hookData: any) => {
+        if (hookData.column.index === 0 && hookData.section === 'body') {
+          const val = hookData.cell.raw;
+          if (val === 'HIGH') hookData.cell.styles.textColor = COLORS.red;
+          else if (val === 'MEDIUM') hookData.cell.styles.textColor = COLORS.amber;
+          else hookData.cell.styles.textColor = COLORS.green;
+        }
+      },
+    });
+    y = (doc as any).lastAutoTable.finalY + 8;
+  }
 
   // ─── DATA APPENDIX (all URLs) ───────────────────────────
   if (data.results.length > 0) {
