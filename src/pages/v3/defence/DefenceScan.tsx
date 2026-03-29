@@ -78,15 +78,15 @@ export default function DefenceScan() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Items Today</span>
-                  <span className="text-slate-300 font-mono">{col.items_collected_today}</span>
+                  <span className="text-slate-300 font-mono">{(col as any).items_collected_today ?? (col as any).items_today ?? 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Total Items</span>
-                  <span className="text-slate-300 font-mono">{col.items_collected_total.toLocaleString()}</span>
+                  <span className="text-slate-300 font-mono">{((col as any).items_collected_total ?? (col as any).items_total ?? 0).toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Alerts Generated</span>
-                  <span className="text-slate-300 font-mono">{col.alerts_generated_total}</span>
+                  <span className="text-slate-300 font-mono">{(col as any).alerts_generated_total ?? 0}</span>
                 </div>
               </div>
 
