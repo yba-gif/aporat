@@ -409,13 +409,13 @@ export default function V3CaseDetail() {
             </div>
           </div>
 
-          <div className="border rounded-md p-4" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
-            <div className="text-[10px] font-semibold tracking-widest mb-3" style={{ color: 'var(--v3-text-muted)' }}>ADD NOTE</div>
+          <div className="rounded-xl border p-5" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+            <div className="text-[10px] font-semibold tracking-[0.15em] mb-3" style={{ color: 'var(--v3-text-muted)' }}>ADD NOTE</div>
             <textarea
-              className="w-full px-3 py-2 rounded-md border text-xs resize-none outline-none" rows={3} placeholder="Officer notes..."
+              className="w-full px-3.5 py-2.5 rounded-xl border text-xs resize-none outline-none transition-colors focus:border-[var(--v3-accent)]" rows={3} placeholder="Officer notes..."
               style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text)' }}
             />
-            <button onClick={() => toast.success('Note added')} className="mt-2 w-full py-1.5 rounded-md text-xs font-semibold" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>Submit Note</button>
+            <button onClick={() => toast.success('Note added')} className="mt-3 w-full py-2 rounded-xl text-xs font-semibold transition-opacity hover:opacity-90" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>Submit Note</button>
           </div>
         </div>
       </div>
