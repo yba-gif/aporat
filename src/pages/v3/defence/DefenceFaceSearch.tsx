@@ -666,6 +666,57 @@ export default function DefenceFaceSearch() {
     }
   }, [usernameEnum, telegramOsint, telegramLoading, telegramLookup]);
 
+  // Breach OSINT lookup via Perplexity
+  const breachLookup = useCallback(async () => {
+    if (results.length === 0) return;
+    setBreachLoading(true);
+    try {
+      const platforms = correlatePlatforms(results);
+      const allAccounts = platforms.flatMap(p => p.accounts);
+      const usernames = [...new Set(
+        allAccounts
+          .sort((a, b) => b.bestScore - a.bestScore)
+          .slice(0, 5)
+          .map(a => a.username)
+      )];
+
+      // Collect emails from enrichment if available
+      const emails: string[] = [];
+      if (enrichment?.profiles) {
+        for (const profile of enrichment.profiles) {
+          if (profile.email) emails.push(profile.email);
+        }
+      }
+
+      if (usernames.length === 0 && emails.length === 0) return;
+
+      const { data, error } = await supabase.functions.invoke('breach-osint', {
+        body: { usernames, emails, subjectName: potentialName },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setBreachData(data);
+      if (data?.breachesFound) {
+        toast.warning(`Found ${data.totalBreaches} breach${data.totalBreaches > 1 ? 'es' : ''} associated with target`);
+      } else {
+        toast.info('No known breaches found');
+      }
+    } catch (err: any) {
+      toast.error('Breach search failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setBreachLoading(false);
+    }
+  }, [results, enrichment, potentialName]);
+
+  // Auto-trigger breach search after Telegram OSINT completes
+  useEffect(() => {
+    if (telegramOsint && !breachData && !breachLoading) {
+      breachLookup();
+    }
+  }, [telegramOsint, breachData, breachLoading, breachLookup]);
+
   const exportReport = useCallback(async () => {
     if (results.length === 0) return;
     setExporting(true);
