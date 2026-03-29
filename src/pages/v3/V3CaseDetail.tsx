@@ -204,8 +204,8 @@ export default function V3CaseDetail() {
             ))}
           </div>
 
-          <div className="border rounded-md p-4" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
-            <div className="text-[11px] font-semibold mb-3 tracking-wide" style={{ color: 'var(--v3-text-muted)' }}>DOCUMENTS</div>
+          <div className="rounded-xl border p-5" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+            <div className="text-[10px] font-semibold mb-3 tracking-[0.15em]" style={{ color: 'var(--v3-text-muted)' }}>DOCUMENTS</div>
             {(caseData.documents || []).map(doc => (
               <div key={doc.id} className="flex items-center gap-2 py-2 border-t cursor-pointer transition-colors hover:bg-white/[0.03] px-1 rounded" style={{ borderColor: 'var(--v3-border)' }}>
                 {ocrIcon(doc.ocr_status)}
