@@ -1523,7 +1523,12 @@ export default function DefenceFaceSearch() {
                             )}
                           </div>
                           {profile.displayName && (
-                            <p className="text-[11px] font-semibold" style={{ color: 'var(--v3-text)' }}>{profile.displayName}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-[11px] font-semibold" style={{ color: 'var(--v3-text)' }}>{profile.displayName}</p>
+                              {profile.confidenceReason && (
+                                <span className="text-[9px] italic" style={{ color: 'var(--v3-text-muted)' }}>— {profile.confidenceReason}</span>
+                              )}
+                            </div>
                           )}
                           {profile.bio && (
                             <p className="text-[10px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{profile.bio}</p>
