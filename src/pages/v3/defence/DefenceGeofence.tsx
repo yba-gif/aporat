@@ -22,42 +22,43 @@ export default function DefenceGeofence() {
     <div className="p-6">
       <div className="max-w-2xl mx-auto space-y-6">
         <div className="text-center">
-          <h1 className="text-lg font-bold text-white">Geofence Checker</h1>
-          <p className="text-[11px] text-slate-500 mt-1">Check coordinates against active military installation geofences</p>
+          <h1 className="text-lg font-bold" style={{ color: 'var(--v3-text)' }}>Geofence Checker</h1>
+          <p className="text-[11px] mt-1" style={{ color: 'var(--v3-text-muted)' }}>Check coordinates against active military installation geofences</p>
         </div>
 
         {/* Input */}
-        <div className="rounded-lg border p-6" style={{ background: '#111827', borderColor: '#1E293B' }}>
+        <div className="rounded-xl p-6" style={{ background: 'var(--v3-surface)', border: '1px solid var(--v3-border)' }}>
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div>
-              <label className="text-[10px] font-bold tracking-wider text-slate-500 uppercase block mb-1">Latitude</label>
+              <label className="text-[10px] font-bold tracking-wider uppercase block mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Latitude</label>
               <input
                 type="number"
                 step="any"
                 value={lat}
                 onChange={e => setLat(e.target.value)}
                 placeholder="37.0021"
-                className="w-full px-3 py-2.5 rounded-md text-[13px] font-mono text-white border focus:outline-none focus:border-blue-500/50"
-                style={{ background: '#0A0F1C', borderColor: '#1E293B' }}
+                className="w-full px-3 py-2.5 rounded-xl text-[13px] font-mono border focus:outline-none focus:ring-1"
+                style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text)', caretColor: 'var(--v3-accent)' }}
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold tracking-wider text-slate-500 uppercase block mb-1">Longitude</label>
+              <label className="text-[10px] font-bold tracking-wider uppercase block mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Longitude</label>
               <input
                 type="number"
                 step="any"
                 value={lon}
                 onChange={e => setLon(e.target.value)}
                 placeholder="35.4259"
-                className="w-full px-3 py-2.5 rounded-md text-[13px] font-mono text-white border focus:outline-none focus:border-blue-500/50"
-                style={{ background: '#0A0F1C', borderColor: '#1E293B' }}
+                className="w-full px-3 py-2.5 rounded-xl text-[13px] font-mono border focus:outline-none focus:ring-1"
+                style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text)', caretColor: 'var(--v3-accent)' }}
               />
             </div>
           </div>
           <button
             onClick={handleCheck}
             disabled={!lat || !lon || check.isPending}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-md text-[13px] font-medium text-white bg-blue-600 hover:bg-blue-500 disabled:opacity-40 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-[13px] font-semibold disabled:opacity-40 transition-colors"
+            style={{ background: 'var(--v3-accent)', color: 'var(--v3-text-dark)' }}
           >
             <Crosshair size={16} /> Check Coordinates
           </button>
@@ -65,50 +66,50 @@ export default function DefenceGeofence() {
 
         {/* Result */}
         {result && (
-          <div className="rounded-lg border p-6 space-y-4" style={{ background: '#111827', borderColor: '#1E293B' }}>
+          <div className="rounded-xl p-6 space-y-4" style={{ background: 'var(--v3-surface)', border: '1px solid var(--v3-border)' }}>
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold tracking-wider text-slate-500 uppercase">Result</span>
+              <span className="text-[10px] font-bold tracking-wider uppercase" style={{ color: 'var(--v3-text-muted)' }}>Result</span>
               {result.severity && <SeverityBadge severity={result.severity as any} />}
             </div>
 
             <div className="text-center py-4">
               {result.inside_geofence ? (
                 <div className="flex flex-col items-center gap-2">
-                  <AlertTriangle size={32} className="text-red-400" />
-                  <div className="text-2xl font-bold text-red-400">INSIDE GEOFENCE</div>
-                  <p className="text-[11px] text-slate-500">Coordinates fall within a restricted military zone</p>
+                  <AlertTriangle size={32} style={{ color: 'var(--v3-red)' }} />
+                  <div className="text-2xl font-bold" style={{ color: 'var(--v3-red)' }}>INSIDE GEOFENCE</div>
+                  <p className="text-[11px]" style={{ color: 'var(--v3-text-muted)' }}>Coordinates fall within a restricted military zone</p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2">
-                  <CheckCircle size={32} className="text-emerald-400" />
-                  <div className="text-2xl font-bold text-emerald-400">OUTSIDE</div>
-                  <p className="text-[11px] text-slate-500">Coordinates are outside all monitored geofences</p>
+                  <CheckCircle size={32} style={{ color: 'var(--v3-green)' }} />
+                  <div className="text-2xl font-bold" style={{ color: 'var(--v3-green)' }}>OUTSIDE</div>
+                  <p className="text-[11px]" style={{ color: 'var(--v3-text-muted)' }}>Coordinates are outside all monitored geofences</p>
                 </div>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {result.nearest && (
-                <div className="p-3 rounded-md" style={{ background: '#0A0F1C' }}>
-                  <span className="text-slate-500 block text-[9px] uppercase tracking-wider mb-1">Nearest Installation</span>
+                <div className="p-3 rounded-xl" style={{ background: 'var(--v3-bg)' }}>
+                  <span className="block text-[9px] uppercase tracking-wider mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Nearest Installation</span>
                   <div className="flex items-center gap-2">
-                    <MapPin size={14} className="text-blue-400" />
+                    <MapPin size={14} style={{ color: 'var(--v3-accent)' }} />
                     <div>
-                      <span className="text-white font-medium text-[12px] block">{result.nearest.name}</span>
-                      <span className="text-slate-500 font-mono text-[10px]">{result.nearest.code}</span>
+                      <span className="font-medium text-[12px] block" style={{ color: 'var(--v3-text)' }}>{result.nearest.name}</span>
+                      <span className="font-mono text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>{result.nearest.code}</span>
                     </div>
                   </div>
                 </div>
               )}
-              <div className="p-3 rounded-md" style={{ background: '#0A0F1C' }}>
-                <span className="text-slate-500 block text-[9px] uppercase tracking-wider mb-1">Distance</span>
-                <span className="text-white font-mono text-xl font-bold">{result.distance_km}</span>
-                <span className="text-slate-500 ml-1 text-[11px]">km</span>
+              <div className="p-3 rounded-xl" style={{ background: 'var(--v3-bg)' }}>
+                <span className="block text-[9px] uppercase tracking-wider mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Distance</span>
+                <span className="font-mono text-xl font-bold" style={{ color: 'var(--v3-text)' }}>{result.distance_km}</span>
+                <span className="ml-1 text-[11px]" style={{ color: 'var(--v3-text-muted)' }}>km</span>
               </div>
             </div>
 
             <div className="text-center pt-2">
-              <a href="/v3/defence/map" className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors">
+              <a href="/v3/defence/map" className="text-[11px] transition-colors" style={{ color: 'var(--v3-accent)' }}>
                 View on full map →
               </a>
             </div>
