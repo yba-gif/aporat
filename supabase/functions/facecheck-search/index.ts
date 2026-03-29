@@ -121,6 +121,7 @@ serve(async (req) => {
       });
 
       const statusData = await statusRes.text();
+      console.log('FaceCheck status response:', statusData.slice(0, 500));
       return new Response(statusData, {
         status: statusRes.status,
         headers: {
