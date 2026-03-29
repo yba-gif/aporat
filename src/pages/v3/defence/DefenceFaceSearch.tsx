@@ -510,6 +510,55 @@ export default function DefenceFaceSearch() {
     }
   }, [results, potentialName]);
 
+  const enrichProfiles = useCallback(async () => {
+    if (results.length === 0) return;
+    setEnriching(true);
+    try {
+      const platforms = correlatePlatforms(results);
+      const allAccounts = platforms.flatMap(p =>
+        p.accounts.map(a => ({ platform: p.platform, ...a }))
+      );
+
+      // Only send profiles with actual profile URLs (not post URLs)
+      const profileUrls = allAccounts
+        .filter(a => a.bestScore >= 70)
+        .map(a => ({
+          platform: a.platform,
+          username: a.username,
+          profileUrl: a.profileUrl,
+          bestScore: a.bestScore,
+        }));
+
+      if (profileUrls.length === 0) {
+        toast.error('No high-confidence profiles to enrich');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('scrape-profiles', {
+        body: { profiles: profileUrls },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setEnrichment(data);
+
+      // Update name if AI found a better one
+      if (data?.extractedName && data.nameConfidence !== 'LOW') {
+        setPotentialName(data.extractedName);
+        toast.success(`Identity confirmed: ${data.extractedName}`);
+      } else if (data?.enriched) {
+        toast.success(`Scraped ${data.scrapedCount} profiles — no strong name match`);
+      } else {
+        toast.info(data?.reason || 'Could not enrich profiles');
+      }
+    } catch (err: any) {
+      toast.error('Profile enrichment failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setEnriching(false);
+    }
+  }, [results]);
+
   const exportReport = useCallback(async () => {
     if (results.length === 0) return;
     setExporting(true);
