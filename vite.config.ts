@@ -13,7 +13,7 @@ export default defineConfig(({ mode }) => ({
     },
   },
   optimizeDeps: {
-    exclude: ["leaflet", "react-leaflet", "@react-leaflet/core"],
+    include: ["react-leaflet", "@react-leaflet/core", "leaflet"],
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
