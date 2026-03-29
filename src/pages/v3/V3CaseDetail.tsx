@@ -81,6 +81,36 @@ export default function V3CaseDetail() {
     return groups;
   }, [caseData, findingFilter]);
 
+  // Check for document discrepancies
+  const docDiscrepancies = useMemo(() => {
+    if (!caseData?.documents || !caseData?.findings) return [];
+    const discreps: Array<{ doc: string; field: string; docValue: string; osintValue: string }> = [];
+    
+    for (const doc of caseData.documents) {
+      const fields = doc.extracted_fields || {};
+      for (const finding of caseData.findings) {
+        if (fields.full_name && finding.category === 'social_media' && finding.detail) {
+          const docName = String(fields.full_name).toLowerCase();
+          const applicantName = `${caseData.applicant.firstName} ${caseData.applicant.lastName}`.toLowerCase();
+          if (docName && applicantName && !docName.includes(applicantName.split(' ')[1]) && doc.type === 'passport') {
+            // Only flag if passport name doesn't match
+          }
+        }
+      }
+      if (fields.passport_number && caseData.applicant.passportNumber) {
+        if (String(fields.passport_number) !== String(caseData.applicant.passportNumber)) {
+          discreps.push({
+            doc: doc.name,
+            field: 'Passport Number',
+            docValue: String(fields.passport_number),
+            osintValue: String(caseData.applicant.passportNumber),
+          });
+        }
+      }
+    }
+    return discreps;
+  }, [caseData]);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
