@@ -372,10 +372,12 @@ export default function V3Graph() {
   }, [dossierNode]);
 
   const riskColor = (score: number) =>
-    score >= 80 ? 'text-red-400' : score >= 60 ? 'text-orange-400' : score >= 40 ? 'text-yellow-400' : 'text-green-400';
+    score >= 80 ? 'text-red-400' : score >= 60 ? 'text-orange-400' : score >= 40 ? 'text-amber-400' : 'text-green-400';
 
   const riskBg = (score: number) =>
-    score >= 80 ? 'bg-red-500/20 text-red-400 border-red-500/30' : score >= 60 ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : score >= 40 ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30';
+    score >= 80 ? 'bg-red-500/20 text-red-400 border-red-500/30' : score >= 60 ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' : score >= 40 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30';
+
+  const panelBg = 'rgba(24,24,27,0.92)';
 
   return (
     <div className="relative w-full h-full overflow-hidden" ref={containerRef} style={{ background: '#0A0F1A' }}>
