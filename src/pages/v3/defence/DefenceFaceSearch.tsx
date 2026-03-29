@@ -567,6 +567,7 @@ export default function DefenceFaceSearch() {
     }
   }, [searchState, results, enrichment, enriching, enrichProfiles]);
 
+  const exportReport = useCallback(async () => {
     if (results.length === 0) return;
     setExporting(true);
     try {
