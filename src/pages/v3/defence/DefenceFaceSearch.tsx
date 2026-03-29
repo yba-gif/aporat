@@ -935,7 +935,7 @@ export default function DefenceFaceSearch() {
               </div>
             )}
 
-            {results.length > 0 && (
+            {results.length > 0 && activeTab === 'results' && (
               <div className="p-4 space-y-4">
                 {/* Correlated Intelligence */}
                 <div className="rounded-xl border p-4 space-y-4" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
@@ -1115,6 +1115,429 @@ export default function DefenceFaceSearch() {
                   ))}
                 </AnimatePresence>
               </div>
+              </div>
+            )}
+
+            {/* Dossier Tab */}
+            {activeTab === 'dossier' && (
+              <div className="p-4 space-y-4">
+                {dossierLoading && (
+                  <div className="py-16 flex flex-col items-center gap-4">
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center" style={{ background: 'var(--v3-accent-muted)' }}>
+                        <Brain size={28} style={{ color: 'var(--v3-accent)' }} />
+                      </div>
+                      <Loader2 size={16} className="animate-spin absolute -top-1 -right-1" style={{ color: 'var(--v3-accent)' }} />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-[13px] font-semibold" style={{ color: 'var(--v3-text)' }}>Generating Intelligence Dossier</p>
+                      <p className="text-[11px] mt-1" style={{ color: 'var(--v3-text-muted)' }}>
+                        Cross-referencing accounts and building subject profile...
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {dossier && !dossierLoading && (
+                  <div className="space-y-4">
+                    {/* Identity Card */}
+                    {dossier.identity && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="rounded-xl border p-5 space-y-4"
+                        style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <UserCircle size={14} style={{ color: 'var(--v3-accent)' }} />
+                          <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: 'var(--v3-accent)' }}>Subject Identity</span>
+                          {dossier.identity.nameConfidence && (
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                              dossier.identity.nameConfidence === 'CONFIRMED' || dossier.identity.nameConfidence === 'HIGH'
+                                ? 'bg-emerald-500/10 text-emerald-400'
+                                : dossier.identity.nameConfidence === 'MEDIUM'
+                                ? 'bg-amber-500/10 text-amber-400'
+                                : 'bg-zinc-500/10 text-zinc-400'
+                            }`}>
+                              {dossier.identity.nameConfidence}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <p className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>Full Name</p>
+                            <p className="text-[14px] font-bold mt-0.5" style={{ color: 'var(--v3-text)' }}>
+                              {dossier.identity.fullName || potentialName || 'Unknown'}
+                            </p>
+                          </div>
+                          {dossier.identity.possibleOccupation && (
+                            <div>
+                              <p className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>Occupation</p>
+                              <p className="text-[13px] font-semibold mt-0.5" style={{ color: 'var(--v3-text)' }}>
+                                {dossier.identity.possibleOccupation}
+                              </p>
+                            </div>
+                          )}
+                          {dossier.identity.possibleLocation && (
+                            <div className="flex items-start gap-1.5">
+                              <MapPin size={11} className="mt-0.5 shrink-0" style={{ color: 'var(--v3-text-muted)' }} />
+                              <div>
+                                <p className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>Location</p>
+                                <p className="text-[12px] font-medium" style={{ color: 'var(--v3-text)' }}>{dossier.identity.possibleLocation}</p>
+                              </div>
+                            </div>
+                          )}
+                          {dossier.identity.possibleNationality && (
+                            <div>
+                              <p className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>Nationality</p>
+                              <p className="text-[12px] font-medium" style={{ color: 'var(--v3-text)' }}>{dossier.identity.possibleNationality}</p>
+                            </div>
+                          )}
+                          {dossier.identity.possibleAge && (
+                            <div>
+                              <p className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>Est. Age</p>
+                              <p className="text-[12px] font-medium" style={{ color: 'var(--v3-text)' }}>{dossier.identity.possibleAge}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {dossier.identity.aliases && dossier.identity.aliases.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Known Aliases</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {dossier.identity.aliases.map((alias, i) => (
+                                <span key={i} className="text-[10px] px-2 py-0.5 rounded-md font-mono" style={{ background: 'var(--v3-surface)', color: 'var(--v3-text-secondary)' }}>
+                                  @{alias}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+
+                    {/* Professional Intel */}
+                    {dossier.professionalIntel && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.05 }}
+                        className="rounded-xl border p-5 space-y-3"
+                        style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Briefcase size={14} style={{ color: 'var(--v3-accent)' }} />
+                          <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: 'var(--v3-accent)' }}>Professional Intelligence</span>
+                          {dossier.professionalIntel.publicProfile && (
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                              dossier.professionalIntel.publicProfile === 'PUBLIC_FIGURE' ? 'bg-red-500/10 text-red-400' :
+                              dossier.professionalIntel.publicProfile === 'HIGH' ? 'bg-amber-500/10 text-amber-400' :
+                              'bg-zinc-500/10 text-zinc-400'
+                            }`}>
+                              {dossier.professionalIntel.publicProfile}
+                            </span>
+                          )}
+                        </div>
+                        {dossier.professionalIntel.summary && (
+                          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>
+                            {dossier.professionalIntel.summary}
+                          </p>
+                        )}
+                        <div className="grid grid-cols-2 gap-3">
+                          {dossier.professionalIntel.organizations && dossier.professionalIntel.organizations.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-medium mb-1" style={{ color: 'var(--v3-text-muted)' }}>Organizations</p>
+                              {dossier.professionalIntel.organizations.map((org, i) => (
+                                <p key={i} className="text-[11px] font-medium" style={{ color: 'var(--v3-text)' }}>• {org}</p>
+                              ))}
+                            </div>
+                          )}
+                          {dossier.professionalIntel.roles && dossier.professionalIntel.roles.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-medium mb-1" style={{ color: 'var(--v3-text-muted)' }}>Roles</p>
+                              {dossier.professionalIntel.roles.map((role, i) => (
+                                <p key={i} className="text-[11px] font-medium" style={{ color: 'var(--v3-text)' }}>• {role}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        {dossier.professionalIntel.industry && (
+                          <p className="text-[11px]" style={{ color: 'var(--v3-text-muted)' }}>
+                            <span className="font-medium">Industry:</span> {dossier.professionalIntel.industry}
+                          </p>
+                        )}
+                      </motion.div>
+                    )}
+
+                    {/* Digital Presence */}
+                    {dossier.digitalPresence && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className="rounded-xl border p-5 space-y-3"
+                        style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Globe size={14} style={{ color: 'var(--v3-accent)' }} />
+                          <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: 'var(--v3-accent)' }}>Digital Footprint</span>
+                          {dossier.digitalPresence.footprintSize && (
+                            <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                              dossier.digitalPresence.footprintSize === 'EXTENSIVE' ? 'bg-red-500/10 text-red-400' :
+                              dossier.digitalPresence.footprintSize === 'SIGNIFICANT' ? 'bg-amber-500/10 text-amber-400' :
+                              'bg-zinc-500/10 text-zinc-400'
+                            }`}>
+                              {dossier.digitalPresence.footprintSize}
+                            </span>
+                          )}
+                        </div>
+
+                        {dossier.digitalPresence.professionalProfiles && dossier.digitalPresence.professionalProfiles.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Professional Profiles</p>
+                            <div className="space-y-1.5">
+                              {dossier.digitalPresence.professionalProfiles.map((p, i) => (
+                                <a key={i} href={p.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--v3-surface-hover)] transition-colors group">
+                                  <div className="flex items-center gap-2">
+                                    <Briefcase size={11} style={{ color: 'var(--v3-accent)' }} />
+                                    <span className="text-[11px] font-medium group-hover:underline" style={{ color: 'var(--v3-text)' }}>{p.platform}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>{p.significance}</span>
+                                    <ExternalLink size={10} style={{ color: 'var(--v3-text-muted)' }} />
+                                  </div>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {dossier.digitalPresence.socialProfiles && dossier.digitalPresence.socialProfiles.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Social Profiles</p>
+                            <div className="space-y-1.5">
+                              {dossier.digitalPresence.socialProfiles.map((p, i) => (
+                                <a key={i} href={p.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-2 rounded-lg hover:bg-[var(--v3-surface-hover)] transition-colors group">
+                                  <div className="flex items-center gap-2">
+                                    <User size={11} style={{ color: 'var(--v3-text-secondary)' }} />
+                                    <span className="text-[11px] font-medium group-hover:underline" style={{ color: 'var(--v3-text)' }}>{p.platform}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>{p.significance}</span>
+                                    <ExternalLink size={10} style={{ color: 'var(--v3-text-muted)' }} />
+                                  </div>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+
+                    {/* Risk Profile */}
+                    {dossier.riskProfile && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.15 }}
+                        className="rounded-xl border p-5 space-y-3"
+                        style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Shield size={14} style={{ color: 'var(--v3-accent)' }} />
+                          <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: 'var(--v3-accent)' }}>OPSEC & Risk Profile</span>
+                          <div className="flex items-center gap-1.5">
+                            {dossier.riskProfile.opsecLevel && (
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                                dossier.riskProfile.opsecLevel === 'POOR' ? 'bg-red-500/10 text-red-400' :
+                                dossier.riskProfile.opsecLevel === 'BASIC' ? 'bg-amber-500/10 text-amber-400' :
+                                'bg-emerald-500/10 text-emerald-400'
+                              }`}>
+                                OPSEC: {dossier.riskProfile.opsecLevel}
+                              </span>
+                            )}
+                            {dossier.riskProfile.exposureLevel && (
+                              <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${
+                                dossier.riskProfile.exposureLevel === 'CRITICAL' || dossier.riskProfile.exposureLevel === 'HIGH' ? 'bg-red-500/10 text-red-400' :
+                                dossier.riskProfile.exposureLevel === 'MEDIUM' ? 'bg-amber-500/10 text-amber-400' :
+                                'bg-emerald-500/10 text-emerald-400'
+                              }`}>
+                                EXPOSURE: {dossier.riskProfile.exposureLevel}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {dossier.riskProfile.dataLeakRisk && (
+                          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>
+                            {dossier.riskProfile.dataLeakRisk}
+                          </p>
+                        )}
+                        {dossier.riskProfile.vulnerabilities && dossier.riskProfile.vulnerabilities.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Vulnerabilities</p>
+                            <div className="space-y-1">
+                              {dossier.riskProfile.vulnerabilities.map((v, i) => (
+                                <div key={i} className="flex items-start gap-2 p-1.5">
+                                  <AlertTriangle size={10} className="shrink-0 mt-0.5 text-amber-400" />
+                                  <span className="text-[11px]" style={{ color: 'var(--v3-text-secondary)' }}>{v}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+
+                    {/* Connections & Geographic */}
+                    {dossier.connections && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                        className="rounded-xl border p-5 space-y-3"
+                        style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Network size={14} style={{ color: 'var(--v3-accent)' }} />
+                          <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: 'var(--v3-accent)' }}>Connections & Geolocation</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          {dossier.connections.geographicTies && dossier.connections.geographicTies.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Geographic Ties</p>
+                              {dossier.connections.geographicTies.map((g, i) => (
+                                <div key={i} className="flex items-center gap-1.5 mb-1">
+                                  <MapPin size={10} style={{ color: 'var(--v3-text-muted)' }} />
+                                  <span className="text-[11px]" style={{ color: 'var(--v3-text)' }}>{g}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {dossier.connections.languageIndicators && dossier.connections.languageIndicators.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Languages</p>
+                              <div className="flex flex-wrap gap-1">
+                                {dossier.connections.languageIndicators.map((l, i) => (
+                                  <span key={i} className="text-[10px] px-2 py-0.5 rounded-md" style={{ background: 'var(--v3-surface)', color: 'var(--v3-text-secondary)' }}>{l}</span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {dossier.connections.inferredNetwork && dossier.connections.inferredNetwork.length > 0 && (
+                            <div>
+                              <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Inferred Network</p>
+                              {dossier.connections.inferredNetwork.slice(0, 5).map((n, i) => (
+                                <p key={i} className="text-[11px] mb-0.5" style={{ color: 'var(--v3-text)' }}>• {n}</p>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Timeline */}
+                    {dossier.timeline && dossier.timeline.length > 0 && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.25 }}
+                        className="rounded-xl border p-5 space-y-3"
+                        style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Clock size={14} style={{ color: 'var(--v3-accent)' }} />
+                          <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: 'var(--v3-accent)' }}>Activity Timeline</span>
+                        </div>
+                        <div className="space-y-2">
+                          {dossier.timeline.map((t, i) => (
+                            <div key={i} className="flex items-start gap-3 pl-2 border-l-2" style={{ borderColor: 'var(--v3-accent)' }}>
+                              <div className="flex-1 pb-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[10px] font-mono font-medium" style={{ color: 'var(--v3-text-muted)' }}>{t.date}</span>
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded" style={{ background: 'var(--v3-surface)', color: 'var(--v3-text-muted)' }}>{t.source}</span>
+                                </div>
+                                <p className="text-[11px] mt-0.5" style={{ color: 'var(--v3-text)' }}>{t.event}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Actionable Intel */}
+                    {dossier.actionableIntel && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="rounded-xl border p-5 space-y-3"
+                        style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <Target size={14} style={{ color: 'var(--v3-accent)' }} />
+                          <span className="text-[11px] font-bold tracking-wider uppercase" style={{ color: 'var(--v3-accent)' }}>Actionable Intelligence</span>
+                        </div>
+                        {dossier.actionableIntel.keyInsights && dossier.actionableIntel.keyInsights.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Key Insights</p>
+                            <div className="space-y-1.5">
+                              {dossier.actionableIntel.keyInsights.map((insight, i) => (
+                                <div key={i} className="flex items-start gap-2 p-2 rounded-lg" style={{ background: 'var(--v3-surface)' }}>
+                                  <ChevronRight size={10} className="shrink-0 mt-0.5" style={{ color: 'var(--v3-accent)' }} />
+                                  <span className="text-[11px]" style={{ color: 'var(--v3-text)' }}>{insight}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {dossier.actionableIntel.investigationLeads && dossier.actionableIntel.investigationLeads.length > 0 && (
+                          <div>
+                            <p className="text-[10px] font-medium mb-1.5" style={{ color: 'var(--v3-text-muted)' }}>Investigation Leads</p>
+                            <div className="space-y-1">
+                              {dossier.actionableIntel.investigationLeads.map((lead, i) => (
+                                <div key={i} className="flex items-start gap-2 p-1.5">
+                                  <Eye size={10} className="shrink-0 mt-0.5" style={{ color: 'var(--v3-text-muted)' }} />
+                                  <span className="text-[11px]" style={{ color: 'var(--v3-text-secondary)' }}>{lead}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+
+                    {/* Confidence Assessment */}
+                    {dossier.confidenceAssessment && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.35 }}
+                        className="rounded-xl border p-4"
+                        style={{ borderColor: 'var(--v3-border)', background: 'rgba(251, 191, 36, 0.04)' }}
+                      >
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertTriangle size={12} className="text-amber-400" />
+                          <span className="text-[10px] font-bold tracking-wider uppercase text-amber-400">
+                            Confidence: {dossier.confidenceAssessment.overallConfidence}
+                          </span>
+                        </div>
+                        {dossier.confidenceAssessment.dataQuality && (
+                          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--v3-text-muted)' }}>
+                            {dossier.confidenceAssessment.dataQuality}
+                          </p>
+                        )}
+                        {dossier.confidenceAssessment.limitations && dossier.confidenceAssessment.limitations.length > 0 && (
+                          <div className="mt-2 space-y-0.5">
+                            {dossier.confidenceAssessment.limitations.map((l, i) => (
+                              <p key={i} className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>• {l}</p>
+                            ))}
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </div>
