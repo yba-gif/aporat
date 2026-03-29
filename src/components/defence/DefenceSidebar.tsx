@@ -9,6 +9,7 @@ const NAV_ITEMS = [
   { label: 'Alerts', icon: AlertTriangle, path: '/v3/defence/alerts' },
   { label: 'Map', icon: Map, path: '/v3/defence/map' },
   { label: 'Scan Control', icon: Radar, path: '/v3/defence/scan' },
+  { label: 'Face Search', icon: ScanFace, path: '/v3/defence/face-search' },
 ];
 
 export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {

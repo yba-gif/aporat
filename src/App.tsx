@@ -70,6 +70,7 @@ const App = () => (
                <Route path="map" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceMap /></Suspense>} />
                <Route path="personnel" element={<Suspense fallback={<DefenceRouteFallback />}><DefencePersonnel /></Suspense>} />
                <Route path="scan" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceScan /></Suspense>} />
+               <Route path="face-search" element={<Suspense fallback={<DefenceRouteFallback />}><DefenceFaceSearch /></Suspense>} />
             </Route>
             {/* Public pages */}
             <Route path="/government" element={<Government />} />
