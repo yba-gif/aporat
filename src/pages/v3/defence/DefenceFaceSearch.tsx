@@ -780,6 +780,9 @@ export default function DefenceFaceSearch() {
         results: results.map(r => ({ url: r.url, score: r.score })),
         narrative,
         enrichment: enrichment || null,
+        usernameEnum: usernameEnum || null,
+        telegramOsint: telegramOsint || null,
+        breachData: breachData || null,
       });
 
       toast.success('Intelligence report exported');
