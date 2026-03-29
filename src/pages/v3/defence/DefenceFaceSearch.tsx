@@ -791,7 +791,7 @@ export default function DefenceFaceSearch() {
     } finally {
       setExporting(false);
     }
-  }, [results, potentialName, testingMode, enrichment]);
+  }, [results, potentialName, testingMode, enrichment, usernameEnum, telegramOsint, breachData]);
 
   const saveSearch = async (parsedResults: FaceResult[]) => {
     try {
