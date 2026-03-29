@@ -415,6 +415,8 @@ export default function DefenceFaceSearch() {
   const [enriching, setEnriching] = useState(false);
   const [usernameEnum, setUsernameEnum] = useState<any>(null);
   const [enumerating, setEnumerating] = useState(false);
+  const [telegramOsint, setTelegramOsint] = useState<any>(null);
+  const [telegramLoading, setTelegramLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -477,6 +479,7 @@ export default function DefenceFaceSearch() {
     setSearchProgress('');
     setEnrichment(null);
     setUsernameEnum(null);
+    setTelegramOsint(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -615,6 +618,50 @@ export default function DefenceFaceSearch() {
       enumerateUsernames();
     }
   }, [enrichment, usernameEnum, enumerating, enumerateUsernames]);
+
+  // Telegram OSINT lookup
+  const telegramLookup = useCallback(async () => {
+    if (results.length === 0) return;
+    setTelegramLoading(true);
+    try {
+      const platforms = correlatePlatforms(results);
+      const allAccounts = platforms.flatMap(p => p.accounts);
+      const usernames = [...new Set(
+        allAccounts
+          .sort((a, b) => b.bestScore - a.bestScore)
+          .slice(0, 5)
+          .map(a => a.username)
+      )];
+
+      if (usernames.length === 0) return;
+
+      const { data, error } = await supabase.functions.invoke('telegram-osint', {
+        body: { usernames },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setTelegramOsint(data);
+      const found = data?.totalFound || 0;
+      if (found > 0) {
+        toast.success(`Found ${found} Telegram profile${found > 1 ? 's' : ''}`);
+      } else {
+        toast.info('No Telegram profiles found');
+      }
+    } catch (err: any) {
+      toast.error('Telegram lookup failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setTelegramLoading(false);
+    }
+  }, [results]);
+
+  // Auto-trigger Telegram OSINT after username enumeration completes
+  useEffect(() => {
+    if (usernameEnum?.success && !telegramOsint && !telegramLoading) {
+      telegramLookup();
+    }
+  }, [usernameEnum, telegramOsint, telegramLoading, telegramLookup]);
 
   const exportReport = useCallback(async () => {
     if (results.length === 0) return;
@@ -1317,6 +1364,118 @@ export default function DefenceFaceSearch() {
                           ))}
                         </div>
                       ))}
+                    </motion.div>
+                  )}
+
+                  {/* Telegram OSINT Results */}
+                  {(telegramLoading || telegramOsint?.success) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-lg border p-3 space-y-3"
+                      style={{ borderColor: 'rgba(0,136,204,0.2)', background: 'rgba(0,136,204,0.05)' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm">✈️</span>
+                          <span className="text-[10px] font-semibold tracking-wider uppercase" style={{ color: '#0088cc' }}>
+                            Telegram Intelligence
+                          </span>
+                          {telegramOsint && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{
+                              background: telegramOsint.totalFound > 0 ? 'rgba(0,136,204,0.15)' : 'rgba(161,161,170,0.15)',
+                              color: telegramOsint.totalFound > 0 ? '#0088cc' : '#a1a1aa',
+                            }}>
+                              {telegramOsint.totalFound} / {telegramOsint.totalChecked} FOUND
+                            </span>
+                          )}
+                        </div>
+                        {telegramLoading && <Loader2 size={12} className="animate-spin" style={{ color: '#0088cc' }} />}
+                      </div>
+
+                      {telegramLoading && !telegramOsint && (
+                        <div className="flex items-center gap-2">
+                          <div className="h-1 flex-1 rounded-full overflow-hidden" style={{ background: 'var(--v3-border)' }}>
+                            <motion.div
+                              className="h-full rounded-full"
+                              style={{ background: '#0088cc' }}
+                              initial={{ width: '0%' }}
+                              animate={{ width: '100%' }}
+                              transition={{ duration: 15, ease: 'linear' }}
+                            />
+                          </div>
+                          <span className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>Checking Telegram...</span>
+                        </div>
+                      )}
+
+                      {telegramOsint?.results?.filter((r: any) => r.exists).map((profile: any) => (
+                        <div key={profile.username} className="rounded-md border p-2.5 space-y-1.5" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-surface)' }}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`https://t.me/${profile.username}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[12px] font-bold hover:underline"
+                                style={{ color: '#0088cc' }}
+                              >
+                                @{profile.username}
+                              </a>
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{
+                                background: profile.profileType === 'channel' ? 'rgba(139,92,246,0.1)' : profile.profileType === 'group' ? 'rgba(59,130,246,0.1)' : profile.profileType === 'bot' ? 'rgba(251,191,36,0.1)' : 'rgba(34,197,94,0.1)',
+                                color: profile.profileType === 'channel' ? '#8b5cf6' : profile.profileType === 'group' ? '#3b82f6' : profile.profileType === 'bot' ? '#fbbf24' : '#22c55e',
+                              }}>
+                                {profile.profileType?.toUpperCase() || 'USER'}
+                              </span>
+                              {profile.profilePhoto && (
+                                <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>📷 Has photo</span>
+                              )}
+                            </div>
+                            {profile.memberCount && (
+                              <span className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>
+                                {profile.memberCount} {profile.profileType === 'channel' ? 'subscribers' : 'members'}
+                              </span>
+                            )}
+                          </div>
+                          {profile.displayName && (
+                            <p className="text-[11px] font-semibold" style={{ color: 'var(--v3-text)' }}>{profile.displayName}</p>
+                          )}
+                          {profile.bio && (
+                            <p className="text-[10px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{profile.bio}</p>
+                          )}
+                        </div>
+                      ))}
+
+                      {telegramOsint?.aiAnalysis && (
+                        <div className="space-y-1.5 pt-1 border-t" style={{ borderColor: 'rgba(0,136,204,0.15)' }}>
+                          <p className="text-[9px] uppercase tracking-wider font-semibold" style={{ color: 'var(--v3-text-muted)' }}>AI Analysis</p>
+                          {telegramOsint.aiAnalysis.intelligenceNotes && (
+                            <p className="text-[10px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>
+                              {telegramOsint.aiAnalysis.intelligenceNotes}
+                            </p>
+                          )}
+                          {telegramOsint.aiAnalysis.riskIndicators?.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {telegramOsint.aiAnalysis.riskIndicators.map((risk: string, i: number) => (
+                                <span key={i} className="text-[9px] px-1.5 py-0.5 rounded-md" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
+                                  {risk}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {telegramOsint.aiAnalysis.languageIndicators?.length > 0 && (
+                            <p className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>
+                              🌐 Languages: {telegramOsint.aiAnalysis.languageIndicators.join(', ')}
+                            </p>
+                          )}
+                        </div>
+                      )}
+
+                      {telegramOsint?.totalFound === 0 && (
+                        <p className="text-[10px] italic" style={{ color: 'var(--v3-text-muted)' }}>
+                          No Telegram profiles found for the identified usernames
+                        </p>
+                      )}
                     </motion.div>
                   )}
 
