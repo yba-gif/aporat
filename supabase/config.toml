@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.social-analyzer]
 verify_jwt = false
+
+[functions.facecheck-search]
+verify_jwt = false
