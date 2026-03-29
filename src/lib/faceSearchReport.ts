@@ -1,5 +1,4 @@
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import type jsPDFType from 'jspdf';
 
 interface ReportData {
   subjectName: string | null;
@@ -51,6 +50,9 @@ function riskLabel(score: number): string {
 }
 
 export async function generateFaceSearchReport(data: ReportData): Promise<void> {
+  const { default: jsPDF } = await import('jspdf');
+  const { default: autoTable } = await import('jspdf-autotable');
+
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const W = 210;
   const H = 297;
@@ -431,7 +433,7 @@ export async function generateFaceSearchReport(data: ReportData): Promise<void> 
 
 // ─── Helpers ──────────────────────────────────────────────
 
-function sectionHeader(doc: jsPDF, title: string, x: number, y: number): number {
+function sectionHeader(doc: jsPDFType, title: string, x: number, y: number): number {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
   doc.setTextColor(...COLORS.accent);
@@ -443,7 +445,7 @@ function sectionHeader(doc: jsPDF, title: string, x: number, y: number): number 
   return y + 6;
 }
 
-function wrappedText(doc: jsPDF, text: string, x: number, y: number, maxW: number, size: number, color: [number, number, number]): number {
+function wrappedText(doc: jsPDFType, text: string, x: number, y: number, maxW: number, size: number, color: [number, number, number]): number {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(size);
   doc.setTextColor(...color);
@@ -452,7 +454,7 @@ function wrappedText(doc: jsPDF, text: string, x: number, y: number, maxW: numbe
   return y + lines.length * (size * 0.5) + 2;
 }
 
-function checkPageBreak(doc: jsPDF, y: number, needed: number): number {
+function checkPageBreak(doc: jsPDFType, y: number, needed: number): number {
   if (y + needed > 275) {
     doc.addPage();
     return 20;
