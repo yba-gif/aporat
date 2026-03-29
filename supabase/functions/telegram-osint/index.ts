@@ -251,6 +251,7 @@ Only return JSON, no markdown.`,
       totalFound: existingProfiles.length,
       results,
       aiAnalysis,
+      note: "Telegram profiles are matched by username correlation only. Display names should be cross-referenced with the investigation subject.",
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

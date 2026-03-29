@@ -1509,6 +1509,12 @@ export default function DefenceFaceSearch() {
                               {profile.profilePhoto && (
                                 <span className="text-[9px]" style={{ color: 'var(--v3-text-muted)' }}>📷 Has photo</span>
                               )}
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold tracking-wider uppercase" style={{
+                                background: profile.confidence === 'high' ? 'rgba(34,197,94,0.12)' : profile.confidence === 'medium' ? 'rgba(251,191,36,0.12)' : 'rgba(239,68,68,0.1)',
+                                color: profile.confidence === 'high' ? '#22c55e' : profile.confidence === 'medium' ? '#fbbf24' : '#ef4444',
+                              }}>
+                                {profile.confidence || 'low'} conf
+                              </span>
                             </div>
                             {profile.memberCount && (
                               <span className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>
