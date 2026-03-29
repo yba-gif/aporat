@@ -1,10 +1,10 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUpDown, Filter, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { useV3Cases } from '@/api/v3-hooks';
 import { nationalityFlags } from '@/data/v3/mockData';
 import type { RiskLevel, CaseStatus } from '@/data/v3/mockData';
-import { RiskBadge, StatusBadge } from '@/components/v3/V3Badges';
+import { RiskBadge, StatusBadge, RiskScoreCircle } from '@/components/v3/V3Badges';
 import { V3ConfirmDialog } from '@/components/v3/V3ConfirmDialog';
 import { toast } from 'sonner';
 
@@ -20,14 +20,13 @@ export default function V3Cases() {
   const [focusedRow, setFocusedRow] = useState(0);
   const [bulkConfirm, setBulkConfirm] = useState<'escalate' | null>(null);
 
-  // Debounce search
   const [debouncedSearch, setDebouncedSearch] = useState('');
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 300);
     return () => clearTimeout(t);
   }, [search]);
 
-  const { data, loading, error } = useV3Cases({
+  const { data, loading } = useV3Cases({
     page,
     per_page: PAGE_SIZE,
     status: statusFilter !== 'all' ? statusFilter : undefined,
@@ -43,7 +42,14 @@ export default function V3Cases() {
     setSelected(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   };
 
-  // Keyboard shortcuts
+  const toggleAll = () => {
+    if (selected.size === cases.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(cases.map(c => c.id)));
+    }
+  };
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -57,124 +63,197 @@ export default function V3Cases() {
     return () => window.removeEventListener('keydown', handler);
   }, [cases, focusedRow, navigate]);
 
-  const selectStyle = 'px-2.5 py-1.5 rounded-md border text-xs outline-none';
+  const getInitials = (first: string, last: string) => {
+    return `${(first || '')[0] || ''}${(last || '')[0] || ''}`.toUpperCase();
+  };
+
+  const initialsColor = (name: string) => {
+    const colors = ['#a78bfa', '#4ade80', '#fbbf24', '#f87171', '#38bdf8', '#fb923c'];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+  };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-bold" style={{ color: 'var(--v3-text)' }}>Case Management</h2>
+        <div>
+          <h2 className="text-lg font-semibold" style={{ color: 'var(--v3-text)' }}>Cases</h2>
+          <p className="text-xs mt-0.5" style={{ color: 'var(--v3-text-muted)' }}>
+            {total} total · {cases.filter(c => c.status === 'in_review').length} in review
+          </p>
+        </div>
         {selected.size > 0 && (
-          <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--v3-text-secondary)' }}>
-            <span>{selected.size} selected</span>
-            <button onClick={() => setBulkConfirm('escalate')} className="px-3 py-1.5 rounded-md text-xs font-medium" style={{ background: 'var(--v3-amber-muted)', color: 'var(--v3-amber)' }}>Escalate</button>
-            <button onClick={() => { toast.success(`Exported ${selected.size} cases to CSV`); setSelected(new Set()); }} className="px-3 py-1.5 rounded-md text-xs font-medium" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>Export CSV</button>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>
+              {selected.size} selected
+            </span>
+            <button onClick={() => setBulkConfirm('escalate')}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-90"
+              style={{ background: 'var(--v3-amber-muted)', color: 'var(--v3-amber)' }}>
+              Escalate
+            </button>
+            <button onClick={() => { toast.success(`Exported ${selected.size} cases`); setSelected(new Set()); }}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium transition-colors hover:opacity-90"
+              style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>
+              Export
+            </button>
           </div>
         )}
       </div>
 
       {bulkConfirm && (
-        <V3ConfirmDialog open title="Escalate Selected Cases" description={`Are you sure you want to escalate ${selected.size} cases to a supervisor?`}
+        <V3ConfirmDialog open title="Escalate Selected" description={`Escalate ${selected.size} cases to supervisor?`}
           confirmLabel="Escalate All" confirmColor="var(--v3-amber)"
           onConfirm={() => { toast.success(`${selected.size} cases escalated`); setSelected(new Set()); setBulkConfirm(null); }}
           onCancel={() => setBulkConfirm(null)} />
       )}
 
       {/* Filters */}
-      <div className="flex items-center gap-3 p-3 border rounded-md" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
-        <Filter size={14} style={{ color: 'var(--v3-text-muted)' }} />
-        <input type="text" placeholder="Search cases..." value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
-          className={selectStyle} style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text)', width: 200 }} />
-        <select value={riskFilter} onChange={e => { setRiskFilter(e.target.value as any); setPage(1); }} className={selectStyle}
-          style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
-          <option value="all">All Risk</option>
-          <option value="low">Low</option>
-          <option value="medium">Medium</option>
-          <option value="high">High</option>
-          <option value="critical">Critical</option>
-        </select>
-        <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value as any); setPage(1); }} className={selectStyle}
-          style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
-          <option value="all">All Status</option>
-          <option value="new">New</option>
-          <option value="scanning">Scanning</option>
-          <option value="in_review">In Review</option>
-          <option value="escalated">Escalated</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
+      <div className="flex items-center gap-3 p-3 rounded-xl border" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+        <div className="relative flex-1 max-w-xs">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--v3-text-muted)' }} />
+          <input type="text" placeholder="Search by name, ID..." value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            className="w-full pl-9 pr-3 py-2 rounded-lg border text-xs outline-none transition-colors focus:border-[var(--v3-accent-dim)]"
+            style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text)' }} />
+        </div>
+        <div className="h-5 w-px" style={{ background: 'var(--v3-border)' }} />
+        <SlidersHorizontal size={13} style={{ color: 'var(--v3-text-muted)' }} />
+        {[
+          { value: riskFilter, onChange: (v: string) => { setRiskFilter(v as any); setPage(1); }, options: [['all', 'All Risk'], ['low', 'Low'], ['medium', 'Medium'], ['high', 'High'], ['critical', 'Critical']] },
+          { value: statusFilter, onChange: (v: string) => { setStatusFilter(v as any); setPage(1); }, options: [['all', 'All Status'], ['new', 'New'], ['scanning', 'Scanning'], ['in_review', 'In Review'], ['escalated', 'Escalated'], ['approved', 'Approved'], ['rejected', 'Rejected']] },
+        ].map((f, i) => (
+          <select key={i} value={f.value} onChange={e => f.onChange(e.target.value)}
+            className="px-2.5 py-2 rounded-lg border text-xs outline-none cursor-pointer"
+            style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
+            {f.options.map(([val, label]) => <option key={val} value={val}>{label}</option>)}
+          </select>
+        ))}
         <div className="flex-1" />
-        <span className="text-[11px] font-mono" style={{ color: 'var(--v3-text-muted)' }}>{total} cases</span>
+        <span className="text-[11px] font-mono tabular-nums" style={{ color: 'var(--v3-text-muted)' }}>{total} results</span>
       </div>
 
-      {/* Table */}
-      <div className="border rounded-md overflow-hidden" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+      {/* Case List */}
+      <div className="rounded-xl border overflow-hidden" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
         {loading ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 size={20} className="animate-spin" style={{ color: 'var(--v3-accent)' }} />
+          <div className="flex items-center justify-center py-20">
+            <div className="w-5 h-5 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--v3-border)', borderTopColor: 'var(--v3-accent)' }} />
           </div>
         ) : (
-          <table className="w-full text-xs">
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--v3-border)' }}>
-                <th className="px-3 py-2.5 w-8"><input type="checkbox" className="accent-[var(--v3-accent)]" /></th>
-                {['Case ID', 'Applicant', '', 'Risk Score', 'Risk', 'Status', 'Date'].map((label, i) => (
-                  <th key={i} className="px-3 py-2.5 text-left font-semibold" style={{ color: 'var(--v3-text-muted)' }}>{label}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {cases.map((c, i) => {
-                const scoreColor = c.risk_score < 30 ? 'var(--v3-green)' : c.risk_score < 60 ? 'var(--v3-amber)' : c.risk_score < 80 ? '#F97316' : 'var(--v3-red)';
-                const isFocused = i === focusedRow;
-                return (
-                  <tr key={c.id} className="cursor-pointer transition-colors duration-150"
-                    style={{ borderBottom: '1px solid var(--v3-border)', background: isFocused ? 'rgba(6,182,212,0.05)' : undefined }}
-                    onClick={() => navigate(`/v3/cases/${c.id}`)}>
-                    <td className="px-3 py-2" onClick={e => e.stopPropagation()}>
-                      <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggleSelect(c.id)} className="accent-[var(--v3-accent)]" />
-                    </td>
-                    <td className="px-3 py-2 font-mono" style={{ color: 'var(--v3-accent)' }}>{c.case_id}</td>
-                    <td className="px-3 py-2" style={{ color: 'var(--v3-text)' }}>{c.applicant.firstName} {c.applicant.lastName}</td>
-                    <td className="px-1">{nationalityFlags[c.applicant.nationality] || ''}</td>
-                    <td className="px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold" style={{ color: scoreColor }}>{Math.round(c.risk_score)}</span>
-                        <div className="w-12 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--v3-border)' }}>
-                          <div className="h-full rounded-full transition-all" style={{ width: `${c.risk_score}%`, background: scoreColor }} />
-                        </div>
+          <>
+            {/* Table Header */}
+            <div className="grid items-center px-4 py-3 text-[11px] font-medium uppercase tracking-wider border-b"
+              style={{ gridTemplateColumns: '36px 1fr 80px 100px 100px 100px', borderColor: 'var(--v3-border)', color: 'var(--v3-text-muted)' }}>
+              <div>
+                <input type="checkbox" checked={selected.size === cases.length && cases.length > 0}
+                  onChange={toggleAll} className="accent-[var(--v3-accent)] rounded" />
+              </div>
+              <div>Applicant</div>
+              <div className="text-center">Score</div>
+              <div>Risk</div>
+              <div>Status</div>
+              <div>Date</div>
+            </div>
+
+            {/* Rows */}
+            {cases.map((c, i) => {
+              const isFocused = i === focusedRow;
+              const initials = getInitials(c.applicant.firstName, c.applicant.lastName);
+              const color = initialsColor(c.applicant.firstName + c.applicant.lastName);
+              return (
+                <div key={c.id}
+                  className="grid items-center px-4 py-3 cursor-pointer transition-all duration-150 border-b last:border-b-0"
+                  style={{
+                    gridTemplateColumns: '36px 1fr 80px 100px 100px 100px',
+                    borderColor: 'var(--v3-border)',
+                    background: isFocused ? 'rgba(167, 139, 250, 0.04)' : 'transparent',
+                  }}
+                  onClick={() => navigate(`/v3/cases/${c.id}`)}
+                  onMouseEnter={() => setFocusedRow(i)}>
+
+                  {/* Checkbox */}
+                  <div onClick={e => e.stopPropagation()}>
+                    <input type="checkbox" checked={selected.has(c.id)} onChange={() => toggleSelect(c.id)}
+                      className="accent-[var(--v3-accent)] rounded" />
+                  </div>
+
+                  {/* Avatar + Name */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-semibold shrink-0"
+                      style={{ background: `${color}18`, color }}>
+                      {initials}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs font-medium truncate" style={{ color: 'var(--v3-text)' }}>
+                          {c.applicant.firstName} {c.applicant.lastName}
+                        </span>
+                        <span className="text-sm">{nationalityFlags[c.applicant.nationality] || ''}</span>
                       </div>
-                    </td>
-                    <td className="px-3 py-2"><RiskBadge level={c.risk_level as any} /></td>
-                    <td className="px-3 py-2"><StatusBadge status={c.status as any} /></td>
-                    <td className="px-3 py-2 font-mono" style={{ color: 'var(--v3-text-muted)' }}>{c.application_date?.slice(0, 10)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <span className="text-[10px] font-mono" style={{ color: 'var(--v3-text-muted)' }}>{c.case_id}</span>
+                    </div>
+                  </div>
+
+                  {/* Risk Score Circle */}
+                  <div className="flex justify-center">
+                    <RiskScoreCircle score={Math.round(c.risk_score)} size="sm" />
+                  </div>
+
+                  {/* Risk Level */}
+                  <div><RiskBadge level={c.risk_level as RiskLevel} /></div>
+
+                  {/* Status */}
+                  <div><StatusBadge status={c.status as CaseStatus} /></div>
+
+                  {/* Date */}
+                  <div className="text-[11px] font-mono tabular-nums" style={{ color: 'var(--v3-text-muted)' }}>
+                    {c.application_date?.slice(0, 10)}
+                  </div>
+                </div>
+              );
+            })}
+
+            {cases.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-16 gap-2">
+                <span className="text-xs" style={{ color: 'var(--v3-text-muted)' }}>No cases found</span>
+              </div>
+            )}
+          </>
         )}
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between text-xs" style={{ color: 'var(--v3-text-muted)' }}>
-        <span>Showing {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, total)} of {total} cases</span>
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] tabular-nums" style={{ color: 'var(--v3-text-muted)' }}>
+          {total > 0 ? `${(page - 1) * PAGE_SIZE + 1}–${Math.min(page * PAGE_SIZE, total)} of ${total}` : '0 results'}
+        </span>
+        <div className="flex items-center gap-1.5">
           <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-            className="p-1.5 rounded-md border disabled:opacity-30 transition-colors hover:bg-white/5" style={{ borderColor: 'var(--v3-border)' }}>
+            className="p-1.5 rounded-lg border disabled:opacity-20 transition-colors hover:border-[var(--v3-border-hover)]"
+            style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
             <ChevronLeft size={14} />
           </button>
-          <span>Page {page} of {pageCount || 1}</span>
+          <span className="text-[11px] px-2 tabular-nums" style={{ color: 'var(--v3-text-secondary)' }}>
+            {page} / {pageCount || 1}
+          </span>
           <button onClick={() => setPage(p => Math.min(pageCount, p + 1))} disabled={page >= pageCount}
-            className="p-1.5 rounded-md border disabled:opacity-30 transition-colors hover:bg-white/5" style={{ borderColor: 'var(--v3-border)' }}>
+            className="p-1.5 rounded-lg border disabled:opacity-20 transition-colors hover:border-[var(--v3-border-hover)]"
+            style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)' }}>
             <ChevronRight size={14} />
           </button>
         </div>
       </div>
 
+      {/* Keyboard hints */}
       <div className="flex items-center gap-4 text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>
-        <span><kbd className="px-1 py-0.5 rounded border text-[9px]" style={{ borderColor: 'var(--v3-border)' }}>J</kbd>/<kbd className="px-1 py-0.5 rounded border text-[9px]" style={{ borderColor: 'var(--v3-border)' }}>K</kbd> Navigate</span>
-        <span><kbd className="px-1 py-0.5 rounded border text-[9px]" style={{ borderColor: 'var(--v3-border)' }}>↵</kbd> Open</span>
-        <span><kbd className="px-1 py-0.5 rounded border text-[9px]" style={{ borderColor: 'var(--v3-border)' }}>ESC</kbd> Back</span>
+        {[['J/K', 'Navigate'], ['↵', 'Open'], ['ESC', 'Back']].map(([key, label]) => (
+          <span key={key} className="flex items-center gap-1">
+            <kbd className="px-1.5 py-0.5 rounded-md border text-[9px] font-mono" style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-muted)' }}>{key}</kbd>
+            {label}
+          </span>
+        ))}
       </div>
     </div>
   );
