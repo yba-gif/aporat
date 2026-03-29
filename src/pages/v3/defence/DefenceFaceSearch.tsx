@@ -622,6 +622,7 @@ export default function DefenceFaceSearch() {
         accounts: allAccounts,
         results: results.map(r => ({ url: r.url, score: r.score })),
         narrative,
+        enrichment: enrichment || null,
       });
 
       toast.success('Intelligence report exported');
