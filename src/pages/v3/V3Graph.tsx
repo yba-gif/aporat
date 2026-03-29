@@ -449,7 +449,7 @@ export default function V3Graph() {
             const count = NODES.filter(n => n.type === t).length;
             return (
               <button key={t} onClick={() => toggleType(t)}
-                className={cn('flex items-center gap-2 w-full text-left text-xs rounded-md px-2 py-1.5 transition-all',
+                className={cn('flex items-center gap-2 w-full text-left text-xs rounded-lg px-2.5 py-2 transition-all',
                   active ? 'bg-white/5' : 'hover:bg-white/5'
                 )}
                 style={{ color: active ? 'var(--v3-text-secondary)' : 'var(--v3-text-muted)' }}>
