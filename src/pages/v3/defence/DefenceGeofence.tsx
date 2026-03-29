@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { Crosshair } from 'lucide-react';
-import { MapContainer, TileLayer, CircleMarker, Circle } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import { useGeofenceCheck, MOCK_INSTALLATIONS, type GeofenceResult } from '@/hooks/useDefenceApi';
+import { Crosshair, MapPin, AlertTriangle, CheckCircle } from 'lucide-react';
+import { useGeofenceCheck, type GeofenceResult } from '@/hooks/useDefenceApi';
 import { SeverityBadge } from '@/components/defence/SeverityBadge';
 
 export default function DefenceGeofence() {
@@ -19,8 +17,6 @@ export default function DefenceGeofence() {
       onSuccess: (data) => setResult(data),
     });
   };
-
-  const nearestInst = result?.nearest ? MOCK_INSTALLATIONS.find(i => i.id === result.nearest!.id || i.name === result.nearest!.name) : null;
 
   return (
     <div className="p-6">
@@ -75,44 +71,47 @@ export default function DefenceGeofence() {
               {result.severity && <SeverityBadge severity={result.severity as any} />}
             </div>
 
-            <div className="text-center py-3">
-              <div className={`text-2xl font-bold ${result.inside_geofence ? 'text-red-400' : 'text-emerald-400'}`}>
-                {result.inside_geofence ? '⚠ INSIDE GEOFENCE' : '✓ OUTSIDE'}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 text-[12px]">
-              {result.nearest && (
-                <div>
-                  <span className="text-slate-500 block text-[10px] uppercase tracking-wider mb-0.5">Nearest Installation</span>
-                  <span className="text-white font-medium">{result.nearest.name}</span>
-                  <span className="text-slate-500 font-mono text-[10px] block">{result.nearest.code}</span>
+            <div className="text-center py-4">
+              {result.inside_geofence ? (
+                <div className="flex flex-col items-center gap-2">
+                  <AlertTriangle size={32} className="text-red-400" />
+                  <div className="text-2xl font-bold text-red-400">INSIDE GEOFENCE</div>
+                  <p className="text-[11px] text-slate-500">Coordinates fall within a restricted military zone</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <CheckCircle size={32} className="text-emerald-400" />
+                  <div className="text-2xl font-bold text-emerald-400">OUTSIDE</div>
+                  <p className="text-[11px] text-slate-500">Coordinates are outside all monitored geofences</p>
                 </div>
               )}
-              <div>
-                <span className="text-slate-500 block text-[10px] uppercase tracking-wider mb-0.5">Distance</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {result.nearest && (
+                <div className="p-3 rounded-md" style={{ background: '#0A0F1C' }}>
+                  <span className="text-slate-500 block text-[9px] uppercase tracking-wider mb-1">Nearest Installation</span>
+                  <div className="flex items-center gap-2">
+                    <MapPin size={14} className="text-blue-400" />
+                    <div>
+                      <span className="text-white font-medium text-[12px] block">{result.nearest.name}</span>
+                      <span className="text-slate-500 font-mono text-[10px]">{result.nearest.code}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="p-3 rounded-md" style={{ background: '#0A0F1C' }}>
+                <span className="text-slate-500 block text-[9px] uppercase tracking-wider mb-1">Distance</span>
                 <span className="text-white font-mono text-xl font-bold">{result.distance_km}</span>
-                <span className="text-slate-500 ml-1">km</span>
+                <span className="text-slate-500 ml-1 text-[11px]">km</span>
               </div>
             </div>
 
-            {/* Map */}
-            {nearestInst && (
-              <div className="h-48 rounded-lg overflow-hidden mt-2">
-                <MapContainer
-                  center={[(parseFloat(lat) + nearestInst.latitude) / 2, (parseFloat(lon) + nearestInst.longitude) / 2]}
-                  zoom={10}
-                  style={{ height: '100%', width: '100%', background: '#0A0F1C' }}
-                  zoomControl={false}
-                  attributionControl={false}
-                >
-                  <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-                  <Circle center={[nearestInst.latitude, nearestInst.longitude]} radius={nearestInst.radius_km * 1000} pathOptions={{ color: '#3B82F6', fillColor: '#3B82F6', fillOpacity: 0.1, weight: 1 }} />
-                  <CircleMarker center={[nearestInst.latitude, nearestInst.longitude]} radius={6} pathOptions={{ color: '#3B82F6', fillColor: '#3B82F6', fillOpacity: 0.9, weight: 2 }} />
-                  <CircleMarker center={[parseFloat(lat), parseFloat(lon)]} radius={6} pathOptions={{ color: '#EF4444', fillColor: '#EF4444', fillOpacity: 0.9, weight: 2 }} />
-                </MapContainer>
-              </div>
-            )}
+            <div className="text-center pt-2">
+              <a href="/v3/defence/map" className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors">
+                View on full map →
+              </a>
+            </div>
           </div>
         )}
       </div>

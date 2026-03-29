@@ -1,7 +1,5 @@
 import { useState } from 'react';
-import { Plus, MapPin, X } from 'lucide-react';
-import { MapContainer, TileLayer, CircleMarker, Circle } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
+import { Plus, MapPin } from 'lucide-react';
 import { useInstallations, useAddInstallation, type Installation } from '@/hooks/useDefenceApi';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -71,7 +69,7 @@ export default function DefenceInstallations() {
         </div>
       )}
 
-      {/* Detail Dialog */}
+      {/* Detail Dialog - no Leaflet, pure data */}
       <Dialog open={!!detail} onOpenChange={() => setDetailId(null)}>
         <DialogContent className="border max-w-lg" style={{ background: '#111827', borderColor: '#1E293B' }}>
           <DialogHeader>
@@ -79,33 +77,53 @@ export default function DefenceInstallations() {
           </DialogHeader>
           {detail && (
             <div className="space-y-4 pt-2">
-              <div className="h-48 rounded-lg overflow-hidden">
-                <MapContainer
-                  center={[detail.latitude, detail.longitude]}
-                  zoom={12}
-                  style={{ height: '100%', width: '100%', background: '#0A0F1C' }}
-                  zoomControl={false}
-                  attributionControl={false}
-                >
-                  <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" />
-                  <Circle center={[detail.latitude, detail.longitude]} radius={detail.radius_km * 1000} pathOptions={{ color: TYPE_COLORS[detail.installation_type], fillColor: TYPE_COLORS[detail.installation_type], fillOpacity: 0.1, weight: 1 }} />
-                  <CircleMarker center={[detail.latitude, detail.longitude]} radius={6} pathOptions={{ color: TYPE_COLORS[detail.installation_type], fillColor: TYPE_COLORS[detail.installation_type], fillOpacity: 0.9, weight: 2 }} />
-                </MapContainer>
+              {/* Visual header with type color */}
+              <div className="rounded-lg p-4 relative overflow-hidden" style={{ background: '#0A0F1C' }}>
+                <div className="absolute top-0 left-0 right-0 h-1" style={{ background: TYPE_COLORS[detail.installation_type] || '#3B82F6' }} />
+                <div className="flex items-center gap-3 mt-1">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: `${TYPE_COLORS[detail.installation_type]}15` }}>
+                    <MapPin size={18} style={{ color: TYPE_COLORS[detail.installation_type] }} />
+                  </div>
+                  <div>
+                    <div className="text-[13px] font-bold text-white">{detail.name}</div>
+                    <div className="text-[10px] font-mono text-slate-500">{detail.code} · {TYPE_LABELS[detail.installation_type]}</div>
+                  </div>
+                </div>
               </div>
+
               <div className="grid grid-cols-2 gap-3 text-[11px]">
-                <div><span className="text-slate-500">Code:</span> <span className="text-slate-300 font-mono">{detail.code}</span></div>
-                <div><span className="text-slate-500">Type:</span> <span className="text-slate-300">{TYPE_LABELS[detail.installation_type]}</span></div>
-                <div><span className="text-slate-500">City:</span> <span className="text-slate-300">{detail.city}</span></div>
-                <div><span className="text-slate-500">Radius:</span> <span className="text-slate-300 font-mono">{detail.radius_km} km</span></div>
-                <div><span className="text-slate-500">Coordinates:</span> <span className="text-slate-300 font-mono">{detail.latitude.toFixed(4)}, {detail.longitude.toFixed(4)}</span></div>
-                <div><span className="text-slate-500">Classification:</span> <span className={detail.classification === 'classified' ? 'text-red-400' : 'text-slate-300'}>{detail.classification}</span></div>
+                <div className="p-3 rounded-md" style={{ background: '#0A0F1C' }}>
+                  <span className="text-slate-500 block text-[9px] uppercase tracking-wider mb-1">City</span>
+                  <span className="text-slate-200 font-medium">{detail.city}</span>
+                </div>
+                <div className="p-3 rounded-md" style={{ background: '#0A0F1C' }}>
+                  <span className="text-slate-500 block text-[9px] uppercase tracking-wider mb-1">Radius</span>
+                  <span className="text-slate-200 font-mono">{detail.radius_km} km</span>
+                </div>
+                <div className="p-3 rounded-md" style={{ background: '#0A0F1C' }}>
+                  <span className="text-slate-500 block text-[9px] uppercase tracking-wider mb-1">Coordinates</span>
+                  <span className="text-slate-200 font-mono text-[10px]">{detail.latitude.toFixed(4)}°N, {detail.longitude.toFixed(4)}°E</span>
+                </div>
+                <div className="p-3 rounded-md" style={{ background: '#0A0F1C' }}>
+                  <span className="text-slate-500 block text-[9px] uppercase tracking-wider mb-1">Classification</span>
+                  <span className={detail.classification === 'classified' ? 'text-red-400 font-bold' : 'text-slate-200'}>{detail.classification.toUpperCase()}</span>
+                </div>
+              </div>
+
+              <div className="text-center pt-2">
+                <a
+                  href={`/v3/defence/map`}
+                  className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  View on Map →
+                </a>
               </div>
             </div>
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Add Modal - simplified */}
+      {/* Add Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
         <DialogContent className="border" style={{ background: '#111827', borderColor: '#1E293B' }}>
           <DialogHeader>
