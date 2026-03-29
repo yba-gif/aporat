@@ -80,15 +80,6 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
         </button>
       </div>
 
-      {/* Status */}
-      <div className="px-3 py-3 border-t flex items-center gap-2" style={{ borderColor: 'var(--v3-border)' }}>
-        <StatusDot status={backendOnline ? 'idle' : 'error'} size="sm" />
-        {!collapsed && (
-          <span className="text-[10px] font-medium" style={{ color: 'var(--v3-text-muted)' }}>
-            {backendOnline ? 'System Online' : 'Demo Mode'}
-          </span>
-        )}
-      </div>
     </aside>
   );
 }
