@@ -398,7 +398,7 @@ export default function V3Graph() {
         linkDirectionalParticles={showParticles ? 3 : 0}
         linkDirectionalParticleWidth={1.5}
         linkDirectionalParticleSpeed={0.004}
-        linkDirectionalParticleColor={() => '#06B6D4'}
+        linkDirectionalParticleColor={() => '#a78bfa'}
         linkCurvature={0.1}
         enableNodeDrag={true}
         enableNavigationControls={true}
