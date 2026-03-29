@@ -249,8 +249,8 @@ export default function V3Graph() {
       color,
       transparent: true,
       opacity: isDimmed ? 0.15 : 0.92,
-      emissive: node.flagged ? 0xef4444 : (isRiskPath ? 0xf59e0b : 0x000000),
-      emissiveIntensity: node.flagged ? 0.4 : (isRiskPath ? 0.2 : 0),
+      emissive: node.flagged ? 0xf87171 : (isRiskPath ? 0xfbbf24 : 0x000000),
+      emissiveIntensity: node.flagged ? 0.35 : (isRiskPath ? 0.15 : 0),
       shininess: 80,
     });
     const mesh = new THREE.Mesh(geo, mat);
