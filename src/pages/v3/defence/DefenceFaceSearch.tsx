@@ -272,7 +272,11 @@ function correlatePlatforms(results: FaceResult[]): PlatformMatch[] {
 function inferPotentialName(results: FaceResult[]): string | null {
   const nameCandidates = new Map<string, number>();
 
-  for (const r of results) {
+  // Only consider high-confidence matches to avoid wrong names from lookalikes
+  const highConf = results.filter(r => r.score >= 75);
+  if (highConf.length === 0) return null;
+
+  for (const r of highConf) {
     const url = r.url;
 
     // LinkedIn: /in/firstname-lastname
