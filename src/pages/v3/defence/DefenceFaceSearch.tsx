@@ -482,6 +482,7 @@ export default function DefenceFaceSearch() {
     setEnrichment(null);
     setUsernameEnum(null);
     setTelegramOsint(null);
+    setBreachData(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
