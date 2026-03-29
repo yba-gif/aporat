@@ -560,7 +560,13 @@ export default function DefenceFaceSearch() {
     }
   }, [results]);
 
-  const exportReport = useCallback(async () => {
+  // Auto-trigger profile enrichment when search completes
+  useEffect(() => {
+    if (searchState === 'complete' && results.length > 0 && !enrichment && !enriching) {
+      enrichProfiles();
+    }
+  }, [searchState, results, enrichment, enriching, enrichProfiles]);
+
     if (results.length === 0) return;
     setExporting(true);
     try {
