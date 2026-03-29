@@ -62,6 +62,7 @@ const App = () => (
               <Route path="personnel" element={<V3Personnel />} />
               <Route path="queue" element={<V3Queue />} />
               <Route path="settings" element={<V3Settings />} />
+              <Route path="demo" element={<V3Demo />} />
             </Route>
             {/* Defence OSINT Platform */}
              <Route path="/v3/defence" element={<V3ProtectedRoute><Suspense fallback={<DefenceRouteFallback />}><DefenceLayout /></Suspense></V3ProtectedRoute>}>
