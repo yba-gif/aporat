@@ -561,62 +561,7 @@ export default function DefenceFaceSearch() {
     }
   }, [results, potentialName, testingMode]);
 
-  const startSearch = async () => {
-    if (selectedFiles.length === 0) return;
-
-    try {
-      stopPolling();
-
-      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
-      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      const baseUrl = `https://${projectId}.supabase.co/functions/v1`;
-
-      // Upload and search each image
-      const allResults: FaceResult[] = [];
-
-      for (let i = 0; i < selectedFiles.length; i++) {
-        const file = selectedFiles[i];
-        setSearchProgress(`Image ${i + 1}/${selectedFiles.length}: Uploading...`);
-        setSearchState('uploading');
-        setProgress((i / selectedFiles.length) * 50);
-
-        // Step 1: Upload
-        const formData = new FormData();
-        formData.append('image', file);
-
-      const uploadRes = await fetch(`${baseUrl}/facecheck-search?action=upload`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${anonKey}` },
-        body: formData,
-      });
-
-      const uploadData = await uploadRes.json();
-      if (!uploadRes.ok || !uploadData.id_search) {
-        throw new Error(uploadData.error || 'Upload failed');
-      }
-
-      const idSearch = uploadData.id_search;
-
-      // Step 2: Start search
-      setSearchState('searching');
-      setProgress(10);
-
-      const searchRes = await fetch(`${baseUrl}/facecheck-search?action=search`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${anonKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ id_search: idSearch, testing: testingMode }),
-      });
-
-      const searchData = await searchRes.json();
-
-      if (!searchRes.ok || searchData?.error) {
-        throw new Error(searchData?.error || 'Search failed');
-      }
-
-      const saveSearch = async (parsedResults: FaceResult[]) => {
+  const saveSearch = async (parsedResults: FaceResult[]) => {
     try {
       const platforms = correlatePlatforms(parsedResults);
       const name = inferPotentialName(parsedResults);
@@ -641,34 +586,22 @@ export default function DefenceFaceSearch() {
         toast.success('Search saved to intelligence database');
       }
     } catch {
-      // Non-critical, don't block UI
+      // Non-critical
     }
-      };
+  };
 
-      // If we got output immediately
-      if (searchData?.output) {
-        const parsed = parseResults(searchData.output);
-        setResults(parsed);
-        setSearchState('complete');
-        setProgress(100);
-        saveSearch(parsed);
-        return;
-      }
-
-      // Step 3: Poll for results
+  const pollForResults = (baseUrl: string, anonKey: string, idSearch: string): Promise<FaceResult[]> => {
+    return new Promise((resolve, reject) => {
       let attempts = 0;
       const maxAttempts = 60;
 
-      pollRef.current = setInterval(async () => {
+      const interval = setInterval(async () => {
         attempts++;
         if (attempts > maxAttempts) {
-          stopPolling();
-          setSearchState('error');
-          setErrorMsg('Search timed out after 5 minutes');
+          clearInterval(interval);
+          reject(new Error('Search timed out after 5 minutes'));
           return;
         }
-
-        setProgress(Math.min(10 + (attempts / maxAttempts) * 85, 95));
 
         try {
           const url = new URL(`${baseUrl}/facecheck-search`);
@@ -686,26 +619,118 @@ export default function DefenceFaceSearch() {
           const statusData = await statusRes.json();
 
           if (statusData.output) {
-            stopPolling();
-            const parsed = parseResults(statusData.output);
-            setResults(parsed);
-            setSearchState('complete');
-            setProgress(100);
-            saveSearch(parsed);
+            clearInterval(interval);
+            resolve(parseResults(statusData.output));
           } else if (!statusRes.ok || statusData.error) {
-            stopPolling();
-            setSearchState('error');
-            setErrorMsg(statusData.error || 'Unable to fetch search status');
+            clearInterval(interval);
+            reject(new Error(statusData.error || 'Search failed'));
           }
         } catch {
-          // Continue polling on network errors
+          // Continue polling
         }
       }, 5000);
+
+      pollRef.current = interval;
+    });
+  };
+
+  const startSearch = async () => {
+    if (selectedFiles.length === 0) return;
+
+    try {
+      stopPolling();
+      setSearchState('uploading');
+      setProgress(0);
+      setResults([]);
+
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const baseUrl = `https://${projectId}.supabase.co/functions/v1`;
+
+      const allResults: FaceResult[] = [];
+      const totalFiles = selectedFiles.length;
+
+      for (let i = 0; i < totalFiles; i++) {
+        const file = selectedFiles[i];
+        const fileLabel = totalFiles > 1 ? `[${i + 1}/${totalFiles}] ` : '';
+
+        // Upload
+        setSearchProgress(`${fileLabel}Uploading ${file.name}...`);
+        setSearchState('uploading');
+        setProgress(((i * 2) / (totalFiles * 2)) * 100);
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        const uploadRes = await fetch(`${baseUrl}/facecheck-search?action=upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${anonKey}` },
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || !uploadData.id_search) {
+          throw new Error(uploadData.error || `Upload failed for image ${i + 1}`);
+        }
+
+        const idSearch = uploadData.id_search;
+
+        // Start search
+        setSearchState('searching');
+        setSearchProgress(`${fileLabel}Scanning faces...`);
+        setProgress(((i * 2 + 1) / (totalFiles * 2)) * 100);
+
+        const searchRes = await fetch(`${baseUrl}/facecheck-search?action=search`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${anonKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ id_search: idSearch, testing: testingMode }),
+        });
+
+        const searchData = await searchRes.json();
+        if (!searchRes.ok || searchData?.error) {
+          throw new Error(searchData?.error || `Search failed for image ${i + 1}`);
+        }
+
+        // Get results
+        let imageResults: FaceResult[];
+        if (searchData?.output) {
+          imageResults = parseResults(searchData.output);
+        } else {
+          setSearchProgress(`${fileLabel}Waiting for results...`);
+          imageResults = await pollForResults(baseUrl, anonKey, idSearch);
+        }
+
+        allResults.push(...imageResults);
+      }
+
+      // Deduplicate by URL, keeping highest score
+      const urlMap = new Map<string, FaceResult>();
+      for (const r of allResults) {
+        const existing = urlMap.get(r.url);
+        if (!existing || r.score > existing.score) {
+          urlMap.set(r.url, r);
+        }
+      }
+      const dedupedResults = Array.from(urlMap.values()).sort((a, b) => b.score - a.score);
+
+      setResults(dedupedResults);
+      setSearchState('complete');
+      setProgress(100);
+      setSearchProgress('');
+      saveSearch(dedupedResults);
+
+      if (totalFiles > 1) {
+        toast.success(`Cross-referenced ${totalFiles} images — ${dedupedResults.length} unique matches found`);
+      }
 
     } catch (err: any) {
       stopPolling();
       setSearchState('error');
       setErrorMsg(err.message || 'Search failed');
+      setSearchProgress('');
     }
   };
 
