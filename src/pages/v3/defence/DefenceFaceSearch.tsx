@@ -379,8 +379,8 @@ function inferPotentialName(results: FaceResult[]): string | null {
 
 export default function DefenceFaceSearch() {
   const [searchState, setSearchState] = useState<SearchState>('idle');
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [results, setResults] = useState<FaceResult[]>([]);
   const [progress, setProgress] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
@@ -391,6 +391,7 @@ export default function DefenceFaceSearch() {
   const [activeTab, setActiveTab] = useState<ResultTab>('results');
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [dossierLoading, setDossierLoading] = useState(false);
+  const [searchProgress, setSearchProgress] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
