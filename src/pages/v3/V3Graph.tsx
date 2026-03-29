@@ -644,7 +644,7 @@ export default function V3Graph() {
                   <Activity size={12} /> View Full Dossier
                 </Button>
                 <Button variant="outline" size="sm"
-                  className="w-full bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 rounded-md text-xs justify-start gap-2">
+                  className="w-full bg-red-500/10 border-red-500/20 text-red-400 hover:bg-red-500/20 rounded-xl text-xs justify-start gap-2">
                   <AlertTriangle size={12} /> Flag Entity
                 </Button>
               </div>
