@@ -334,7 +334,7 @@ export default function V3CaseDetail() {
             {activeTab === 'documents' && (
               <div className="space-y-3">
                 {(caseData.documents || []).map(doc => (
-                  <div key={doc.id} className="border rounded-md p-4" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
+                  <div key={doc.id} className="rounded-xl border p-5" style={{ borderColor: 'var(--v3-border)', background: 'var(--v3-bg)' }}>
                     <div className="flex items-center gap-2 mb-3">
                       <FileText size={14} style={{ color: 'var(--v3-accent)' }} />
                       <span className="text-xs font-semibold" style={{ color: 'var(--v3-text)' }}>{doc.name}</span>
