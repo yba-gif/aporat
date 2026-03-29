@@ -34,6 +34,44 @@ interface ReportData {
     crossReferenceNotes?: string;
     scrapedCount?: number;
   } | null;
+  usernameEnum?: {
+    success: boolean;
+    totalPlatformsChecked?: number;
+    results?: {
+      username: string;
+      totalFound: number;
+      platforms?: { platform: string; url: string; category?: string }[];
+    }[];
+  } | null;
+  telegramOsint?: {
+    totalFound?: number;
+    results?: {
+      username: string;
+      exists: boolean;
+      displayName?: string;
+      bio?: string;
+      profileType?: string;
+      memberCount?: number;
+    }[];
+    aiAnalysis?: {
+      intelligenceNotes?: string;
+      riskIndicators?: string[];
+    };
+  } | null;
+  breachData?: {
+    breachesFound: boolean;
+    totalBreaches: number;
+    breaches?: {
+      name: string;
+      date?: string;
+      dataExposed?: string[];
+      severity?: string;
+      description?: string;
+      affectedIdentifier?: string;
+    }[];
+    riskSummary?: string;
+    recommendations?: string[];
+  } | null;
 }
 
 const COLORS = {
