@@ -353,7 +353,54 @@ export default function V3CaseDetail() {
         </div>
       </div>
 
-      {/* AI Narrative Panel */}
+      {/* Scan Progress Indicator */}
+      {scanProgress && (
+        <div className="rounded-xl border p-4 overflow-hidden relative" style={{ background: 'var(--v3-surface)', borderColor: scanProgress.progress === 100 ? 'var(--v3-green)' : 'var(--v3-accent)', borderWidth: '1px' }}>
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center gap-2">
+              {scanProgress.progress < 100 ? (
+                <Loader2 size={14} className="animate-spin" style={{ color: 'var(--v3-accent)' }} />
+              ) : (
+                <CheckCircle size={14} style={{ color: 'var(--v3-green)' }} />
+              )}
+              <span className="text-[10px] font-semibold tracking-widest" style={{ color: scanProgress.progress === 100 ? 'var(--v3-green)' : 'var(--v3-accent)' }}>
+                DEEP OSINT SCAN
+              </span>
+            </div>
+            <span className="text-xs font-mono font-bold" style={{ color: scanProgress.progress === 100 ? 'var(--v3-green)' : 'var(--v3-text)' }}>
+              {scanProgress.progress}%
+            </span>
+          </div>
+          {/* Progress bar */}
+          <div className="w-full h-1.5 rounded-full overflow-hidden mb-2.5" style={{ background: 'var(--v3-border)' }}>
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out"
+              style={{
+                width: `${scanProgress.progress}%`,
+                background: scanProgress.progress === 100
+                  ? 'var(--v3-green)'
+                  : 'linear-gradient(90deg, var(--v3-accent), #818cf8)',
+              }}
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px]" style={{ color: 'var(--v3-text-secondary)' }}>
+              {scanProgress.status}
+            </span>
+            {scanProgress.tools.length > 0 && (
+              <div className="flex items-center gap-1.5">
+                {scanProgress.tools.map(tool => (
+                  <span key={tool} className="text-[9px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: 'var(--v3-accent-muted)', color: 'var(--v3-accent)' }}>
+                    {tool}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+
       {narrative && (
         <div className="rounded-xl border p-5 relative" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-accent)', borderWidth: '1px' }}>
           <div className="flex items-center justify-between mb-3">
