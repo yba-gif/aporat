@@ -159,7 +159,19 @@ export function useBackendStatus() {
 export function useDashboardStats() {
   return useQuery({
     queryKey: ['defence', 'stats'],
-    queryFn: () => fetchWithFallback('/dashboard/stats', MOCK_STATS),
+    queryFn: async () => {
+      const raw = await fetchWithFallback<any>('/dashboard/stats', MOCK_STATS);
+      // Normalize backend fields to our DashboardStats interface
+      return {
+        total_alerts: raw.total_alerts ?? 0,
+        live_streams_detected: raw.live_streams_detected ?? 0,
+        strava_routes_flagged: raw.strava_routes_flagged ?? 0,
+        total_installations: raw.total_installations ?? 0,
+        alerts_last_24h: raw.alerts_last_24h ?? raw.alerts_24h ?? 0,
+        alerts_by_severity: raw.alerts_by_severity ?? { critical: 0, high: 0, medium: 0, low: 0 },
+        collectors_status: raw.collectors_status ?? {},
+      } as DashboardStats;
+    },
     refetchInterval: 15000,
   });
 }
