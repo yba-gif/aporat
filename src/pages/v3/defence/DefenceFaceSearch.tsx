@@ -413,6 +413,8 @@ export default function DefenceFaceSearch() {
   const [searchProgress, setSearchProgress] = useState('');
   const [enrichment, setEnrichment] = useState<any>(null);
   const [enriching, setEnriching] = useState(false);
+  const [usernameEnum, setUsernameEnum] = useState<any>(null);
+  const [enumerating, setEnumerating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
