@@ -439,7 +439,7 @@ export default function V3Graph() {
 
       {/* Left filter panel */}
       <div className="absolute left-3 top-16 pointer-events-auto z-10">
-        <div className="backdrop-blur-md border rounded-md p-3 space-y-3 w-48" style={{ background: 'rgba(22,32,51,0.9)', borderColor: 'var(--v3-border)' }}>
+        <div className="backdrop-blur-md border rounded-xl p-4 space-y-3 w-48" style={{ background: panelBg, borderColor: 'var(--v3-border)' }}>
           <p className="text-[10px] font-semibold uppercase tracking-widest flex items-center gap-1.5" style={{ color: 'var(--v3-text-muted)' }}>
             <Filter size={10} /> Entity Types
           </p>
