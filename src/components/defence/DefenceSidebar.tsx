@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Shield, AlertTriangle, Map, Users, Building2, Radar, Crosshair, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Shield, AlertTriangle, Map, Building2, Radar, Crosshair, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StatusDot } from './StatusDot';
 
@@ -8,7 +8,6 @@ const NAV_ITEMS = [
   { label: 'Dashboard', icon: Shield, path: '/v3/defence' },
   { label: 'Alerts', icon: AlertTriangle, path: '/v3/defence/alerts' },
   { label: 'Map', icon: Map, path: '/v3/defence/map' },
-  { label: 'Personnel', icon: Users, path: '/v3/defence/personnel' },
   { label: 'Installations', icon: Building2, path: '/v3/defence/installations' },
   { label: 'Scan Control', icon: Radar, path: '/v3/defence/scan' },
   { label: 'Geofence Checker', icon: Crosshair, path: '/v3/defence/geofence' },
@@ -26,10 +25,9 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
       )}
       style={{ background: '#0D1321', borderColor: '#1E293B' }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between h-12 px-3 border-b" style={{ borderColor: '#1E293B' }}>
         {!collapsed && (
-          <span className="text-[10px] font-bold tracking-[0.2em] text-slate-400">PORTOLAN LABS</span>
+          <span className="text-[10px] font-bold tracking-[0.2em] text-slate-400">DEFENCE OSINT</span>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -39,10 +37,8 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
         </button>
       </div>
 
-      {/* Divider */}
       <div className="h-px mx-3 my-1" style={{ background: '#1E293B' }} />
 
-      {/* Nav */}
       <nav className="flex-1 py-2 overflow-y-auto">
         {NAV_ITEMS.map(item => (
           <NavLink
@@ -65,7 +61,6 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
         ))}
       </nav>
 
-      {/* Back to Platform */}
       <div className="border-t px-2 py-2" style={{ borderColor: '#1E293B' }}>
         <button
           onClick={() => navigate('/v3/dashboard')}
@@ -79,7 +74,6 @@ export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
         </button>
       </div>
 
-      {/* Status */}
       <div className="px-3 py-2.5 border-t flex items-center gap-2" style={{ borderColor: '#1E293B' }}>
         <StatusDot status={backendOnline ? 'idle' : 'error'} size="sm" />
         {!collapsed && (

@@ -8,12 +8,13 @@ import { cn } from '@/lib/utils';
 
 const SEVERITIES: Severity[] = ['critical', 'high', 'medium', 'low'];
 const STATUSES = ['new', 'acknowledged', 'investigating', 'resolved', 'false_positive'] as const;
-const PLATFORMS = ['tiktok', 'strava', 'instagram', 'twitter', 'facebook', 'linkedin', 'youtube'];
+const PLATFORMS = ['tiktok', 'strava'];
 
 const CATEGORY_LABELS: Record<string, string> = {
-  location_leak: 'Location Leak', facility_exposure: 'Facility Exposure', equipment_visible: 'Equipment Visible',
-  unit_identification: 'Unit ID', deployment_info: 'Deployment Info', personnel_exposure: 'Personnel Exposure',
-  opsec_discussion: 'OPSEC Discussion', social_engineering: 'Social Engineering',
+  live_stream: 'Live Stream',
+  route_exposure: 'Route Exposure',
+  location_leak: 'Location Leak',
+  facility_exposure: 'Facility Exposure',
 };
 
 function timeAgo(iso: string): string {
@@ -47,73 +48,53 @@ export default function DefenceAlerts() {
     <div className="p-6 space-y-5">
       <div>
         <h1 className="text-lg font-bold text-white">Alert Feed</h1>
-        <p className="text-[11px] text-slate-500 mt-0.5">Real-time OSINT alerts from monitored platforms</p>
+        <p className="text-[11px] text-slate-500 mt-0.5">Real-time OPSEC violation alerts from TikTok & Strava</p>
       </div>
 
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Search */}
         <div className="relative">
           <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input
-            type="text"
-            placeholder="Search alerts..."
-            value={search}
-            onChange={e => setSearch(e.target.value)}
+          <input type="text" placeholder="Search alerts..." value={search} onChange={e => setSearch(e.target.value)}
             className="pl-8 pr-3 py-1.5 rounded-md text-[12px] text-slate-200 border focus:outline-none focus:border-blue-500/50"
-            style={{ background: '#111827', borderColor: '#1E293B' }}
-          />
+            style={{ background: '#111827', borderColor: '#1E293B' }} />
         </div>
 
         <div className="w-px h-6 bg-slate-800" />
 
-        {/* Severity filters */}
         {SEVERITIES.map(s => (
-          <button
-            key={s}
-            onClick={() => setSeverity(severity === s ? undefined : s)}
+          <button key={s} onClick={() => setSeverity(severity === s ? undefined : s)}
             className={cn('px-2.5 py-1 rounded-md text-[10px] font-bold tracking-wider uppercase border transition-colors', severity === s ? '' : 'opacity-50 hover:opacity-80')}
             style={{
               background: severity === s ? `${s === 'critical' ? '#EF4444' : s === 'high' ? '#F59E0B' : s === 'medium' ? '#EAB308' : '#3B82F6'}20` : '#111827',
               borderColor: severity === s ? `${s === 'critical' ? '#EF4444' : s === 'high' ? '#F59E0B' : s === 'medium' ? '#EAB308' : '#3B82F6'}40` : '#1E293B',
               color: s === 'critical' ? '#F87171' : s === 'high' ? '#FBBF24' : s === 'medium' ? '#FDE047' : '#60A5FA',
-            }}
-          >
+            }}>
             {s}
           </button>
         ))}
 
         <div className="w-px h-6 bg-slate-800" />
 
-        {/* Status */}
-        <select
-          value={status || ''}
-          onChange={e => setStatus(e.target.value || undefined)}
+        <select value={status || ''} onChange={e => setStatus(e.target.value || undefined)}
           className="px-2 py-1.5 rounded-md text-[11px] text-slate-300 border focus:outline-none"
-          style={{ background: '#111827', borderColor: '#1E293B' }}
-        >
+          style={{ background: '#111827', borderColor: '#1E293B' }}>
           <option value="">All Status</option>
           {STATUSES.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
         </select>
 
-        {/* Platform */}
-        <select
-          value={platform || ''}
-          onChange={e => setPlatform(e.target.value || undefined)}
+        <select value={platform || ''} onChange={e => setPlatform(e.target.value || undefined)}
           className="px-2 py-1.5 rounded-md text-[11px] text-slate-300 border focus:outline-none"
-          style={{ background: '#111827', borderColor: '#1E293B' }}
-        >
+          style={{ background: '#111827', borderColor: '#1E293B' }}>
           <option value="">All Platforms</option>
           {PLATFORMS.map(p => <option key={p} value={p}>{getPlatformLabel(p)}</option>)}
         </select>
       </div>
 
-      {/* Count */}
       <div className="text-[11px] text-slate-500">
         Showing <span className="text-slate-300 font-mono">{filtered.length}</span> of <span className="text-slate-300 font-mono">{alerts?.length || 0}</span> alerts
       </div>
 
-      {/* Alert Cards */}
       <div className="space-y-2">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => <AlertCardSkeleton key={i} />)
@@ -121,15 +102,11 @@ export default function DefenceAlerts() {
           <div className="text-center py-16 text-slate-600 text-xs">No alerts match your filters</div>
         ) : (
           filtered.map(alert => (
-            <AlertCard
-              key={alert.id}
-              alert={alert}
-              expanded={expandedId === alert.id}
+            <AlertCard key={alert.id} alert={alert} expanded={expandedId === alert.id}
               onToggle={() => setExpandedId(expandedId === alert.id ? null : alert.id)}
               onAcknowledge={() => ack.mutate(alert.id)}
               onResolve={() => resolve.mutate({ id: alert.id, notes: 'Resolved by operator', falsePositive: false })}
-              onFalsePositive={() => resolve.mutate({ id: alert.id, notes: 'Marked as false positive', falsePositive: true })}
-            />
+              onFalsePositive={() => resolve.mutate({ id: alert.id, notes: 'Marked as false positive', falsePositive: true })} />
           ))
         )}
       </div>
@@ -137,23 +114,17 @@ export default function DefenceAlerts() {
   );
 }
 
-function AlertCard({
-  alert, expanded, onToggle, onAcknowledge, onResolve, onFalsePositive,
-}: {
+function AlertCard({ alert, expanded, onToggle, onAcknowledge, onResolve, onFalsePositive }: {
   alert: Alert; expanded: boolean; onToggle: () => void;
   onAcknowledge: () => void; onResolve: () => void; onFalsePositive: () => void;
 }) {
   const borderColor = alert.severity === 'critical' ? '#EF4444' : alert.severity === 'high' ? '#F59E0B' : alert.severity === 'medium' ? '#EAB308' : '#3B82F6';
 
   return (
-    <div
-      className={cn('rounded-lg border transition-all', alert.severity === 'critical' && alert.status === 'new' && 'shadow-[0_0_15px_rgba(239,68,68,0.1)]')}
-      style={{ background: '#111827', borderColor: '#1E293B' }}
-    >
+    <div className={cn('rounded-lg border transition-all', alert.severity === 'critical' && alert.status === 'new' && 'shadow-[0_0_15px_rgba(239,68,68,0.1)]')}
+      style={{ background: '#111827', borderColor: '#1E293B' }}>
       <div className="flex">
-        {/* Severity stripe */}
         <div className={cn('w-1 rounded-l-lg shrink-0', alert.status === 'new' && 'animate-pulse')} style={{ background: borderColor }} />
-
         <div className="flex-1 p-4">
           <button onClick={onToggle} className="flex items-start gap-3 w-full text-left">
             <PlatformIcon platform={alert.platform} size="md" />
@@ -178,7 +149,6 @@ function AlertCard({
             </div>
           </button>
 
-          {/* Expanded detail */}
           {expanded && (
             <div className="mt-3 pt-3 border-t space-y-3" style={{ borderColor: '#1E293B' }}>
               <p className="text-[12px] text-slate-400 leading-relaxed">{alert.description}</p>
@@ -191,7 +161,6 @@ function AlertCard({
                     </a>
                   </div>
                 )}
-                {alert.person_name && <div><span className="text-slate-600">Person:</span> <span className="text-slate-300">{alert.person_name}</span></div>}
                 {alert.installation_name && <div><span className="text-slate-600">Installation:</span> <span className="text-slate-300">{alert.installation_name}</span></div>}
                 <div><span className="text-slate-600">Timestamp:</span> <span className="text-slate-300 font-mono">{new Date(alert.created_at).toLocaleString()}</span></div>
               </div>
@@ -201,7 +170,6 @@ function AlertCard({
                   <span className="text-slate-400">{alert.resolution_notes}</span>
                 </div>
               )}
-              {/* Actions */}
               {alert.status !== 'resolved' && alert.status !== 'false_positive' && (
                 <div className="flex items-center gap-2 pt-1">
                   {alert.status === 'new' && (
