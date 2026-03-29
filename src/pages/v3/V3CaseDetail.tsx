@@ -215,7 +215,7 @@ export default function V3CaseDetail() {
             ))}
           </div>
 
-          <div className="border rounded-md p-4 grid grid-cols-3 gap-3" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+          <div className="rounded-xl border p-5 grid grid-cols-3 gap-3" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
             {[
               { label: 'Profiles', value: (caseData.findings || []).filter(f => f.category === 'social_media').length },
               { label: 'Signals', value: (caseData.findings || []).length },
