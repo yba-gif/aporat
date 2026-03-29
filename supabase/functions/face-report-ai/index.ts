@@ -54,7 +54,7 @@ Generate the following sections as JSON with these exact keys. Be specific and a
 
 Return ONLY valid JSON, no markdown.`;
 
-    const aiRes = await fetch("https://api.lovable.dev/v1/chat/completions", {
+     const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
