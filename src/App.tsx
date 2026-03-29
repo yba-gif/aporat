@@ -20,6 +20,7 @@ import V3Settings from "./pages/v3/V3Settings";
 import V3Personnel from "./pages/v3/V3Personnel";
 import V3Scanner from "./pages/v3/V3Scanner";
 import V3Graph from "./pages/v3/V3Graph";
+import V3Demo from "./pages/v3/V3Demo";
 import { V3ProtectedRoute } from "./components/v3/V3ProtectedRoute";
 import { AuthProvider } from "./api/AuthContext";
 
@@ -61,6 +62,7 @@ const App = () => (
               <Route path="personnel" element={<V3Personnel />} />
               <Route path="queue" element={<V3Queue />} />
               <Route path="settings" element={<V3Settings />} />
+              <Route path="demo" element={<V3Demo />} />
             </Route>
             {/* Defence OSINT Platform */}
              <Route path="/v3/defence" element={<V3ProtectedRoute><Suspense fallback={<DefenceRouteFallback />}><DefenceLayout /></Suspense></V3ProtectedRoute>}>
