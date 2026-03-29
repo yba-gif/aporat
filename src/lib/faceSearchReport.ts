@@ -146,9 +146,101 @@ export async function generateFaceSearchReport(data: ReportData): Promise<void> 
   doc.setTextColor(...COLORS.white);
   doc.text(`EXPOSURE RISK LEVEL: ${overallRisk}`, W / 2, y + 9, { align: 'center' });
 
+  // ─── SUBJECT PROFILE (from Firecrawl enrichment) ─────────
+  if (data.enrichment?.enriched) {
+    y = 148;
+    y = sectionHeader(doc, 'VERIFIED SUBJECT PROFILE', ML, y);
+
+    // Profile info grid
+    const e = data.enrichment;
+    const profileFields: [string, string][] = [];
+    if (e.extractedName) profileFields.push(['Full Name', e.extractedName]);
+    if (e.nameConfidence) profileFields.push(['Name Confidence', e.nameConfidence]);
+    if (e.occupation) profileFields.push(['Occupation', e.occupation]);
+    if (e.organization) profileFields.push(['Organization', e.organization]);
+    if (e.location) profileFields.push(['Location', e.location]);
+    if (e.website) profileFields.push(['Website', e.website]);
+
+    if (profileFields.length > 0) {
+      const colW = CW / 2;
+      profileFields.forEach((field, i) => {
+        const col = i % 2;
+        const xPos = ML + col * colW;
+        if (i > 0 && col === 0) y += 10;
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(7);
+        doc.setTextColor(...COLORS.midGray);
+        doc.text(field[0].toUpperCase(), xPos, y);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(...COLORS.black);
+        doc.text(field[1], xPos, y + 4.5);
+      });
+      y += 14;
+    }
+
+    if (e.bio) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(...COLORS.midGray);
+      doc.text('BIO', ML, y);
+      y += 4;
+      y = wrappedText(doc, e.bio, ML, y, CW, 8.5, COLORS.darkGray);
+      y += 4;
+    }
+
+    if (e.crossReferenceNotes) {
+      doc.setFillColor(248, 248, 252);
+      doc.roundedRect(ML, y, CW, 14, 2, 2, 'F');
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(8);
+      doc.setTextColor(...COLORS.midGray);
+      const noteLines = doc.splitTextToSize(`Cross-reference: ${e.crossReferenceNotes}`, CW - 8);
+      doc.text(noteLines, ML + 4, y + 5);
+      y += Math.max(14, noteLines.length * 4 + 6);
+      y += 4;
+    }
+
+    // Scraped profile details table
+    if (e.profileDetails && e.profileDetails.length > 0) {
+      y = checkPageBreak(doc, y, 30);
+      autoTable(doc, {
+        startY: y,
+        margin: { left: ML, right: MR },
+        head: [['Platform', 'Username', 'Display Name', 'Bio', 'Followers']],
+        body: e.profileDetails.map(p => [
+          p.platform || '-',
+          p.username ? `@${p.username}` : '-',
+          p.displayName || '-',
+          (p.bio || '-').slice(0, 80),
+          p.followers || '-',
+        ]),
+        theme: 'plain',
+        styles: {
+          fontSize: 7,
+          cellPadding: 2.5,
+          textColor: COLORS.darkGray,
+          lineWidth: 0.2,
+          lineColor: COLORS.paleGray,
+        },
+        headStyles: {
+          fillColor: COLORS.accent,
+          textColor: COLORS.white,
+          fontStyle: 'bold',
+          fontSize: 6.5,
+        },
+        alternateRowStyles: { fillColor: [248, 248, 252] },
+        columnStyles: {
+          3: { cellWidth: 50, fontSize: 6.5 },
+        },
+      });
+      y = (doc as any).lastAutoTable.finalY + 8;
+    }
+  } else {
+    y = 148;
+  }
+
   // ─── EXECUTIVE SUMMARY ──────────────────────────────────
-  y = 148;
-  y = sectionHeader(doc, 'EXECUTIVE SUMMARY', ML, y);
   y = wrappedText(doc, data.narrative.executiveSummary, ML, y, CW, 9, COLORS.darkGray);
   y += 6;
 
