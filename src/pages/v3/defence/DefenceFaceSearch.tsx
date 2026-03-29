@@ -622,6 +622,7 @@ export default function DefenceFaceSearch() {
         accounts: allAccounts,
         results: results.map(r => ({ url: r.url, score: r.score })),
         narrative,
+        enrichment: enrichment || null,
       });
 
       toast.success('Intelligence report exported');
@@ -630,7 +631,7 @@ export default function DefenceFaceSearch() {
     } finally {
       setExporting(false);
     }
-  }, [results, potentialName, testingMode]);
+  }, [results, potentialName, testingMode, enrichment]);
 
   const saveSearch = async (parsedResults: FaceResult[]) => {
     try {
