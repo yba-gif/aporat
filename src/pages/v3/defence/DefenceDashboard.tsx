@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Building2, Database, AlertTriangle, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { useDashboardStats, useTopThreats, useInstallations } from '@/hooks/useDefenceApi';
+import { useDashboardStats, useTopThreats, useInstallations, useScanStatus } from '@/hooks/useDefenceApi';
 import { SeverityBadge, SeverityDot } from '@/components/defence/SeverityBadge';
-import { PlatformIcon } from '@/components/defence/PlatformIcon';
+import { PlatformIcon, getPlatformLabel } from '@/components/defence/PlatformIcon';
 import { StatusDot } from '@/components/defence/StatusDot';
 import { StatCardSkeleton, AlertCardSkeleton } from '@/components/defence/DefenceSkeletons';
 
 const SEVERITY_COLORS: Record<string, string> = { critical: '#EF4444', high: '#F59E0B', medium: '#EAB308', low: '#3B82F6' };
 
-function timeAgo(iso: string): string {
+function timeAgo(iso: string | null): string {
+  if (!iso) return 'Never';
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'just now';
@@ -24,6 +25,7 @@ export default function DefenceDashboard() {
   const { data: stats, isLoading: statsLoading } = useDashboardStats();
   const { data: threats, isLoading: threatsLoading } = useTopThreats();
   const { data: installations } = useInstallations();
+  const { data: collectors } = useScanStatus();
   const navigate = useNavigate();
 
   const severityData = useMemo(() => {
@@ -35,20 +37,15 @@ export default function DefenceDashboard() {
     }));
   }, [stats]);
 
-  const collectors = useMemo(() => {
-    if (!stats) return [];
-    return Object.entries(stats.collectors_status).map(([platform, status]) => ({
-      platform,
-      status: status as 'running' | 'idle' | 'error' | 'disabled',
-    }));
-  }, [stats]);
-
   const kpis = stats ? [
-    { label: 'Total Alerts', value: stats.total_alerts, sub: `${stats.alerts_last_24h} in last 24h`, icon: AlertTriangle, accent: stats.total_alerts > 0 ? '#EF4444' : '#3B82F6' },
-    { label: 'Monitored Personnel', value: stats.total_persons, sub: 'Active profiles', icon: Users, accent: '#3B82F6' },
-    { label: 'Active Installations', value: stats.total_installations, sub: 'Geofenced zones', icon: Building2, accent: '#10B981' },
-    { label: 'Content Collected', value: stats.total_content.toLocaleString(), sub: 'Across all platforms', icon: Database, accent: '#A855F7' },
+    { label: 'Total Alerts', value: stats.total_alerts, sub: `${stats.alerts_last_24h} in last 24h`, accent: '#EF4444' },
+    { label: 'Live Streams Detected', value: stats.live_streams_detected, sub: 'TikTok live scans', accent: '#E11D48' },
+    { label: 'Strava Routes Flagged', value: stats.strava_routes_flagged, sub: 'Near military bases', accent: '#FC4C02' },
+    { label: 'Active Installations', value: stats.total_installations, sub: 'Geofenced zones', accent: '#10B981' },
   ] : [];
+
+  const tiktokCollector = collectors?.find(c => c.platform === 'tiktok');
+  const stravaCollector = collectors?.find(c => c.platform === 'strava');
 
   return (
     <div className="p-6 space-y-6">
@@ -60,11 +57,8 @@ export default function DefenceDashboard() {
           kpis.map(kpi => (
             <div key={kpi.label} className="rounded-lg border p-4 relative overflow-hidden" style={{ background: '#111827', borderColor: '#1E293B' }}>
               <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ background: `linear-gradient(90deg, ${kpi.accent}, transparent)` }} />
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">{kpi.label}</span>
-                <kpi.icon size={16} style={{ color: kpi.accent }} />
-              </div>
-              <div className="text-2xl font-bold text-white font-mono">{kpi.value}</div>
+              <span className="text-[11px] font-semibold tracking-wide text-slate-400 uppercase">{kpi.label}</span>
+              <div className="text-2xl font-bold text-white font-mono mt-2">{kpi.value}</div>
               <div className="text-[11px] text-slate-500 mt-1">{kpi.sub}</div>
             </div>
           ))
@@ -85,9 +79,7 @@ export default function DefenceDashboard() {
                       <Cell key={i} fill={entry.color} />
                     ))}
                   </Pie>
-                  <Tooltip
-                    contentStyle={{ background: '#1F2937', border: '1px solid #374151', borderRadius: '6px', fontSize: '11px', color: '#E5E7EB' }}
-                  />
+                  <Tooltip contentStyle={{ background: '#1F2937', border: '1px solid #374151', borderRadius: '6px', fontSize: '11px', color: '#E5E7EB' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -105,18 +97,41 @@ export default function DefenceDashboard() {
           </div>
         </div>
 
-        {/* Collector Status */}
-        <div className="lg:col-span-2 rounded-lg border p-5" style={{ background: '#111827', borderColor: '#1E293B' }}>
-          <h3 className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase mb-4">Collector Status</h3>
-          <div className="grid grid-cols-2 gap-2">
-            {collectors.map(c => (
-              <div key={c.platform} className="flex items-center gap-2 p-2 rounded-md" style={{ background: '#0A0F1C' }}>
-                <PlatformIcon platform={c.platform} size="sm" />
-                <span className="text-[11px] text-slate-400 flex-1 capitalize">{c.platform}</span>
-                <StatusDot status={c.status} size="sm" />
+        {/* Collector Status — 2 stacked cards */}
+        <div className="lg:col-span-2 space-y-3">
+          {[tiktokCollector, stravaCollector].filter(Boolean).map(col => {
+            if (!col) return null;
+            const isTiktok = col.platform === 'tiktok';
+            return (
+              <div key={col.platform} className="rounded-lg border p-4" style={{ background: '#111827', borderColor: '#1E293B' }}>
+                <div className="flex items-center gap-3 mb-3">
+                  <PlatformIcon platform={col.platform} size="md" />
+                  <div className="flex-1">
+                    <div className="text-[13px] font-bold text-white">{getPlatformLabel(col.platform)}</div>
+                    <div className="text-[10px] text-slate-500">{isTiktok ? 'Live streams + keyword search' : 'Routes near military bases'}</div>
+                  </div>
+                  <StatusDot status={col.status} size="sm" />
+                </div>
+                <div className="grid grid-cols-3 gap-3 mb-2">
+                  <div className="rounded-md p-2 text-center" style={{ background: '#0A0F1C' }}>
+                    <div className="text-sm font-bold font-mono text-white">{col.items_collected_today}</div>
+                    <div className="text-[9px] text-slate-500 uppercase tracking-wider">Today</div>
+                  </div>
+                  <div className="rounded-md p-2 text-center" style={{ background: '#0A0F1C' }}>
+                    <div className="text-sm font-bold font-mono text-white">{col.items_collected_total.toLocaleString()}</div>
+                    <div className="text-[9px] text-slate-500 uppercase tracking-wider">Total</div>
+                  </div>
+                  <div className="rounded-md p-2 text-center" style={{ background: '#0A0F1C' }}>
+                    <div className="text-sm font-bold font-mono text-white">{col.alerts_generated_total}</div>
+                    <div className="text-[9px] text-slate-500 uppercase tracking-wider">Alerts</div>
+                  </div>
+                </div>
+                <div className="text-[10px] text-slate-600 font-mono">
+                  Last run: {timeAgo(col.last_run_at)} · Interval: {isTiktok ? '10 min' : '30 min'}
+                </div>
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
       </div>
 
@@ -159,10 +174,7 @@ export default function DefenceDashboard() {
           <div className="px-5 pt-5 pb-2">
             <div className="flex items-center justify-between gap-3">
               <h3 className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Operational Coverage</h3>
-              <button
-                onClick={() => navigate('/v3/defence/map')}
-                className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
-              >
+              <button onClick={() => navigate('/v3/defence/map')} className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition-colors">
                 Open Map <ExternalLink size={10} />
               </button>
             </div>
@@ -179,15 +191,11 @@ export default function DefenceDashboard() {
                   <div className="mt-2 text-2xl font-mono font-bold text-white">TR-81</div>
                 </div>
               </div>
-
               <div className="space-y-2 overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: '#1E293B transparent' }}>
                 {installations?.slice(0, 6).map(inst => (
-                  <button
-                    key={inst.id}
-                    onClick={() => navigate('/v3/defence/map')}
+                  <button key={inst.id} onClick={() => navigate('/v3/defence/map')}
                     className="w-full rounded-md border px-3 py-2 text-left transition-colors hover:bg-white/[0.03]"
-                    style={{ background: '#111827', borderColor: '#1E293B' }}
-                  >
+                    style={{ background: '#111827', borderColor: '#1E293B' }}>
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <div className="text-[12px] font-medium text-slate-100 truncate">{inst.name}</div>

@@ -6,9 +6,9 @@ const API_BASE = 'http://localhost:8000/api/defence/osint';
 // ─── Types ──────────────────────────────────────────────────────────
 export interface DashboardStats {
   total_alerts: number;
-  total_persons: number;
+  live_streams_detected: number;
+  strava_routes_flagged: number;
   total_installations: number;
-  total_content: number;
   alerts_last_24h: number;
   alerts_by_severity: { critical: number; high: number; medium: number; low: number };
   collectors_status: Record<string, string>;
@@ -42,18 +42,6 @@ export interface Installation {
   radius_km: number;
   classification: string;
   is_active: boolean;
-}
-
-export interface Person {
-  id: string;
-  name: string;
-  rank: string | null;
-  unit: string | null;
-  opsec_score: number;
-  is_active: boolean;
-  created_at: string;
-  social_accounts?: { platform: string; username: string }[];
-  alert_count?: number;
 }
 
 export interface CollectorStatus {
@@ -99,44 +87,35 @@ export const MOCK_INSTALLATIONS: Installation[] = [
 ];
 
 const MOCK_ALERTS: Alert[] = [
-  { id: 'a1', severity: 'critical', status: 'new', threat_category: 'location_leak', platform: 'tiktok', title: 'Soldier broadcasting live from İncirlik flight line', description: 'Active TikTok livestream showing F-16 shelters and runway operations at İncirlik Air Base. GPS metadata embedded in stream confirms location within 200m of HAS area. Stream has 1,200 concurrent viewers.', evidence_url: 'https://tiktok.com/@example/live', created_at: new Date(Date.now() - 300000).toISOString(), person_id: 'p1', installation_id: '1', person_name: 'Yüzbaşı Ahmet Kaya', installation_name: 'İncirlik Air Base' },
-  { id: 'a2', severity: 'critical', status: 'new', threat_category: 'facility_exposure', platform: 'instagram', title: 'Radar installation visible in background of selfie', description: 'Instagram story posted from Kürecik area shows AN/TPY-2 radar array clearly visible in background. Geotag places the photo within the facility perimeter.', evidence_url: 'https://instagram.com/p/example', created_at: new Date(Date.now() - 600000).toISOString(), person_id: 'p2', installation_id: '2', person_name: 'Teğmen Elif Demir', installation_name: 'Kürecik Radar Station' },
-  { id: 'a3', severity: 'high', status: 'new', threat_category: 'equipment_visible', platform: 'twitter', title: 'Photo of classified avionics panel shared on Twitter', description: 'Twitter user posted detailed photo of F-35 cockpit MFD display during maintenance cycle. ITAR-controlled information visible in image.', evidence_url: null, created_at: new Date(Date.now() - 1800000).toISOString(), person_id: 'p1', installation_id: '3', person_name: 'Yüzbaşı Ahmet Kaya', installation_name: 'Akıncı Air Base' },
-  { id: 'a4', severity: 'high', status: 'acknowledged', threat_category: 'deployment_info', platform: 'strava', title: 'Running route reveals patrol patterns around Silopi base', description: 'Strava heatmap data from multiple soldiers shows consistent patrol routes, timing patterns, and dead zones around Silopi Military Base perimeter.', evidence_url: 'https://strava.com/activities/example', created_at: new Date(Date.now() - 3600000).toISOString(), person_id: null, installation_id: '16', installation_name: 'Silopi Military Base' },
-  { id: 'a5', severity: 'medium', status: 'new', threat_category: 'personnel_exposure', platform: 'linkedin', title: 'Officer lists classified unit assignment on LinkedIn', description: 'Active duty officer updated LinkedIn profile to show assignment to Special Forces Command (ÖKK) with detailed job description mentioning operational capabilities.', evidence_url: 'https://linkedin.com/in/example', created_at: new Date(Date.now() - 7200000).toISOString(), person_id: 'p3', installation_id: null, person_name: 'Binbaşı Mert Yıldız' },
-  { id: 'a6', severity: 'medium', status: 'investigating', threat_category: 'opsec_discussion', platform: 'twitter', title: 'Soldier discussing upcoming deployment on Twitter', description: 'Enlisted personnel tweeting about upcoming rotation to southeastern Turkey. Mentions specific unit designator and approximate deployment timeline.', evidence_url: null, created_at: new Date(Date.now() - 10800000).toISOString(), person_id: 'p2', installation_id: null, person_name: 'Teğmen Elif Demir' },
-  { id: 'a7', severity: 'low', status: 'new', threat_category: 'social_engineering', platform: 'facebook', title: 'Suspicious friend request pattern targeting naval personnel', description: 'Multiple fake Facebook profiles sending friend requests to Gölcük Naval Base personnel. Profiles use AI-generated photos and claim to be defense industry professionals.', evidence_url: null, created_at: new Date(Date.now() - 14400000).toISOString(), person_id: null, installation_id: '10', installation_name: 'Gölcük Naval Base' },
-  { id: 'a8', severity: 'critical', status: 'resolved', threat_category: 'location_leak', platform: 'tiktok', title: 'Convoy movement filmed and posted to TikTok', description: 'Civilian TikTok user filmed military convoy of 15+ vehicles moving through Şırnak province. Video shows vehicle types, unit markings, and direction of travel.', evidence_url: null, created_at: new Date(Date.now() - 86400000).toISOString(), person_id: null, installation_id: '16', installation_name: 'Silopi Military Base', resolution_notes: 'Content removed via platform cooperation. Uploader warned.' },
-  { id: 'a9', severity: 'high', status: 'new', threat_category: 'unit_identification', platform: 'youtube', title: 'Training exercise video reveals unit insignia and equipment', description: 'YouTube video uploaded by civilian near Eğirdir shows commando training with clearly visible unit patches, weapon systems, and tactical procedures.', evidence_url: 'https://youtube.com/watch?v=example', created_at: new Date(Date.now() - 5400000).toISOString(), person_id: null, installation_id: '20', installation_name: 'Eğirdir Commando School' },
-  { id: 'a10', severity: 'low', status: 'new', threat_category: 'opsec_discussion', platform: 'twitter', title: 'Veteran discussing current ops tempo on Twitter thread', description: 'Retired officer with large following speculating about current operational tempo based on observed aircraft movements at Diyarbakır AB.', evidence_url: null, created_at: new Date(Date.now() - 18000000).toISOString(), person_id: null, installation_id: '5', installation_name: 'Diyarbakır Air Base' },
-  { id: 'a11', severity: 'medium', status: 'new', threat_category: 'facility_exposure', platform: 'strava', title: 'Strava segment created inside Foça naval base perimeter', description: 'Running segment on Strava traces internal road network within Foça Amphibious Marine Base, revealing building layouts and checkpoint locations.', evidence_url: null, created_at: new Date(Date.now() - 21600000).toISOString(), person_id: null, installation_id: '18', installation_name: 'Foça Training Center' },
-  { id: 'a12', severity: 'high', status: 'new', threat_category: 'equipment_visible', platform: 'instagram', title: 'S-400 transport vehicles photographed at Akıncı', description: 'Instagram post shows transport erector launcher vehicles at Akıncı Air Base parking area. High-resolution image allows identification of S-400 system components.', evidence_url: null, created_at: new Date(Date.now() - 9000000).toISOString(), person_id: null, installation_id: '3', installation_name: 'Akıncı Air Base' },
-];
-
-const MOCK_PERSONS: Person[] = [
-  { id: 'p1', name: 'Yüzbaşı Ahmet Kaya', rank: 'Yüzbaşı (Captain)', unit: '141st Filo (Squadron)', opsec_score: 82, is_active: true, created_at: '2026-01-15T10:00:00Z', social_accounts: [{ platform: 'tiktok', username: '@ahmet.kaya34' }, { platform: 'instagram', username: 'ahmetkaya_pilot' }, { platform: 'twitter', username: '@AKaya_141' }], alert_count: 4 },
-  { id: 'p2', name: 'Teğmen Elif Demir', rank: 'Teğmen (Lieutenant)', unit: 'Kürecik Radar Birliği', opsec_score: 67, is_active: true, created_at: '2026-02-01T09:30:00Z', social_accounts: [{ platform: 'instagram', username: 'elif.demir99' }, { platform: 'twitter', username: '@ElifD_TR' }, { platform: 'strava', username: 'elif_runner' }], alert_count: 3 },
-  { id: 'p3', name: 'Binbaşı Mert Yıldız', rank: 'Binbaşı (Major)', unit: 'Özel Kuvvetler Komutanlığı', opsec_score: 45, is_active: true, created_at: '2026-01-20T08:00:00Z', social_accounts: [{ platform: 'linkedin', username: 'mert-yildiz-okk' }, { platform: 'facebook', username: 'mert.yildiz.07' }], alert_count: 1 },
+  // TikTok live stream alerts
+  { id: 'a1', severity: 'critical', status: 'new', threat_category: 'live_stream', platform: 'tiktok', title: 'Live stream from İncirlik flight line — keyword "askeriye"', description: 'Active TikTok livestream detected via keyword search "askeriye". Unknown soldier broadcasting from İncirlik Air Base showing F-16 shelters and runway operations. Stream has 1,200 concurrent viewers. GPS metadata confirms location within 200m of HAS area.', evidence_url: 'https://tiktok.com/@user_38291/live', created_at: new Date(Date.now() - 180000).toISOString(), person_id: null, installation_id: '1', installation_name: 'İncirlik Air Base' },
+  { id: 'a2', severity: 'critical', status: 'new', threat_category: 'live_stream', platform: 'tiktok', title: 'Barracks live stream — keyword "komando" detected', description: 'TikTok live stream found via "komando" keyword search. Unknown commando trainee broadcasting from barracks at Eğirdir Commando School. Shows unit patches, sleeping quarters layout, and discusses upcoming field exercise schedule. 340 viewers.', evidence_url: 'https://tiktok.com/@user_77104/live', created_at: new Date(Date.now() - 420000).toISOString(), person_id: null, installation_id: '20', installation_name: 'Eğirdir Commando School' },
+  { id: 'a3', severity: 'high', status: 'new', threat_category: 'live_stream', platform: 'tiktok', title: 'Convoy filming on TikTok Live — "mehmetcik" keyword', description: 'Civilian or soldier broadcasting military convoy movement through Şırnak province on TikTok Live. Detected via "mehmetcik" keyword. Video shows 15+ vehicles, unit markings visible, direction of travel identifiable. 890 viewers.', evidence_url: null, created_at: new Date(Date.now() - 900000).toISOString(), person_id: null, installation_id: '16', installation_name: 'Silopi Military Base' },
+  { id: 'a4', severity: 'high', status: 'acknowledged', threat_category: 'live_stream', platform: 'tiktok', title: 'Guard post live stream — "jandarma" keyword match', description: 'TikTok live detected via "jandarma" keyword. Unknown gendarmerie soldier streaming from checkpoint near Hakkari. Shows checkpoint layout, vehicle inspection procedures, and weapon positions. Geolocated within 500m of base perimeter.', evidence_url: 'https://tiktok.com/@user_55012/live', created_at: new Date(Date.now() - 2400000).toISOString(), person_id: null, installation_id: '17', installation_name: 'Hakkari Military Base' },
+  { id: 'a5', severity: 'medium', status: 'new', threat_category: 'live_stream', platform: 'tiktok', title: 'Mess hall stream — "askerlik" keyword', description: 'Low-risk TikTok live from military mess hall. Detected via "askerlik" keyword. Shows interior layout and daily routine timing but no sensitive equipment or locations. 120 viewers. Flagged for monitoring.', evidence_url: null, created_at: new Date(Date.now() - 5400000).toISOString(), person_id: null, installation_id: '6', installation_name: 'Konya Air Base' },
+  { id: 'a6', severity: 'low', status: 'new', threat_category: 'live_stream', platform: 'tiktok', title: 'Off-duty soldier stream near base — "asker" keyword', description: 'TikTok live from someone near Çiğli Air Base perimeter. Detected via "asker" keyword. No sensitive content visible but base gate and fence line briefly shown in background. 45 viewers.', evidence_url: null, created_at: new Date(Date.now() - 14400000).toISOString(), person_id: null, installation_id: '9', installation_name: 'Çiğli Air Base' },
+  // Strava route alerts
+  { id: 'a7', severity: 'critical', status: 'new', threat_category: 'route_exposure', platform: 'strava', title: 'Running route traces full perimeter of Silopi base', description: 'Strava activity detected from unknown user running the complete perimeter of Silopi Military Base. Route reveals fence line, entry points, guard tower positions, and a previously unmapped access road. Segment has been public for 3 days.', evidence_url: 'https://strava.com/activities/12345', created_at: new Date(Date.now() - 600000).toISOString(), person_id: null, installation_id: '16', installation_name: 'Silopi Military Base' },
+  { id: 'a8', severity: 'high', status: 'new', threat_category: 'route_exposure', platform: 'strava', title: 'Patrol route pattern revealed at Hakkari base', description: 'Multiple Strava running activities from different users near Hakkari Military Base reveal consistent patrol timing and routes. Analysis shows 4 unique route patterns covering different sectors with predictable 6-hour rotation schedule.', evidence_url: 'https://strava.com/segments/67890', created_at: new Date(Date.now() - 3600000).toISOString(), person_id: null, installation_id: '17', installation_name: 'Hakkari Military Base' },
+  { id: 'a9', severity: 'high', status: 'investigating', threat_category: 'route_exposure', platform: 'strava', title: 'Strava segment created inside Kürecik radar perimeter', description: 'Public Strava segment traces internal road network within Kürecik Radar Station security zone. Route passes within 200m of AN/TPY-2 radar array position. Segment has 8 recorded attempts from 5 different athletes.', evidence_url: 'https://strava.com/segments/11223', created_at: new Date(Date.now() - 7200000).toISOString(), person_id: null, installation_id: '2', installation_name: 'Kürecik Radar Station' },
+  { id: 'a10', severity: 'medium', status: 'new', threat_category: 'route_exposure', platform: 'strava', title: 'Cycling route exposes checkpoint positions at Foça', description: 'Strava cycling activity near Foça Training Center shows stops at 3 checkpoint locations along perimeter road. Activity metadata reveals time spent at each checkpoint — consistent with security inspection timing.', evidence_url: null, created_at: new Date(Date.now() - 10800000).toISOString(), person_id: null, installation_id: '18', installation_name: 'Foça Training Center' },
+  { id: 'a11', severity: 'medium', status: 'new', threat_category: 'route_exposure', platform: 'strava', title: 'PT route inside Isparta training grounds', description: 'Strava running activity recorded entirely within Isparta Mountain Training facility boundaries. Route reveals internal trail network, assembly areas, and obstacle course positions.', evidence_url: null, created_at: new Date(Date.now() - 21600000).toISOString(), person_id: null, installation_id: '19', installation_name: 'Isparta Mountain Training' },
+  { id: 'a12', severity: 'low', status: 'resolved', threat_category: 'route_exposure', platform: 'strava', title: 'Running activity near Gölcük Naval Base gate', description: 'Strava activity passes within 500m of Gölcük Naval Base main gate. Low risk — public road. Flagged due to proximity and repeated activity from same user (12 runs in 30 days).', evidence_url: null, created_at: new Date(Date.now() - 86400000).toISOString(), person_id: null, installation_id: '10', installation_name: 'Gölcük Naval Base', resolution_notes: 'Public road — civilian jogger. Marked as low priority.' },
 ];
 
 const MOCK_STATS: DashboardStats = {
   total_alerts: MOCK_ALERTS.length,
-  total_persons: MOCK_PERSONS.length,
+  live_streams_detected: MOCK_ALERTS.filter(a => a.platform === 'tiktok').length,
+  strava_routes_flagged: MOCK_ALERTS.filter(a => a.platform === 'strava').length,
   total_installations: MOCK_INSTALLATIONS.length,
-  total_content: 12453,
   alerts_last_24h: 8,
-  alerts_by_severity: { critical: 3, high: 4, medium: 3, low: 2 },
-  collectors_status: { tiktok: 'running', strava: 'idle', instagram: 'running', twitter: 'idle', facebook: 'disabled', linkedin: 'idle', youtube: 'error' },
+  alerts_by_severity: { critical: 3, high: 3, medium: 3, low: 3 },
+  collectors_status: { tiktok: 'running', strava: 'idle' },
 };
 
 const MOCK_COLLECTORS: CollectorStatus[] = [
   { platform: 'tiktok', status: 'running', last_run_at: new Date(Date.now() - 120000).toISOString(), last_success_at: new Date(Date.now() - 120000).toISOString(), last_error: null, items_collected_total: 4231, items_collected_today: 87, alerts_generated_total: 156 },
-  { platform: 'strava', status: 'idle', last_run_at: new Date(Date.now() - 3600000).toISOString(), last_success_at: new Date(Date.now() - 3600000).toISOString(), last_error: null, items_collected_total: 891, items_collected_today: 12, alerts_generated_total: 34 },
-  { platform: 'instagram', status: 'running', last_run_at: new Date(Date.now() - 300000).toISOString(), last_success_at: new Date(Date.now() - 300000).toISOString(), last_error: null, items_collected_total: 3102, items_collected_today: 64, alerts_generated_total: 98 },
-  { platform: 'twitter', status: 'idle', last_run_at: new Date(Date.now() - 1800000).toISOString(), last_success_at: new Date(Date.now() - 1800000).toISOString(), last_error: null, items_collected_total: 2847, items_collected_today: 41, alerts_generated_total: 112 },
-  { platform: 'facebook', status: 'disabled', last_run_at: null, last_success_at: null, last_error: null, items_collected_total: 0, items_collected_today: 0, alerts_generated_total: 0 },
-  { platform: 'linkedin', status: 'idle', last_run_at: new Date(Date.now() - 7200000).toISOString(), last_success_at: new Date(Date.now() - 7200000).toISOString(), last_error: null, items_collected_total: 412, items_collected_today: 5, alerts_generated_total: 19 },
-  { platform: 'youtube', status: 'error', last_run_at: new Date(Date.now() - 600000).toISOString(), last_success_at: new Date(Date.now() - 86400000).toISOString(), last_error: 'Rate limit exceeded — API quota depleted for current billing period', items_collected_total: 967, items_collected_today: 0, alerts_generated_total: 43 },
+  { platform: 'strava', status: 'idle', last_run_at: new Date(Date.now() - 1800000).toISOString(), last_success_at: new Date(Date.now() - 1800000).toISOString(), last_error: null, items_collected_total: 891, items_collected_today: 12, alerts_generated_total: 34 },
 ];
 
 // ─── API Fetch ──────────────────────────────────────────────────────
@@ -181,7 +160,7 @@ export function useDashboardStats() {
   return useQuery({
     queryKey: ['defence', 'stats'],
     queryFn: () => fetchWithFallback('/dashboard/stats', MOCK_STATS),
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 }
 
@@ -189,7 +168,7 @@ export function useTopThreats() {
   return useQuery({
     queryKey: ['defence', 'top-threats'],
     queryFn: () => fetchWithFallback<Alert[]>('/dashboard/top-threats', MOCK_ALERTS.filter(a => ['critical', 'high'].includes(a.severity) && a.status !== 'resolved').slice(0, 10)),
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 }
 
@@ -211,7 +190,7 @@ export function useAlerts(params?: { severity?: string; status?: string; platfor
       if (params?.platform) filtered = filtered.filter(a => a.platform === params.platform);
       return fetchWithFallback<Alert[]>(`/alerts?${qs}`, filtered);
     },
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 }
 
@@ -219,15 +198,7 @@ export function useInstallations() {
   return useQuery({
     queryKey: ['defence', 'installations'],
     queryFn: () => fetchWithFallback<Installation[]>('/installations', MOCK_INSTALLATIONS),
-    refetchInterval: 30000,
-  });
-}
-
-export function usePersonnel() {
-  return useQuery({
-    queryKey: ['defence', 'personnel'],
-    queryFn: () => fetchWithFallback<Person[]>('/personnel', MOCK_PERSONS),
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 }
 
@@ -235,7 +206,7 @@ export function useScanStatus() {
   return useQuery({
     queryKey: ['defence', 'scan-status'],
     queryFn: () => fetchWithFallback<CollectorStatus[]>('/scan/status', MOCK_COLLECTORS),
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
 }
 
@@ -278,7 +249,6 @@ export function useTriggerScan() {
 export function useGeofenceCheck() {
   return useMutation({
     mutationFn: async ({ latitude, longitude }: { latitude: number; longitude: number }) => {
-      // Calculate nearest from mock data
       let nearest: Installation | null = null;
       let minDist = Infinity;
       for (const inst of MOCK_INSTALLATIONS) {
@@ -291,17 +261,6 @@ export function useGeofenceCheck() {
       try { return await apiFetch<GeofenceResult>('/geofence/check', { method: 'POST', body: JSON.stringify({ latitude, longitude }) }); }
       catch { return fallback; }
     },
-  });
-}
-
-export function useAddPersonnel() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (data: { name: string; rank?: string; unit?: string }) => {
-      try { return await apiFetch('/personnel', { method: 'POST', body: JSON.stringify(data) }); }
-      catch { return { ok: true }; }
-    },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['defence', 'personnel'] }); toast.success('Personnel added'); },
   });
 }
 
