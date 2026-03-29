@@ -569,6 +569,52 @@ export default function DefenceFaceSearch() {
     }
   }, [searchState, results, enrichment, enriching, enrichProfiles]);
 
+  // Username enumeration across 300+ platforms
+  const enumerateUsernames = useCallback(async () => {
+    if (results.length === 0) return;
+    setEnumerating(true);
+    try {
+      const platforms = correlatePlatforms(results);
+      const allAccounts = platforms.flatMap(p => p.accounts);
+      // Get unique usernames from top-scoring accounts
+      const usernames = [...new Set(
+        allAccounts
+          .sort((a, b) => b.bestScore - a.bestScore)
+          .slice(0, 3)
+          .map(a => a.username)
+      )];
+
+      if (usernames.length === 0) {
+        toast.error('No usernames to enumerate');
+        return;
+      }
+
+      toast.info(`Checking ${usernames.join(', ')} across 300+ platforms...`);
+
+      const { data, error } = await supabase.functions.invoke('username-enum', {
+        body: { usernames },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setUsernameEnum(data);
+      const totalFound = data?.results?.reduce((sum: number, r: any) => sum + r.totalFound, 0) || 0;
+      toast.success(`Found ${totalFound} accounts across ${data?.totalPlatformsChecked || 0} platforms`);
+    } catch (err: any) {
+      toast.error('Username enumeration failed: ' + (err.message || 'Unknown error'));
+    } finally {
+      setEnumerating(false);
+    }
+  }, [results]);
+
+  // Auto-trigger username enumeration after enrichment completes
+  useEffect(() => {
+    if (enrichment?.enriched && !usernameEnum && !enumerating) {
+      enumerateUsernames();
+    }
+  }, [enrichment, usernameEnum, enumerating, enumerateUsernames]);
+
   const exportReport = useCallback(async () => {
     if (results.length === 0) return;
     setExporting(true);
