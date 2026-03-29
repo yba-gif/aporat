@@ -151,14 +151,50 @@ export default function V3CaseDetail() {
 
   const runDeepScan = async () => {
     setScanning(true);
+    setScanProgress({ progress: 5, status: 'Initializing scan…', tools: [] });
+
+    // Start polling for scan progress
+    const pollInterval = setInterval(async () => {
+      const { data: scans } = await supabase
+        .from('v3_osint_scans')
+        .select('progress, status, tools_used')
+        .eq('case_id', caseData.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (scans && scans.length > 0) {
+        const scan = scans[0];
+        const tools = (scan.tools_used as string[]) || [];
+        const prog = scan.progress || 0;
+        const stages = [
+          { at: 10, label: 'Creating scan record…' },
+          { at: 30, label: 'Perplexity web search…' },
+          { at: 50, label: 'AI deep analysis…' },
+          { at: 80, label: 'Processing findings…' },
+          { at: 100, label: 'Complete' },
+        ];
+        const stage = [...stages].reverse().find(s => prog >= s.at) || stages[0];
+        setScanProgress({ progress: prog, status: stage.label, tools });
+        if (scan.status === 'completed' || scan.status === 'failed') {
+          clearInterval(pollInterval);
+        }
+      }
+    }, 1500);
+
     try {
       const { data, error } = await supabase.functions.invoke('case-osint-scan', {
         body: { case_id: caseData.id },
       });
+      clearInterval(pollInterval);
       if (error) throw error;
+      setScanProgress({ progress: 100, status: 'Complete', tools: data.tools_used || [] });
       toast.success(`Deep scan complete: ${data.findings_count} new findings`);
       refetch();
+      // Auto-dismiss after 3s
+      setTimeout(() => setScanProgress(null), 3000);
     } catch (e: any) {
+      clearInterval(pollInterval);
+      setScanProgress(null);
       toast.error(e.message || 'Scan failed');
     } finally {
       setScanning(false);
