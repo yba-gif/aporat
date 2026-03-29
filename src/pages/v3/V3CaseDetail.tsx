@@ -230,7 +230,7 @@ export default function V3CaseDetail() {
         </div>
 
         {/* CENTER COLUMN */}
-        <div className="border rounded-md overflow-hidden" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
+        <div className="rounded-xl border overflow-hidden" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
           <div className="flex border-b" style={{ borderColor: 'var(--v3-border)' }}>
             {(['findings', 'graph', 'timeline', 'documents'] as const).map(tab => (
               <button key={tab} onClick={() => setActiveTab(tab)} className={tabClass(tab)}
