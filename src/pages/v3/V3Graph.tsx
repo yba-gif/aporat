@@ -259,7 +259,7 @@ export default function V3Graph() {
     if (node.flagged) {
       const ringGeo = new THREE.RingGeometry(size * 1.6, size * 2.0, 32);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: 0xef4444,
+        color: 0xf87171,
         side: THREE.DoubleSide,
         transparent: true,
         opacity: 0.35 + Math.sin(Date.now() * 0.003) * 0.15,
