@@ -55,13 +55,13 @@ const NODE_SIZE: Record<NodeType, number> = {
 };
 
 const EDGE_COLORS: Record<EdgeType, string> = {
-  KNOWS:        'rgba(148,163,184,0.35)',
-  CONNECTED_TO: 'rgba(6,182,212,0.45)',
-  FOLLOWS:      'rgba(139,92,246,0.35)',
-  EMPLOYED_BY:  'rgba(245,158,11,0.45)',
-  LOCATED_AT:   'rgba(16,185,129,0.3)',
-  SHARED_DOC:   'rgba(239,68,68,0.6)',
-  SAME_MOBILE:  'rgba(239,68,68,0.7)',
+  KNOWS:        'rgba(113,113,122,0.35)',
+  CONNECTED_TO: 'rgba(167,139,250,0.45)',
+  FOLLOWS:      'rgba(167,139,250,0.35)',
+  EMPLOYED_BY:  'rgba(251,191,36,0.45)',
+  LOCATED_AT:   'rgba(74,222,128,0.3)',
+  SHARED_DOC:   'rgba(248,113,113,0.6)',
+  SAME_MOBILE:  'rgba(248,113,113,0.7)',
 };
 
 const TYPE_ICONS: Record<NodeType, { label: string; icon: typeof User }> = {
