@@ -325,52 +325,71 @@ function inferPotentialName(results: FaceResult[]): string | null {
   const highConf = results.filter(r => r.score >= 75);
   if (highConf.length === 0) return null;
 
+  // Common non-name words to filter out from slug-based extraction
+  const stopWords = new Set([
+    'bir', 'the', 'and', 'for', 'com', 'net', 'org', 'www', 'new', 'old',
+    'best', 'top', 'how', 'what', 'why', 'who', 'all', 'get', 'buy', 'free',
+    'blog', 'news', 'home', 'page', 'site', 'web', 'app', 'pro', 'dev',
+    'turizm', 'travel', 'hotel', 'shop', 'store', 'online', 'digital',
+    'media', 'group', 'team', 'service', 'services', 'agency', 'studio',
+    'design', 'tech', 'data', 'info', 'guide', 'review', 'reviews',
+    'product', 'products', 'urunu', 'urun', 'haber', 'video', 'photo',
+    'article', 'post', 'about', 'contact', 'help', 'support',
+  ]);
+
+  const looksLikePersonName = (parts: string[]): boolean => {
+    if (parts.length < 2 || parts.length > 4) return false;
+    // Every part should be 2+ chars and not a stop word
+    return parts.every(p => p.length >= 2 && !stopWords.has(p.toLowerCase()));
+  };
+
   for (const r of highConf) {
     const url = r.url;
 
-    // LinkedIn: /in/firstname-lastname
+    // LinkedIn: /in/firstname-lastname (most reliable)
     const li = url.match(/linkedin\.com\/in\/([a-z]+-[a-z0-9-]+)/i);
     if (li) {
-      const name = li[1].split('-').filter(p => p.length > 1).slice(0, 3)
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      if (name.length > 3) nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score);
+      const parts = li[1].split('-').filter(p => p.length > 1).slice(0, 3);
+      if (looksLikePersonName(parts)) {
+        const name = parts.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score * 2);
+      }
     }
 
     // Crunchbase: /person/firstname-lastname
     const cb = url.match(/crunchbase\.com\/person\/([a-z]+-[a-z0-9-]+)/i);
     if (cb) {
-      const name = cb[1].split('-').filter(p => p.length > 1).slice(0, 3)
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      if (name.length > 3) nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score);
+      const parts = cb[1].split('-').filter(p => p.length > 1).slice(0, 3);
+      if (looksLikePersonName(parts)) {
+        const name = parts.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score * 1.5);
+      }
     }
 
     // Forbes councils / profiles
     const fb = url.match(/forbes\.com\/(?:councils\/|profile\/)([a-z]+-[a-z0-9-]+)/i);
     if (fb) {
-      const name = fb[1].split('-').filter(p => p.length > 1).slice(0, 3)
-        .map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      if (name.length > 3) nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score);
+      const parts = fb[1].split('-').filter(p => p.length > 1).slice(0, 3);
+      if (looksLikePersonName(parts)) {
+        const name = parts.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score * 1.5);
+      }
     }
 
     // Wiki pages: /wiki/Firstname_Lastname
     const wiki = url.match(/(?:wikitia|wikipedia)\.(?:com|org)\/wiki\/([A-Z][a-z]+_[A-Z][a-z_]+)/);
     if (wiki) {
       const name = wiki[1].replace(/_/g, ' ');
-      nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score);
-    }
-
-    // Generic path-based: site.com/firstname-lastname or site.com/yusuf-berk...
-    const generic = url.match(/\.com\/([a-z]+-[a-z]+-?[a-z]*)\/?/i);
-    if (generic && !url.match(/instagram|twitter|x\.com|facebook|youtube|tiktok|reddit|github|pinterest|quora|medium/i)) {
-      const parts = generic[1].split('-').filter(p => p.length > 1);
-      if (parts.length >= 2 && parts.length <= 4) {
-        const name = parts.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-        if (name.length > 3) nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score * 0.5);
-      }
+      nameCandidates.set(name, (nameCandidates.get(name) || 0) + r.score * 2);
     }
   }
 
-  if (nameCandidates.size === 0) return null;
+  // If no structured name sources found, try to extract from the highest-scoring username
+  if (nameCandidates.size === 0) {
+    // Don't fall back to generic URL slugs — they're unreliable
+    // Instead, show the top username as the subject identifier
+    return null;
+  }
 
   // Return the name with the highest cumulative score
   return Array.from(nameCandidates.entries())
