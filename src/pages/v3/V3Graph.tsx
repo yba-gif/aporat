@@ -296,7 +296,7 @@ export default function V3Graph() {
     ctx.fillText(node.label.length > 18 ? node.label.slice(0, 16) + '…' : node.label, 128, 28);
     if (node.riskScore >= 70) {
       ctx.font = 'bold 18px sans-serif';
-      ctx.fillStyle = '#ef4444';
+      ctx.fillStyle = '#f87171';
       ctx.fillText(`⚠ ${node.riskScore}`, 128, 52);
     }
     const texture = new THREE.CanvasTexture(canvas);
