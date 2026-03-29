@@ -194,9 +194,9 @@ export default function DefenceFaceSearch() {
   };
 
   const getResultImage = (result: FaceResult & Record<string, any>): string | null => {
-    if (result.base64) return `data:image/jpeg;base64,${result.base64}`;
+    const b64 = result.base64 || (result as any).image_base64 || (result as any).thumbnail;
+    if (b64) return b64.startsWith('data:') ? b64 : `data:image/jpeg;base64,${b64}`;
     if (result.image_url) return result.image_url;
-    if ((result as any).thumbnail) return (result as any).thumbnail;
     return null;
   };
 
