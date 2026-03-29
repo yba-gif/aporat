@@ -66,6 +66,7 @@ export default function V3CaseDetail() {
   const [scanProgress, setScanProgress] = useState<{ progress: number; status: string; tools: string[] } | null>(null);
   const [narrativeLoading, setNarrativeLoading] = useState(false);
   const [narrative, setNarrative] = useState<string | null>(null);
+  const [narrativeGeneratedAt, setNarrativeGeneratedAt] = useState<string | null>(null);
   const [correlations, setCorrelations] = useState<Array<{ case_id: string; match_type: string; detail: string; risk_level: string; shared_attribute: string }> | null>(null);
   const [correlationLoading, setCorrelationLoading] = useState(false);
 
@@ -78,7 +79,10 @@ export default function V3CaseDetail() {
       .eq('case_id', id)
       .maybeSingle()
       .then(({ data }) => {
-        if (data?.narrative) setNarrative(data.narrative);
+        if (data?.narrative) {
+          setNarrative(data.narrative);
+          setNarrativeGeneratedAt(data.generated_at);
+        }
       });
   }, [id]);
 
@@ -221,7 +225,9 @@ export default function V3CaseDetail() {
         body: { case_id: caseData.id, action: 'narrative' },
       });
       if (error) throw error;
+      const now = new Date().toISOString();
       setNarrative(data.narrative);
+      setNarrativeGeneratedAt(now);
       // Persist to database (upsert)
       await supabase.from('v3_case_narratives').upsert(
         { case_id: caseData.id, narrative: data.narrative, generated_at: new Date().toISOString() },
@@ -424,8 +430,24 @@ export default function V3CaseDetail() {
             <div className="flex items-center gap-2">
               <Sparkles size={14} style={{ color: 'var(--v3-accent)' }} />
               <span className="text-[10px] font-semibold tracking-widest" style={{ color: 'var(--v3-accent)' }}>AI INTELLIGENCE BRIEF</span>
+              {narrativeGeneratedAt && (
+                <span className="text-[10px] ml-2" style={{ color: 'var(--v3-text-muted)' }}>
+                  Generated {new Date(narrativeGeneratedAt).toLocaleDateString()} at {new Date(narrativeGeneratedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
             </div>
-            <button onClick={() => setNarrative(null)} className="text-[10px] px-2 py-1 rounded-lg hover:bg-white/5" style={{ color: 'var(--v3-text-muted)' }}>Dismiss</button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={generateNarrative}
+                disabled={narrativeLoading}
+                className="flex items-center gap-1 text-[10px] px-2 py-1 rounded-lg border transition-all hover:border-[var(--v3-accent)]"
+                style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-accent)' }}
+              >
+                {narrativeLoading ? <Loader2 size={10} className="animate-spin" /> : <Zap size={10} />}
+                Regenerate
+              </button>
+              <button onClick={() => setNarrative(null)} className="text-[10px] px-2 py-1 rounded-lg hover:bg-white/5" style={{ color: 'var(--v3-text-muted)' }}>Dismiss</button>
+            </div>
           </div>
           <div className="text-xs leading-relaxed whitespace-pre-wrap" style={{ color: 'var(--v3-text-secondary)' }}>
             {narrative}
