@@ -1238,6 +1238,87 @@ export default function DefenceFaceSearch() {
                     </motion.div>
                   )}
 
+                  {/* Username Enumeration Results */}
+                  {(enumerating || usernameEnum?.success) && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-lg border p-3 space-y-3"
+                      style={{ borderColor: 'rgba(99,102,241,0.2)', background: 'rgba(99,102,241,0.05)' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Network size={12} className="text-indigo-400" />
+                          <span className="text-[10px] font-semibold tracking-wider uppercase text-indigo-400">
+                            Username Enumeration
+                          </span>
+                          {usernameEnum?.totalPlatformsChecked && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ background: 'rgba(99,102,241,0.15)', color: '#818cf8' }}>
+                              {usernameEnum.totalPlatformsChecked} PLATFORMS CHECKED
+                            </span>
+                          )}
+                        </div>
+                        {enumerating && <Loader2 size={12} className="animate-spin text-indigo-400" />}
+                      </div>
+
+                      {enumerating && !usernameEnum && (
+                        <div className="flex items-center gap-2">
+                          <div className="h-1 flex-1 rounded-full overflow-hidden" style={{ background: 'var(--v3-border)' }}>
+                            <motion.div
+                              className="h-full rounded-full bg-indigo-500"
+                              initial={{ width: '0%' }}
+                              animate={{ width: '100%' }}
+                              transition={{ duration: 30, ease: 'linear' }}
+                            />
+                          </div>
+                          <span className="text-[10px]" style={{ color: 'var(--v3-text-muted)' }}>Scanning...</span>
+                        </div>
+                      )}
+
+                      {usernameEnum?.results?.map((userResult: any) => (
+                        <div key={userResult.username} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[12px] font-bold" style={{ color: 'var(--v3-text)' }}>
+                              @{userResult.username}
+                            </span>
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{
+                              background: userResult.totalFound > 20 ? 'rgba(239,68,68,0.1)' : userResult.totalFound > 10 ? 'rgba(251,191,36,0.1)' : 'rgba(99,102,241,0.1)',
+                              color: userResult.totalFound > 20 ? '#ef4444' : userResult.totalFound > 10 ? '#fbbf24' : '#818cf8',
+                            }}>
+                              {userResult.totalFound} accounts found
+                            </span>
+                          </div>
+
+                          {/* Category breakdown */}
+                          {userResult.categories && Object.entries(userResult.categories).map(([category, platformList]: [string, any]) => (
+                            <div key={category}>
+                              <p className="text-[9px] uppercase tracking-wider mb-1" style={{ color: 'var(--v3-text-muted)' }}>
+                                {category} ({platformList.length})
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {platformList.map((platform: string) => {
+                                  const matchData = userResult.platforms.find((p: any) => p.platform === platform);
+                                  return (
+                                    <a
+                                      key={platform}
+                                      href={matchData?.url || '#'}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-[10px] px-2 py-0.5 rounded-md border transition-all hover:scale-105"
+                                      style={{ borderColor: 'var(--v3-border)', color: 'var(--v3-text-secondary)', background: 'var(--v3-surface)' }}
+                                    >
+                                      {platform}
+                                    </a>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+
                   {/* Platform Breakdown */}
                   <div className="flex items-center gap-2">
                     <Link2 size={12} style={{ color: 'var(--v3-text-muted)' }} />
