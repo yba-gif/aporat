@@ -98,11 +98,16 @@ export default function DefenceFaceSearch() {
       setSearchState('searching');
       setProgress(10);
 
-      const { data: searchData, error: searchError } = await supabase.functions.invoke('facecheck-search', {
-        body: { id_search: idSearch, testing: testingMode },
-        headers: { 'Content-Type': 'application/json' },
+      const searchRes = await fetch(`${baseUrl}/facecheck-search?action=search`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${anonKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id_search: idSearch, testing: testingMode }),
       });
+
+      const searchData = await searchRes.json();
 
       // If we got output immediately
       if (searchData?.output) {
