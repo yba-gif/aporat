@@ -1102,13 +1102,84 @@ export default function DefenceFaceSearch() {
                         </p>
                       </div>
                     </div>
-                    {savedId && (
-                      <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-lg" style={{ background: 'var(--v3-surface)', color: 'var(--v3-accent)' }}>
-                        <Save size={10} />
-                        Saved
-                      </div>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {savedId && (
+                        <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-lg" style={{ background: 'var(--v3-surface)', color: 'var(--v3-accent)' }}>
+                          <Save size={10} />
+                          Saved
+                        </div>
+                      )}
+                      <button
+                        onClick={enrichProfiles}
+                        disabled={enriching || enrichment?.enriched}
+                        className="flex items-center gap-1.5 text-[10px] font-medium px-2.5 py-1 rounded-lg transition-all disabled:opacity-40"
+                        style={{ background: enrichment?.enriched ? 'rgba(34,197,94,0.1)' : 'var(--v3-accent-muted)', color: enrichment?.enriched ? '#22c55e' : 'var(--v3-accent)' }}
+                      >
+                        {enriching ? <Loader2 size={10} className="animate-spin" /> : enrichment?.enriched ? <CheckCircle2 size={10} /> : <ScanSearch size={10} />}
+                        {enriching ? 'Scraping...' : enrichment?.enriched ? 'Enriched' : 'Enrich Profiles'}
+                      </button>
+                    </div>
                   </div>
+
+                  {/* Enrichment results */}
+                  {enrichment?.enriched && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-lg border p-3 space-y-2"
+                      style={{ borderColor: 'rgba(34,197,94,0.2)', background: 'rgba(34,197,94,0.05)' }}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Sparkles size={12} className="text-emerald-400" />
+                        <span className="text-[10px] font-semibold tracking-wider uppercase text-emerald-400">
+                          Profile Intelligence
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{
+                          background: enrichment.nameConfidence === 'HIGH' ? 'rgba(34,197,94,0.15)' : enrichment.nameConfidence === 'MEDIUM' ? 'rgba(251,191,36,0.15)' : 'rgba(161,161,170,0.15)',
+                          color: enrichment.nameConfidence === 'HIGH' ? '#22c55e' : enrichment.nameConfidence === 'MEDIUM' ? '#fbbf24' : '#a1a1aa',
+                        }}>
+                          {enrichment.nameConfidence} CONFIDENCE
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1.5">
+                        {enrichment.extractedName && (
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Full Name</p>
+                            <p className="text-[12px] font-semibold" style={{ color: 'var(--v3-text)' }}>{enrichment.extractedName}</p>
+                          </div>
+                        )}
+                        {enrichment.occupation && (
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Occupation</p>
+                            <p className="text-[12px]" style={{ color: 'var(--v3-text-secondary)' }}>{enrichment.occupation}</p>
+                          </div>
+                        )}
+                        {enrichment.location && (
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Location</p>
+                            <p className="text-[12px]" style={{ color: 'var(--v3-text-secondary)' }}>{enrichment.location}</p>
+                          </div>
+                        )}
+                        {enrichment.organization && (
+                          <div>
+                            <p className="text-[9px] uppercase tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Organization</p>
+                            <p className="text-[12px]" style={{ color: 'var(--v3-text-secondary)' }}>{enrichment.organization}</p>
+                          </div>
+                        )}
+                      </div>
+                      {enrichment.bio && (
+                        <div>
+                          <p className="text-[9px] uppercase tracking-wider mb-0.5" style={{ color: 'var(--v3-text-muted)' }}>Bio</p>
+                          <p className="text-[11px] leading-relaxed" style={{ color: 'var(--v3-text-secondary)' }}>{enrichment.bio}</p>
+                        </div>
+                      )}
+                      {enrichment.crossReferenceNotes && (
+                        <p className="text-[10px] italic" style={{ color: 'var(--v3-text-muted)' }}>
+                          {enrichment.crossReferenceNotes}
+                        </p>
+                      )}
+                    </motion.div>
+                  )}
 
                   {/* Platform Breakdown */}
                   <div className="flex items-center gap-2">
