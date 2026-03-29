@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Shield, AlertTriangle, Map, Building2, Radar, Crosshair, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Shield, AlertTriangle, Map, Radar, ChevronLeft, ChevronRight, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { StatusDot } from './StatusDot';
 
@@ -8,9 +8,7 @@ const NAV_ITEMS = [
   { label: 'Dashboard', icon: Shield, path: '/v3/defence' },
   { label: 'Alerts', icon: AlertTriangle, path: '/v3/defence/alerts' },
   { label: 'Map', icon: Map, path: '/v3/defence/map' },
-  { label: 'Installations', icon: Building2, path: '/v3/defence/installations' },
   { label: 'Scan Control', icon: Radar, path: '/v3/defence/scan' },
-  { label: 'Geofence Checker', icon: Crosshair, path: '/v3/defence/geofence' },
 ];
 
 export function DefenceSidebar({ backendOnline }: { backendOnline: boolean }) {
