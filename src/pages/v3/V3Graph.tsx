@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import ForceGraph3D, { ForceGraphMethods } from 'react-force-graph-3d';
+import ForceGraph3D from 'react-force-graph-3d';
 import * as THREE from 'three';
 import {
   AlertTriangle, Building2, User, Globe, MapPin, MessageCircle,
@@ -29,6 +29,7 @@ interface GNode {
   caseId?: string;
   x?: number; y?: number; z?: number;
   fx?: number; fy?: number; fz?: number;
+  __threeObj?: THREE.Group;
 }
 
 interface GLink {
@@ -41,12 +42,12 @@ interface GLink {
 
 // ── V3 Color config ──
 const NODE_HEX: Record<NodeType, number> = {
-  applicant:      0xA78BFA, // violet — primary subject
-  person:         0x71717A, // zinc-500
-  flagged_person: 0xF87171, // red
-  organization:   0x818CF8, // indigo
-  social:         0xA78BFA, // violet
-  location:       0x4ADE80, // green
+  applicant:      0xA78BFA,
+  person:         0x71717A,
+  flagged_person: 0xF87171,
+  organization:   0x818CF8,
+  social:         0xA78BFA,
+  location:       0x4ADE80,
 };
 
 const NODE_SIZE: Record<NodeType, number> = {
@@ -73,7 +74,7 @@ const TYPE_ICONS: Record<NodeType, { label: string; icon: typeof User }> = {
   location:       { label: 'Location',     icon: MapPin },
 };
 
-// ── Ahmad Rezaee fraud network data ──
+// ── Network data ──
 const NODES: GNode[] = [
   { id: 'ahmad', label: 'Ahmad Rezaee', type: 'applicant', riskScore: 94, detail: 'Primary subject — Iranian national, Visa Mill network member. Score: 94/100.', flagged: true, caseId: 'PL-2026-00101' },
   { id: 'reza', label: 'Reza Mohammadi', type: 'flagged_person', riskScore: 82, detail: 'EU Sanctions familial match. Shared document hashes with Ahmad.', flagged: true },
@@ -145,34 +146,56 @@ const LINKS: GLink[] = [
   { source: 'ahmad', target: 'elena', edgeType: 'CONNECTED_TO', weight: 0.4, label: 'IP overlap' },
 ];
 
-// ── Geometry builders ──
-function buildNodeGeometry(type: NodeType, size: number): THREE.BufferGeometry {
+// ── Geometry cache (built once) ──
+const geoCache = new Map<string, THREE.BufferGeometry>();
+function getGeometry(type: NodeType, size: number): THREE.BufferGeometry {
+  const key = `${type}-${size}`;
+  if (geoCache.has(key)) return geoCache.get(key)!;
+  let geo: THREE.BufferGeometry;
   switch (type) {
-    case 'applicant':
-      return new THREE.OctahedronGeometry(size * 1.3, 1);
-    case 'flagged_person':
-      return new THREE.OctahedronGeometry(size, 0);
-    case 'organization':
-      return new THREE.BoxGeometry(size * 1.6, size * 1.6, size * 1.6);
-    case 'social':
-      return new THREE.CylinderGeometry(size * 0.8, size * 0.8, size * 0.6, 6);
-    case 'location':
-      return new THREE.ConeGeometry(size * 0.9, size * 1.6, 4);
-    default:
-      return new THREE.SphereGeometry(size, 16, 16);
+    case 'applicant':      geo = new THREE.OctahedronGeometry(size * 1.3, 1); break;
+    case 'flagged_person': geo = new THREE.OctahedronGeometry(size, 0); break;
+    case 'organization':   geo = new THREE.BoxGeometry(size * 1.6, size * 1.6, size * 1.6); break;
+    case 'social':         geo = new THREE.CylinderGeometry(size * 0.8, size * 0.8, size * 0.6, 6); break;
+    case 'location':       geo = new THREE.ConeGeometry(size * 0.9, size * 1.6, 4); break;
+    default:               geo = new THREE.SphereGeometry(size, 16, 16); break;
   }
+  geoCache.set(key, geo);
+  return geo;
+}
+
+// ── Label texture cache ──
+const labelCache = new Map<string, THREE.Texture>();
+function getLabelTexture(label: string, riskScore: number): THREE.Texture {
+  const key = `${label}-${riskScore}`;
+  if (labelCache.has(key)) return labelCache.get(key)!;
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d')!;
+  canvas.width = 256;
+  canvas.height = 64;
+  ctx.font = 'bold 24px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(226,232,240,0.9)';
+  ctx.fillText(label.length > 18 ? label.slice(0, 16) + '…' : label, 128, 28);
+  if (riskScore >= 70) {
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillStyle = '#f87171';
+    ctx.fillText(`⚠ ${riskScore}`, 128, 52);
+  }
+  const texture = new THREE.CanvasTexture(canvas);
+  labelCache.set(key, texture);
+  return texture;
 }
 
 // ── Component ──
 export default function V3Graph() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const graphRef = useRef<ForceGraphMethods<GNode, GLink>>();
+  const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ width: 800, height: 600 });
   const [selectedNode, setSelectedNode] = useState<GNode | null>(null);
   const [dossierNode, setDossierNode] = useState<GNode | null>(null);
-  const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [showParticles, setShowParticles] = useState(true);
   const [showRiskPaths, setShowRiskPaths] = useState(true);
@@ -181,6 +204,7 @@ export default function V3Graph() {
     new Set(['applicant', 'person', 'flagged_person', 'organization', 'social', 'location'])
   );
 
+  // Resize observer
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -192,6 +216,7 @@ export default function V3Graph() {
     return () => ro.disconnect();
   }, []);
 
+  // Filter graph data
   const graphData = useMemo(() => {
     let filteredNodes = NODES.filter(n => visibleTypes.has(n.type));
     if (search) {
@@ -222,33 +247,19 @@ export default function V3Graph() {
     return all;
   }, [showRiskPaths]);
 
-  const hoveredConnections = useMemo(() => {
-    if (!hoveredNode) return new Set<string>();
-    const s = new Set<string>([hoveredNode]);
-    for (const l of LINKS) {
-      const src = typeof l.source === 'string' ? l.source : l.source.id;
-      const tgt = typeof l.target === 'string' ? l.target : l.target.id;
-      if (src === hoveredNode) s.add(tgt);
-      if (tgt === hoveredNode) s.add(src);
-    }
-    return s;
-  }, [hoveredNode]);
-
+  // Stable nodeThreeObject — NO dependency on hover/selection state
   const nodeThreeObject = useCallback((node: GNode) => {
-    const isSelected = selectedNode?.id === node.id;
-    const isHovered = hoveredNode === node.id;
-    const isRiskPath = highlightRisk && riskNodeIds.has(node.id);
-    const isDimmed = hoveredNode && !hoveredConnections.has(node.id);
     const size = NODE_SIZE[node.type];
     const color = NODE_HEX[node.type];
+    const isRiskPath = highlightRisk && riskNodeIds.has(node.id);
 
     const group = new THREE.Group();
 
-    const geo = buildNodeGeometry(node.type, size);
+    const geo = getGeometry(node.type, size);
     const mat = new THREE.MeshPhongMaterial({
       color,
       transparent: true,
-      opacity: isDimmed ? 0.15 : 0.92,
+      opacity: 0.92,
       emissive: node.flagged ? 0xf87171 : (isRiskPath ? 0xfbbf24 : 0x000000),
       emissiveIntensity: node.flagged ? 0.35 : (isRiskPath ? 0.15 : 0),
       shininess: 80,
@@ -256,50 +267,17 @@ export default function V3Graph() {
     const mesh = new THREE.Mesh(geo, mat);
     group.add(mesh);
 
+    // Flagged ring
     if (node.flagged) {
       const ringGeo = new THREE.RingGeometry(size * 1.6, size * 2.0, 32);
       const ringMat = new THREE.MeshBasicMaterial({
-        color: 0xf87171,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.35 + Math.sin(Date.now() * 0.003) * 0.15,
-      });
-      group.add(new THREE.Mesh(ringGeo, ringMat));
-      const glow = new THREE.RingGeometry(size * 2.0, size * 2.6, 32);
-      const glowMat = new THREE.MeshBasicMaterial({
-        color: 0xf87171,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.12,
-      });
-      group.add(new THREE.Mesh(glow, glowMat));
-    }
-
-    if (isSelected || isHovered) {
-      const ringGeo = new THREE.RingGeometry(size * 1.4, size * 1.7, 32);
-      const ringMat = new THREE.MeshBasicMaterial({
-        color: isSelected ? 0xA78BFA : 0xffffff,
-        side: THREE.DoubleSide,
-        transparent: true,
-        opacity: 0.7,
+        color: 0xf87171, side: THREE.DoubleSide, transparent: true, opacity: 0.35,
       });
       group.add(new THREE.Mesh(ringGeo, ringMat));
     }
 
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d')!;
-    canvas.width = 256;
-    canvas.height = 64;
-    ctx.font = 'bold 24px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillStyle = isDimmed ? 'rgba(226,232,240,0.2)' : 'rgba(226,232,240,0.9)';
-    ctx.fillText(node.label.length > 18 ? node.label.slice(0, 16) + '…' : node.label, 128, 28);
-    if (node.riskScore >= 70) {
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillStyle = '#f87171';
-      ctx.fillText(`⚠ ${node.riskScore}`, 128, 52);
-    }
-    const texture = new THREE.CanvasTexture(canvas);
+    // Label sprite (cached texture)
+    const texture = getLabelTexture(node.label, node.riskScore);
     const spriteMat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthWrite: false });
     const sprite = new THREE.Sprite(spriteMat);
     sprite.position.set(0, size * 2.2, 0);
@@ -307,7 +285,7 @@ export default function V3Graph() {
     group.add(sprite);
 
     return group;
-  }, [selectedNode, hoveredNode, hoveredConnections, highlightRisk, riskNodeIds]);
+  }, [highlightRisk, riskNodeIds]);
 
   const linkColor = useCallback((link: GLink) => {
     if (link.edgeType === 'SHARED_DOC' || link.edgeType === 'SAME_MOBILE') return 'rgba(239,68,68,0.7)';
@@ -321,10 +299,11 @@ export default function V3Graph() {
 
   const handleNodeClick = useCallback((node: GNode) => {
     setSelectedNode(prev => prev?.id === node.id ? null : node);
-    if (graphRef.current && node.x != null && node.y != null && node.z != null) {
+    const fg = graphRef.current;
+    if (fg && node.x != null && node.y != null && node.z != null) {
       const dist = 120;
       const ratio = 1 + dist / Math.hypot(node.x, node.y, node.z || 1);
-      graphRef.current.cameraPosition(
+      fg.cameraPosition(
         { x: node.x * ratio, y: node.y * ratio, z: node.z * ratio },
         { x: node.x, y: node.y, z: node.z },
         800
@@ -335,6 +314,13 @@ export default function V3Graph() {
   const handleNodeRightClick = useCallback((node: GNode, event: MouseEvent) => {
     event.preventDefault();
     setDossierNode(node);
+  }, []);
+
+  const handleNodeDragEnd = useCallback((node: GNode) => {
+    // Pin node in place after drag
+    node.fx = node.x;
+    node.fy = node.y;
+    node.fz = node.z;
   }, []);
 
   const toggleType = (t: NodeType) => {
@@ -349,6 +335,8 @@ export default function V3Graph() {
     graphRef.current?.cameraPosition({ x: 0, y: 0, z: 300 }, { x: 0, y: 0, z: 0 }, 800);
     setSelectedNode(null);
     setDossierNode(null);
+    // Unpin all nodes
+    NODES.forEach(n => { n.fx = undefined; n.fy = undefined; n.fz = undefined; });
   };
 
   const zoomIn = () => graphRef.current?.cameraPosition({ x: 0, y: 0, z: 150 }, undefined, 600);
@@ -382,7 +370,7 @@ export default function V3Graph() {
   return (
     <div className="relative w-full h-full overflow-hidden" ref={containerRef} style={{ background: '#09090b' }}>
       <ForceGraph3D
-        ref={graphRef}
+        ref={graphRef as any}
         graphData={graphData}
         width={dims.width}
         height={dims.height}
@@ -391,7 +379,7 @@ export default function V3Graph() {
         nodeThreeObjectExtend={false}
         onNodeClick={handleNodeClick}
         onNodeRightClick={handleNodeRightClick}
-        onNodeHover={(node: GNode | null) => setHoveredNode(node?.id ?? null)}
+        onNodeDragEnd={handleNodeDragEnd}
         linkColor={linkColor}
         linkWidth={linkWidth}
         linkOpacity={0.6}
