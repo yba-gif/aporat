@@ -1,12 +1,12 @@
 import { Linkedin, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { CompassLogo } from '@/components/CompassLogo';
 import { useScrollToSection } from '@/hooks/useScrollToSection';
 
 const links = [
-  { label: 'Privacy', href: null },
-  { label: 'Terms', href: null },
-  { label: 'Security', href: 'security' },
-  { label: 'Press', href: null },
+  { label: 'Privacy', href: '/privacy', type: 'route' as const },
+  { label: 'Terms', href: '/terms', type: 'route' as const },
+  { label: 'Security', href: 'security', type: 'section' as const },
 ];
 
 const socialLinks = [
