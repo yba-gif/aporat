@@ -24,7 +24,7 @@ export function Footer() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <CompassLogo className="w-6 h-6 text-foreground" />
-            <span className="font-semibold text-sm">ALPAGUT</span>
+            <span className="font-semibold text-sm">ALPAGU</span>
           </div>
 
           {/* Links */}
@@ -74,7 +74,7 @@ export function Footer() {
             Sovereign intelligence infrastructure.
           </p>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} ALPAGUT. Istanbul, Türkiye.
+            © {new Date().getFullYear()} ALPAGU. Istanbul, Türkiye.
           </p>
         </div>
       </div>

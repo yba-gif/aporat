@@ -15,12 +15,12 @@ const riskCategories = [
 ];
 
 const teamMembers = [
-  { name: 'Officer Yılmaz', email: 'yilmaz@alpagut.gov.tr', role: 'Analyst', lastActive: '2 min ago' },
-  { name: 'Officer Demir', email: 'demir@alpagut.gov.tr', role: 'Analyst', lastActive: '15 min ago' },
-  { name: 'Officer Kaya', email: 'kaya@alpagut.gov.tr', role: 'Analyst', lastActive: '1 hour ago' },
-  { name: 'Supervisor Arslan', email: 'arslan@alpagut.gov.tr', role: 'Supervisor', lastActive: '5 min ago' },
-  { name: 'Officer Çelik', email: 'celik@alpagut.gov.tr', role: 'Analyst', lastActive: '3 hours ago' },
-  { name: 'Admin Öztürk', email: 'ozturk@alpagut.gov.tr', role: 'Admin', lastActive: '30 min ago' },
+  { name: 'Officer Yılmaz', email: 'yilmaz@alpagu.gov.tr', role: 'Analyst', lastActive: '2 min ago' },
+  { name: 'Officer Demir', email: 'demir@alpagu.gov.tr', role: 'Analyst', lastActive: '15 min ago' },
+  { name: 'Officer Kaya', email: 'kaya@alpagu.gov.tr', role: 'Analyst', lastActive: '1 hour ago' },
+  { name: 'Supervisor Arslan', email: 'arslan@alpagu.gov.tr', role: 'Supervisor', lastActive: '5 min ago' },
+  { name: 'Officer Çelik', email: 'celik@alpagu.gov.tr', role: 'Analyst', lastActive: '3 hours ago' },
+  { name: 'Admin Öztürk', email: 'ozturk@alpagu.gov.tr', role: 'Admin', lastActive: '30 min ago' },
 ];
 
 const roleColor = (role: string) => {
@@ -183,7 +183,7 @@ export default function V3Settings() {
           </div>
           {[
             { label: 'Full Name', value: 'Officer Yılmaz', type: 'text' },
-            { label: 'Email', value: 'yilmaz@alpagut.gov.tr', type: 'email' },
+            { label: 'Email', value: 'yilmaz@alpagu.gov.tr', type: 'email' },
             { label: 'Role', value: 'Analyst', type: 'text', disabled: true },
           ].map(field => (
             <div key={field.label} className="mb-5">

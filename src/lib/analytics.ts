@@ -34,7 +34,7 @@ class Analytics {
     // window.analytics?.track(name, properties);
   }
 
-  // Predefined events for ALPAGUT
+  // Predefined events for ALPAGU
   trackCTA(ctaName: string, location: string) {
     this.track('cta_clicked', { cta_name: ctaName, location });
   }

@@ -19,12 +19,12 @@ const Terms = () => (
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">1. Acceptance</h2>
-            <p>By accessing or using ALPAGUT's website and services, you agree to be bound by these Terms of Service. If you do not agree, do not use our services.</p>
+            <p>By accessing or using ALPAGU's website and services, you agree to be bound by these Terms of Service. If you do not agree, do not use our services.</p>
           </section>
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">2. Services</h2>
-            <p>ALPAGUT provides mobility compliance infrastructure, including evidence ingestion, integrity verification, and policy enforcement tools for enterprise and government clients. Access to platform features requires a valid service agreement.</p>
+            <p>ALPAGU provides mobility compliance infrastructure, including evidence ingestion, integrity verification, and policy enforcement tools for enterprise and government clients. Access to platform features requires a valid service agreement.</p>
           </section>
 
           <section>
@@ -46,7 +46,7 @@ const Terms = () => (
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">5. Intellectual Property</h2>
-            <p>All content, software, and technology provided through ALPAGUT's services are the exclusive property of ALPAGUT or its licensors. No license or right is granted except as expressly set forth in a written agreement.</p>
+            <p>All content, software, and technology provided through ALPAGU's services are the exclusive property of ALPAGU or its licensors. No license or right is granted except as expressly set forth in a written agreement.</p>
           </section>
 
           <section>
@@ -56,7 +56,7 @@ const Terms = () => (
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">7. Limitation of Liability</h2>
-            <p>To the maximum extent permitted by law, ALPAGUT shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our services.</p>
+            <p>To the maximum extent permitted by law, ALPAGU shall not be liable for any indirect, incidental, special, or consequential damages arising from the use of our services.</p>
           </section>
 
           <section>
@@ -71,7 +71,7 @@ const Terms = () => (
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">10. Contact</h2>
-            <p>For questions about these terms, contact us at <a href="mailto:legal@alpagut.com" className="text-foreground underline">legal@alpagut.com</a>.</p>
+            <p>For questions about these terms, contact us at <a href="mailto:legal@alpagu.com" className="text-foreground underline">legal@alpagu.com</a>.</p>
           </section>
         </div>
       </div>

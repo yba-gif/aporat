@@ -126,7 +126,7 @@ function GothamDashboard({ stats, cases, navigate }: DashboardProps) {
         >
           <div className="flex items-center gap-4">
             <span className="text-[10px] font-bold tracking-[0.3em]" style={{ color: GOTHAM.accentDim }}>
-              ALPAGUT//GOTHAM
+              ALPAGU//GOTHAM
             </span>
             <span className="text-[10px]" style={{ color: GOTHAM.textMuted }}>│</span>
             <span className="text-[10px]" style={{ color: GOTHAM.textDim }}>

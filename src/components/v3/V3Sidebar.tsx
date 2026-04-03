@@ -72,7 +72,7 @@ export function V3Sidebar() {
         <CompassLogo className="w-6 h-6 shrink-0 text-[var(--v3-text)]" />
         {!collapsed && (
           <span className="text-[13px] font-semibold tracking-wide" style={{ color: 'var(--v3-text)' }}>
-            ALPAGUT
+            ALPAGU
           </span>
         )}
         <button

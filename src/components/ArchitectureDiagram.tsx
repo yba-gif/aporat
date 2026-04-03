@@ -147,7 +147,7 @@ export function ArchitectureDiagram() {
                       {/* Content */}
                       <div className="mb-4">
                         <h4 className="font-semibold text-lg mb-1">
-                          ALPAGUT {platform.name}
+                          ALPAGU {platform.name}
                         </h4>
                         <p className="text-sm text-muted-foreground font-mono">
                           {platform.subtitle}

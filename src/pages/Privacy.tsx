@@ -19,7 +19,7 @@ const Privacy = () => (
         <div className="space-y-8 text-sm leading-relaxed text-muted-foreground">
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">1. Data Controller</h2>
-            <p>ALPAGUT ("we", "us") is the data controller for personal data processed through this website and our platform services. Our registered office is in Istanbul, Turkiye.</p>
+            <p>ALPAGU ("we", "us") is the data controller for personal data processed through this website and our platform services. Our registered office is in Istanbul, Turkiye.</p>
           </section>
 
           <section>
@@ -72,7 +72,7 @@ const Privacy = () => (
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">8. Contact</h2>
-            <p>For privacy-related inquiries, contact us at <a href="mailto:privacy@alpagut.com" className="text-foreground underline">privacy@alpagut.com</a>.</p>
+            <p>For privacy-related inquiries, contact us at <a href="mailto:privacy@alpagu.com" className="text-foreground underline">privacy@alpagu.com</a>.</p>
           </section>
         </div>
       </div>
