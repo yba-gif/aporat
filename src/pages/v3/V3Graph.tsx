@@ -268,7 +268,7 @@ function getGeometry(type: NodeType, size: number): THREE.BufferGeometry {
 }
 
 // ── Label texture cache ──
-const labelCache = new Map<string, THREE.Texture>();
+const labelCache: Record<string, THREE.Texture> = {};
 function getLabelTexture(label: string, riskScore: number): THREE.Texture {
   const key = `${label}-${riskScore}`;
   if (labelCache.has(key)) return labelCache.get(key)!;
