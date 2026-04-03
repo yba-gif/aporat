@@ -263,7 +263,7 @@ function getGeometry(type: NodeType, size: number): THREE.BufferGeometry {
     case 'location':       geo = new THREE.ConeGeometry(size * 0.9, size * 1.6, 4); break;
     default:               geo = new THREE.SphereGeometry(size, 16, 16); break;
   }
-  geoCache.set(key, geo);
+  geoCache[key] = geo;
   return geo;
 }
 
