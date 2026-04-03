@@ -157,19 +157,6 @@ export function HeroVariantC() {
             </motion.div>
           </div>
 
-          <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16 pt-12 border-t border-border"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 2.6 }}
-          >
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <p className="text-2xl md:text-3xl font-semibold">{stat.value}</p>
-                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </motion.div>
         </div>
       </div>
     </section>
