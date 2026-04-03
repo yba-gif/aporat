@@ -1,5 +1,5 @@
 /**
- * ALPAGUT API Client — connects the V3 frontend to the FastAPI backend. — connects the V3 frontend to the FastAPI backend.
+ * ALPAGUT API Client — connects the V3 frontend to the FastAPI backend.
  *
  * All endpoints return typed promises.  Auth token is stored in localStorage
  * and sent as a Bearer header automatically.
