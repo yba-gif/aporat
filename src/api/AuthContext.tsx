@@ -19,7 +19,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     try {
-      const stored = localStorage.getItem('alpagut_user');
+      const stored = localStorage.getItem('alpagu_user');
       return stored ? JSON.parse(stored) : null;
     } catch { return null; }
   });
@@ -30,7 +30,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await api.auth.login(email, password);
       api.setToken(res.access_token);
-      localStorage.setItem('alpagut_user', JSON.stringify(res.user));
+      localStorage.setItem('alpagu_user', JSON.stringify(res.user));
       setUser(res.user);
       return res.user;
     } finally {

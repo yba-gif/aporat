@@ -18,7 +18,7 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a strategic advisor for ALPAGUT, a B2B/B2G company providing mobility compliance infrastructure (similar to Palantir but for cross-border mobility and visa compliance). 
+    const systemPrompt = `You are a strategic advisor for ALPAGU, a B2B/B2G company providing mobility compliance infrastructure (similar to Palantir but for cross-border mobility and visa compliance). 
 
 Core products:
 - Maris: Data integration/fabric for evidence ingestion

@@ -1,5 +1,5 @@
 /**
- * ALPAGUT API Client — connects the V3 frontend to the FastAPI backend.
+ * ALPAGU API Client — connects the V3 frontend to the FastAPI backend.
  *
  * All endpoints return typed promises.  Auth token is stored in localStorage
  * and sent as a Bearer header automatically.
@@ -13,19 +13,19 @@ let _token: string | null = null;
 
 export function setToken(t: string | null) {
   _token = t;
-  if (t) localStorage.setItem('alpagut_token', t);
-  else localStorage.removeItem('alpagut_token');
+  if (t) localStorage.setItem('alpagu_token', t);
+  else localStorage.removeItem('alpagu_token');
 }
 
 export function getToken(): string | null {
-  if (!_token) _token = localStorage.getItem('alpagut_token');
+  if (!_token) _token = localStorage.getItem('alpagu_token');
   return _token;
 }
 
 export function clearAuth() {
   _token = null;
-  localStorage.removeItem('alpagut_token');
-  localStorage.removeItem('alpagut_user');
+  localStorage.removeItem('alpagu_token');
+  localStorage.removeItem('alpagu_user');
 }
 
 // ─── Fetch wrapper ───
