@@ -199,7 +199,7 @@ function bfsAllShortestPaths(
   sourceId: string,
   targetId: string
 ): string[][] {
-  const adj = new Map<string, { neighbor: string; }[]>();
+  const adj: Map<string, { neighbor: string; }[]> = new Map();
   for (const n of nodes) adj.set(n.id, []);
   for (const l of links) {
     const s = typeof l.source === 'string' ? l.source : l.source.id;
