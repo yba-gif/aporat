@@ -83,7 +83,7 @@ export function Navbar() {
             </Button>
             <Button
               size="sm"
-              onClick={handleRequestAccess}
+              onClick={handleRequestAccessClick}
               className="bg-foreground text-background hover:bg-foreground/90"
             >
               Request access
