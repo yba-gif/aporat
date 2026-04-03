@@ -35,7 +35,7 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
     setIsMobileMenuOpen(false);
   };
 
-  const handleRequestAccessClickClick = () => {
+  const handleRequestAccess = () => {
     analytics.trackCTA('request_access', 'navbar');
     onRequestAccess?.();
   };
