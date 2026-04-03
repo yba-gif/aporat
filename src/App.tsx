@@ -76,6 +76,8 @@ const App = () => (
             </Route>
             {/* Public pages */}
             <Route path="/government" element={<Government />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/positions" element={<Positions />} />
             <Route path="/positions/:id" element={<PositionDetail />} />
             <Route path="*" element={<NotFound />} />
