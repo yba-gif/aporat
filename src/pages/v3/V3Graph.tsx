@@ -239,7 +239,7 @@ function bfsAllShortestPaths(
     if (node === sourceId) {
       paths.push([...path]);
     } else {
-      for (const p of parents.get(node) || []) {
+      for (const p of parents[node] || []) {
         buildPath(p, path);
       }
     }
