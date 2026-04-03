@@ -286,7 +286,7 @@ function getLabelTexture(label: string, riskScore: number): THREE.Texture {
     ctx.fillText(`⚠ ${riskScore}`, 128, 52);
   }
   const texture = new THREE.CanvasTexture(canvas);
-  labelCache.set(key, texture);
+  labelCache[key] = texture;
   return texture;
 }
 
