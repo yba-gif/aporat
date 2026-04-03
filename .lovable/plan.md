@@ -1,41 +1,42 @@
 
-# Intelligence Graph — Palantir-Grade Feature Plan
+# ALPAGUT Branding Verification Plan
 
-## Phase 1: Path Finder (High Impact)
-- Add a "Find Path" mode: click two nodes to select source & target
-- Compute and highlight all shortest paths between them using Dijkstra/BFS
-- Display a side panel showing the chain of entities with edge labels
-- Allow toggling between "shortest path" and "all paths" modes
-- Works on both the 3D `/v3/graph` view and 2D Cytoscape case graph
+## Objective
+Navigate every major route and visually verify that "ALPAGUT" branding appears correctly, with no stale "Portolan" references remaining.
 
-## Phase 2: Timeline Scrubber (Temporal Analysis)
-- Add a horizontal time slider at the bottom of the graph
-- Filter nodes/edges by timestamp (using OSINT finding dates, case events, application dates)
-- Animate connections appearing/disappearing as the slider moves
-- Show a mini histogram above the slider indicating event density over time
-- Enables analysts to spot coordination patterns (e.g., multiple applications within days)
+## Routes to Check
 
-## Phase 3: Lasso Selection + Bulk Actions
-- Draw a rectangle/lasso on the 3D canvas to select multiple nodes
-- Selection toolbar appears with actions: Flag All, Export Subgraph, Hide Selected, Group
-- Export generates a structured JSON/PDF of the selected entity cluster
-- Keyboard shortcut: `Shift+Drag` for lasso, `Escape` to deselect
+### Public Pages
+1. **/** — Landing page (Navbar logo/text, Hero, Footer)
+2. **/government** — Government landing page
+3. **/positions** — Open positions page
 
-## Phase 4: Double-Click Expand (Progressive Disclosure)
-- Double-click any node to fetch and render its 2nd-degree connections
-- New nodes animate in from the clicked node's position
-- Visual indicator (pulsing ring) on nodes that have unexplored connections
-- Collapse button to remove expanded nodes and return to previous state
-- Queries `v3_osint_findings` and cross-case data for real expansion
+### V3 Intelligence Platform
+4. **/v3** — Login page (logo, title, form labels)
+5. **/v3/dashboard** — Dashboard (sidebar branding, top bar)
+6. **/v3/cases** — Cases list
+7. **/v3/scanner** — OSINT Scanner
+8. **/v3/graph** — Network graph
+9. **/v3/personnel** — Personnel management
+10. **/v3/settings** — Settings (profile, system info)
+11. **/v3/demo** — Demo page
 
-## Phase 5: Minimap + Polish
-- Small overview panel in bottom-right corner showing full graph topology
-- Viewport indicator rectangle that can be dragged to navigate
-- Undo/redo stack for layout changes (node pins, expansions, filters)
-- `Ctrl+Z` / `Ctrl+Shift+Z` keyboard shortcuts
+### Defence Platform
+12. **/v3/defence** — Defence dashboard (sidebar branding)
+13. **/v3/defence/alerts** — Alerts page
+14. **/v3/defence/map** — Map view
+15. **/v3/defence/personnel** — Defence personnel
+16. **/v3/defence/scan** — Defence scan
+17. **/v3/defence/face-search** — Face search
 
-## Technical Notes
-- All features built on existing `react-force-graph-3d` (3D) and `cytoscape` (2D) libraries
-- Path finding uses client-side graph traversal (no new backend needed for Phase 1-3)
-- Phase 4 requires querying the database for connected entities on demand
-- No database migrations needed — all features use existing tables
+## What to Verify on Each Route
+- Logo renders correctly (CompassLogo SVG)
+- "ALPAGUT" text appears (not "Portolan")
+- Page titles, tab titles, and headers are correct
+- Footer branding is correct
+- No console errors on load
+
+## Method
+- Use browser tools to navigate to each route and take screenshots
+- Check for any remaining "Portolan" text visually
+- Flag any issues found and fix them immediately
