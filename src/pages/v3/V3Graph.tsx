@@ -375,7 +375,7 @@ export default function V3Graph() {
   return (
     <div className="relative w-full h-full overflow-hidden" ref={containerRef} style={{ background: '#09090b' }}>
       <ForceGraph3D
-        ref={setGraphRef}
+        ref={graphRef as any}
         graphData={graphData}
         width={dims.width}
         height={dims.height}
