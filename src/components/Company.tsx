@@ -33,7 +33,7 @@ export function Company() {
           <div>
             <p className="text-label mb-4">Company</p>
             <h2 className="text-headline mb-6">
-              Zurich, Switzerland.
+              Istanbul, Türkiye.
             </h2>
             
             <div className="space-y-4 text-body max-w-lg">
