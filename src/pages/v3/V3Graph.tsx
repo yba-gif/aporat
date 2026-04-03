@@ -216,21 +216,21 @@ function bfsAllShortestPaths(
 
   while (queue.length > 0) {
     const current = queue.shift()!;
-    const d = dist.get(current)!;
+    const d = dist[current];
     if (current === targetId) break;
-    for (const { neighbor } of adj.get(current) || []) {
-      const nd = dist.get(neighbor);
+    for (const { neighbor } of adj[current] || []) {
+      const nd = dist[neighbor];
       if (nd === undefined) {
-        dist.set(neighbor, d + 1);
-        parents.set(neighbor, [current]);
+        dist[neighbor] = d + 1;
+        parents[neighbor] = [current];
         queue.push(neighbor);
       } else if (nd === d + 1) {
-        parents.get(neighbor)!.push(current);
+        parents[neighbor].push(current);
       }
     }
   }
 
-  if (!dist.has(targetId)) return [];
+  if (dist[targetId] === undefined) return [];
 
   // Reconstruct all shortest paths
   const paths: string[][] = [];
