@@ -253,7 +253,7 @@ function bfsAllShortestPaths(
 const geoCache: Record<string, THREE.BufferGeometry> = {};
 function getGeometry(type: NodeType, size: number): THREE.BufferGeometry {
   const key = `${type}-${size}`;
-  if (geoCache.has(key)) return geoCache.get(key)!;
+  if (geoCache[key]) return geoCache[key];
   let geo: THREE.BufferGeometry;
   switch (type) {
     case 'applicant':      geo = new THREE.OctahedronGeometry(size * 1.3, 1); break;
