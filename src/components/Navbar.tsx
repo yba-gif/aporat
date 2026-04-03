@@ -86,7 +86,7 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
             </Button>
             <Button
               size="sm"
-              onClick={handleRequestAccessClick}
+              onClick={handleRequestAccess}
               className="bg-foreground text-background hover:bg-foreground/90"
             >
               Request access
