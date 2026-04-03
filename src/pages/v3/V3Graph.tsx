@@ -200,12 +200,12 @@ function bfsAllShortestPaths(
   targetId: string
 ): string[][] {
   const adj: Record<string, { neighbor: string; }[]> = {};
-  for (const n of nodes) adj.set(n.id, []);
+  for (const n of nodes) adj[n.id] = [];
   for (const l of links) {
     const s = typeof l.source === 'string' ? l.source : l.source.id;
     const t = typeof l.target === 'string' ? l.target : l.target.id;
-    adj.get(s)?.push({ neighbor: t });
-    adj.get(t)?.push({ neighbor: s });
+    adj[s]?.push({ neighbor: t });
+    adj[t]?.push({ neighbor: s });
   }
 
   const dist: Map<string, number> = new Map();
