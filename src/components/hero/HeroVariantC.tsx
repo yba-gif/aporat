@@ -3,12 +3,6 @@ import { motion, useAnimation } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { analytics } from '@/lib/analytics';
 
-const stats = [
-  { value: '4.2hrs', label: 'Fraud ring resolution' },
-  { value: '40+', label: 'Countries' },
-  { value: '100%', label: 'Audit chain coverage' },
-  { value: '0', label: 'Data leaves your jurisdiction' },
-];
 
 const CIPHER_CHARS = '█▓▒░╬╠╣╦╩┼─│┌┐└┘├┤┬┴0123456789ABCDEF@#$%&*!?><{}[]';
 
