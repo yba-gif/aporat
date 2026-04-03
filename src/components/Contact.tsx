@@ -108,7 +108,7 @@ export function Contact() {
                 className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
               >
                 <Mail className="w-4 h-4" />
-                <span className="link-underline"><span className="link-underline">contact@alpagut.com</span></span>
+                <span className="link-underline">contact@alpagut.com</span>
               </a>
               <a
                 href="#"
