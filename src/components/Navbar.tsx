@@ -131,7 +131,7 @@ export function Navbar() {
                 <Button
                   className="w-full bg-foreground text-background hover:bg-foreground/90"
                   onClick={() => {
-                    handleRequestAccess();
+                    handleRequestAccessClick();
                     setIsMobileMenuOpen(false);
                   }}
                 >
