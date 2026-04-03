@@ -1,12 +1,12 @@
 import { Linkedin, Twitter } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { CompassLogo } from '@/components/CompassLogo';
 import { useScrollToSection } from '@/hooks/useScrollToSection';
 
 const links = [
-  { label: 'Privacy', href: null },
-  { label: 'Terms', href: null },
-  { label: 'Security', href: 'security' },
-  { label: 'Press', href: null },
+  { label: 'Privacy', href: '/privacy', type: 'route' as const },
+  { label: 'Terms', href: '/terms', type: 'route' as const },
+  { label: 'Security', href: 'security', type: 'section' as const },
 ];
 
 const socialLinks = [
@@ -29,18 +29,25 @@ export function Footer() {
 
           {/* Links */}
           <div className="flex items-center gap-6">
-            {links.map((link) => (
-              <button
-                key={link.label}
-                onClick={() => link.href && scrollToSection(link.href)}
-                className={`text-sm text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none ${
-                  link.href ? 'cursor-pointer' : 'cursor-default'
-                }`}
-                disabled={!link.href}
-              >
-                {link.label}
-              </button>
-            ))}
+            {links.map((link) =>
+              link.type === 'route' ? (
+                <Link
+                  key={link.label}
+                  to={link.href}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <button
+                  key={link.label}
+                  onClick={() => scrollToSection(link.href)}
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors bg-transparent border-none cursor-pointer"
+                >
+                  {link.label}
+                </button>
+              )
+            )}
           </div>
 
           {/* Social */}
