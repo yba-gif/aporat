@@ -9,7 +9,7 @@ const riskColors: Record<RiskLevel, { bg: string; text: string }> = {
 };
 
 export function RiskBadge({ level, className }: { level: RiskLevel; className?: string }) {
-  const c = riskColors[level];
+  const c = riskColors[level] || riskColors.medium;
   return (
     <span
       className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium capitalize', className)}
