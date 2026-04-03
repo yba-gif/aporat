@@ -271,7 +271,7 @@ function getGeometry(type: NodeType, size: number): THREE.BufferGeometry {
 const labelCache: Record<string, THREE.Texture> = {};
 function getLabelTexture(label: string, riskScore: number): THREE.Texture {
   const key = `${label}-${riskScore}`;
-  if (labelCache.has(key)) return labelCache.get(key)!;
+  if (labelCache[key]) return labelCache[key];
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
   canvas.width = 256;
