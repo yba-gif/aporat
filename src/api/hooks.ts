@@ -87,7 +87,7 @@ export function useDefenceScans() {
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem('portolan_user');
+    const stored = const stored = localStorage.getItem('alpagut_user');;
     return stored ? JSON.parse(stored) : null;
   });
   const [loading, setLoading] = useState(false);
