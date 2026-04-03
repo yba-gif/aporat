@@ -35,7 +35,7 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
     setIsMobileMenuOpen(false);
   };
 
-  const handleRequestAccessClick = () => {
+  const handleRequestAccessClickClick = () => {
     analytics.trackCTA('request_access', 'navbar');
     onRequestAccess?.();
   };
@@ -86,7 +86,7 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
             </Button>
             <Button
               size="sm"
-              onClick={handleRequestAccess}
+              onClick={handleRequestAccessClick}
               className="bg-foreground text-background hover:bg-foreground/90"
             >
               Request access
@@ -134,7 +134,7 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
                 <Button
                   className="w-full bg-foreground text-background hover:bg-foreground/90"
                   onClick={() => {
-                    handleRequestAccess();
+                    handleRequestAccessClick();
                     setIsMobileMenuOpen(false);
                   }}
                 >
