@@ -24,7 +24,7 @@ export function Footer() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <CompassLogo className="w-6 h-6 text-foreground" />
-            <span className="font-semibold text-sm">Portolan Labs</span>
+            <span className="font-semibold text-sm"><span className="font-semibold text-sm">ALPAGUT</span></span>
           </div>
 
           {/* Links */}
@@ -67,7 +67,7 @@ export function Footer() {
             Sovereign intelligence infrastructure.
           </p>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Portolan Labs. Zurich, Switzerland.
+            © {new Date().getFullYear()} ALPAGUT. Zurich, Switzerland.
           </p>
         </div>
       </div>

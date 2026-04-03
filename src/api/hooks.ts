@@ -87,7 +87,7 @@ export function useDefenceScans() {
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(() => {
-    const stored = localStorage.getItem('portolan_user');
+    const stored = localStorage.getItem('alpagut_user');
     return stored ? JSON.parse(stored) : null;
   });
   const [loading, setLoading] = useState(false);
@@ -97,7 +97,7 @@ export function useAuth() {
     try {
       const res = await api.auth.login(email, password);
       api.setToken(res.access_token);
-      localStorage.setItem('portolan_user', JSON.stringify(res.user));
+      localStorage.setItem('alpagut_user', JSON.stringify(res.user));
       setUser(res.user);
       return res.user;
     } finally {

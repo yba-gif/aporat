@@ -34,7 +34,7 @@ export default function V3Login() {
       <div className="w-full max-w-sm">
         <form onSubmit={handleSubmit} className="border rounded-md p-8" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
           <div className="text-center mb-8">
-            <h1 className="text-lg font-bold tracking-[0.3em]" style={{ color: 'var(--v3-text)' }}>PORTOLAN LABS</h1>
+            <h1 className="text-lg font-bold tracking-[0.3em]" style={{ color: 'var(--v3-text)' }}><h1 className="text-lg font-bold tracking-[0.3em]" style={{ color: 'var(--v3-text)' }}>ALPAGUT</h1></h1>
             <p className="text-xs mt-1 tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Intelligence Platform</p>
           </div>
 
@@ -45,7 +45,7 @@ export default function V3Login() {
               style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text)' }}
               onFocus={e => e.target.style.borderColor = 'var(--v3-accent)'}
               onBlur={e => e.target.style.borderColor = 'var(--v3-border)'}
-              placeholder="operator@portolan.gov.tr" required />
+              placeholder="operator@alpagut.gov.tr" required />
           </div>
 
           <div className="mb-6">

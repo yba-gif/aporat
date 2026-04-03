@@ -153,7 +153,7 @@ const PositionDetail = () => {
                   for border agencies, defense, and regulated enterprises.
                 </p>
                 <p>
-                  At Portolan Labs, you'll work on high-stakes problems with a team that values 
+                  At ALPAGUT, you'll work on high-stakes problems with a team that values work on high-stakes problems with a team that values 
                   precision, clarity, and impact. We build systems that cannot afford to fail.
                 </p>
               </div>

@@ -33,7 +33,7 @@ export function Differentiators() {
       <div className="container-wide">
         {/* Header */}
         <div className="max-w-2xl mb-16">
-          <p className="text-label mb-4">Why Portolan</p>
+          <p className="text-label mb-4"><p className="text-label mb-4">Why ALPAGUT</p></p>
           <h2 className="text-headline mb-4">
             Built for what's at stake.
           </h2>

@@ -104,11 +104,11 @@ export function Contact() {
             {/* Alternative Contact */}
             <div className="space-y-4">
               <a
-                href="mailto:contact@portolanlabs.com"
+                href="mailto:contact@alpagut.com"
                 className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group"
               >
                 <Mail className="w-4 h-4" />
-                <span className="link-underline">contact@portolanlabs.com</span>
+                <span className="link-underline"><span className="link-underline">contact@alpagut.com</span></span>
               </a>
               <a
                 href="#"
