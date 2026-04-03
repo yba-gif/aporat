@@ -208,8 +208,8 @@ function bfsAllShortestPaths(
     adj.get(t)?.push({ neighbor: s });
   }
 
-  const dist = new Map<string, number>();
-  const parents = new Map<string, string[]>();
+  const dist: Map<string, number> = new Map();
+  const parents: Map<string, string[]> = new Map();
   dist.set(sourceId, 0);
   parents.set(sourceId, []);
   const queue = [sourceId];
