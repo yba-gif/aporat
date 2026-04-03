@@ -11,10 +11,13 @@ const navLinks = [
   { label: 'Solutions', href: 'solutions' },
   { label: 'Security', href: 'security' },
   { label: 'Company', href: 'company' },
-  { label: 'Contact', href: 'contact' },
 ];
 
-export function Navbar() {
+interface NavbarProps {
+  onRequestAccess?: () => void;
+}
+
+export function Navbar({ onRequestAccess }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { scrollToSection } = useScrollToSection();
@@ -32,14 +35,14 @@ export function Navbar() {
     setIsMobileMenuOpen(false);
   };
 
-  const handleRequestAccess = () => {
+  const handleRequestAccessClickClick = () => {
     analytics.trackCTA('request_access', 'navbar');
-    scrollToSection('contact');
+    onRequestAccess?.();
   };
 
   const handleTalkToSales = () => {
     analytics.trackCTA('talk_to_sales', 'navbar');
-    scrollToSection('contact');
+    onRequestAccess?.();
   };
 
   return (
@@ -83,7 +86,7 @@ export function Navbar() {
             </Button>
             <Button
               size="sm"
-              onClick={handleRequestAccess}
+              onClick={handleRequestAccessClick}
               className="bg-foreground text-background hover:bg-foreground/90"
             >
               Request access
@@ -131,7 +134,7 @@ export function Navbar() {
                 <Button
                   className="w-full bg-foreground text-background hover:bg-foreground/90"
                   onClick={() => {
-                    handleRequestAccess();
+                    handleRequestAccessClick();
                     setIsMobileMenuOpen(false);
                   }}
                 >
