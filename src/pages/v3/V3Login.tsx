@@ -45,7 +45,7 @@ export default function V3Login() {
               style={{ background: 'var(--v3-bg)', borderColor: 'var(--v3-border)', color: 'var(--v3-text)' }}
               onFocus={e => e.target.style.borderColor = 'var(--v3-accent)'}
               onBlur={e => e.target.style.borderColor = 'var(--v3-border)'}
-              placeholder="operator@alpagut.gov.tr" required /> required />
+              placeholder="operator@alpagut.gov.tr" required />
           </div>
 
           <div className="mb-6">

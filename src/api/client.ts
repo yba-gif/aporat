@@ -13,7 +13,7 @@ let _token: string | null = null;
 
 export function setToken(t: string | null) {
   _token = t;
-  if (t) localStorage.setItem('portolan_token', t);
+  if (t) localStorage.setItem('alpagut_token', t);
   else localStorage.removeItem('alpagut_token');
 }
 

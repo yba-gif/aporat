@@ -97,7 +97,7 @@ export function useAuth() {
     try {
       const res = await api.auth.login(email, password);
       api.setToken(res.access_token);
-      localStorage.setItem('alpagut_user', JSON.stringify(res.user));, JSON.stringify(res.user));
+      localStorage.setItem('alpagut_user', JSON.stringify(res.user));
       setUser(res.user);
       return res.user;
     } finally {

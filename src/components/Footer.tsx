@@ -24,7 +24,7 @@ export function Footer() {
           {/* Logo */}
           <div className="flex items-center gap-2">
             <CompassLogo className="w-6 h-6 text-foreground" />
-            <span className="font-semibold text-sm">Portolan Labs</span>
+            <span className="font-semibold text-sm"><span className="font-semibold text-sm">ALPAGUT</span></span>
           </div>
 
           {/* Links */}
