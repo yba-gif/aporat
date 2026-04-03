@@ -98,23 +98,6 @@ export function HeroVariantC({ onRequestAccess }: { onRequestAccess?: () => void
 
         <div className="container-wide relative z-10">
           <div className="max-w-4xl">
-            {/* Terminal prompt */}
-            <motion.div
-              className="flex items-center gap-2 mb-8"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3, delay: 0.1 }}
-            >
-              <div className="w-2 h-2 rounded-full bg-accent" />
-              <span className="text-[10px] font-mono text-muted-foreground">DECRYPTING TRANSMISSION</span>
-              <motion.span
-                className="text-accent font-mono text-[10px]"
-                animate={{ opacity: [1, 0, 1] }}
-                transition={{ duration: 1, repeat: Infinity, repeatDelay: 0.2 }}
-              >
-                █
-              </motion.span>
-            </motion.div>
 
             {/* Kicker */}
             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-accent mb-6">
