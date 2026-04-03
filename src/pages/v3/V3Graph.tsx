@@ -250,7 +250,7 @@ function bfsAllShortestPaths(
 }
 
 // ── Geometry cache ──
-const geoCache = new Map<string, THREE.BufferGeometry>();
+const geoCache: Record<string, THREE.BufferGeometry> = {};
 function getGeometry(type: NodeType, size: number): THREE.BufferGeometry {
   const key = `${type}-${size}`;
   if (geoCache.has(key)) return geoCache.get(key)!;
