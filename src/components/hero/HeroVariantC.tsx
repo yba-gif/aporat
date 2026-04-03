@@ -78,10 +78,10 @@ function DecodingText({ text, delayMs, charStagger }: { text: string; delayMs: n
   );
 }
 
-export function HeroVariantC() {
+export function HeroVariantC({ onRequestAccess }: { onRequestAccess?: () => void }) {
   const handleRequestAccess = () => {
     analytics.trackCTA('request_access', 'hero');
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    onRequestAccess?.();
   };
 
   // Timeline: kicker 200ms, line1 400ms, line2 800ms, sub 1800ms, cta 2200ms, stats 2600ms
