@@ -367,11 +367,6 @@ export default function V3Graph() {
 
   const panelBg = 'rgba(24,24,27,0.92)';
 
-  // Store ref via callback to avoid the "function component ref" warning
-  const setGraphRef = useCallback((el: any) => {
-    graphRef.current = el;
-  }, []);
-
   return (
     <div className="relative w-full h-full overflow-hidden" ref={containerRef} style={{ background: '#09090b' }}>
       <ForceGraph3D
