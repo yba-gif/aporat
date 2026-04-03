@@ -39,14 +39,14 @@ const statusLabels: Record<CaseStatus, string> = {
 };
 
 export function StatusBadge({ status, className }: { status: CaseStatus; className?: string }) {
-  const c = statusColors[status];
+  const c = statusColors[status] || statusColors.new;
   return (
     <span
       className={cn('inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium', className)}
       style={{ background: c.bg, color: c.text }}
     >
       {status === 'scanning' && <span className="w-1.5 h-1.5 rounded-full mr-1.5 animate-pulse" style={{ background: 'var(--v3-accent)' }} />}
-      {statusLabels[status]}
+      {statusLabels[status] || status}
     </span>
   );
 }
