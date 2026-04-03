@@ -1,6 +1,6 @@
 import { useCallback, useRef, useEffect, useState } from 'react';
-import cytoscape from 'cytoscape';
-import coseBilkent from 'cytoscape-cose-bilkent';
+import * as cytoscape from 'cytoscape';
+import * as coseBilkent from 'cytoscape-cose-bilkent';
 import type { V3Case } from '@/data/v3/mockData';
 
 // Register layout extension
