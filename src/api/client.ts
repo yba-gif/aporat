@@ -18,7 +18,7 @@ export function setToken(t: string | null) {
 }
 
 export function getToken(): string | null {
-  if (!_token) _token = localStorage.getItem('portolan_token');
+  if (!_token) _token = localStorage.getItem('alpagut_token');
   return _token;
 }
 
