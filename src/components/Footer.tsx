@@ -67,7 +67,7 @@ export function Footer() {
             Sovereign intelligence infrastructure.
           </p>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Portolan Labs. Zurich, Switzerland.
+            © {new Date().getFullYear()} ALPAGUT. Zurich, Switzerland.
           </p>
         </div>
       </div>

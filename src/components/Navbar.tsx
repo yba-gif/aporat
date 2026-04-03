@@ -55,7 +55,7 @@ export function Navbar() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <CompassLogo className="w-8 h-8 text-foreground" />
-            <span className="font-semibold text-lg tracking-tight">Portolan Labs</span>
+            <span className="font-semibold text-lg tracking-tight"><span className="font-semibold text-lg tracking-tight">ALPAGUT</span></span>
           </Link>
 
           {/* Desktop Navigation */}

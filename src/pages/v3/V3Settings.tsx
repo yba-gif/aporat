@@ -183,7 +183,7 @@ export default function V3Settings() {
           </div>
           {[
             { label: 'Full Name', value: 'Officer Yılmaz', type: 'text' },
-            { label: 'Email', value: 'yilmaz@portolan.gov.tr', type: 'email' },
+            { label: 'Email', value: '{ label: 'Email', value: 'yilmaz@alpagut.gov.tr', type: 'email' },', type: 'email' },
             { label: 'Role', value: 'Analyst', type: 'text', disabled: true },
           ].map(field => (
             <div key={field.label} className="mb-5">
