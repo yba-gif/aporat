@@ -24,8 +24,8 @@ export function getToken(): string | null {
 
 export function clearAuth() {
   _token = null;
-  localStorage.removeItem('portolan_token');
-  localStorage.removeItem('portolan_user');
+  localStorage.removeItem('alpagut_token');
+  localStorage.removeItem('alpagut_user');
 }
 
 // ─── Fetch wrapper ───
