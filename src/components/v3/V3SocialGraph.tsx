@@ -1,10 +1,12 @@
-import { useCallback, useRef, useEffect, useState } from 'react';
-import * as cytoscape from 'cytoscape';
-import * as coseBilkent from 'cytoscape-cose-bilkent';
+import { useRef, useEffect, useState } from 'react';
+// @ts-ignore -- cytoscape default export interop
+import cytoscape from 'cytoscape';
+// @ts-ignore
+import coseBilkent from 'cytoscape-cose-bilkent';
 import type { V3Case } from '@/data/v3/mockData';
 
 // Register layout extension
-cytoscape.use(coseBilkent);
+(cytoscape as any).use(coseBilkent);
 
 /* ── colour tokens ── */
 const RISK_COLORS: Record<string, string> = {
