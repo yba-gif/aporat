@@ -34,7 +34,7 @@ export default function V3Login() {
       <div className="w-full max-w-sm">
         <form onSubmit={handleSubmit} className="border rounded-md p-8" style={{ background: 'var(--v3-surface)', borderColor: 'var(--v3-border)' }}>
           <div className="text-center mb-8">
-            <h1 className="text-lg font-bold tracking-[0.3em]" style={{ color: 'var(--v3-text)' }}>PORTOLAN LABS</h1>
+            <h1 className="text-lg font-bold tracking-[0.3em]" style={{ color: 'var(--v3-text)' }}><h1 className="text-lg font-bold tracking-[0.3em]" style={{ color: 'var(--v3-text)' }}>ALPAGUT</h1></h1>
             <p className="text-xs mt-1 tracking-wider" style={{ color: 'var(--v3-text-muted)' }}>Intelligence Platform</p>
           </div>
 
