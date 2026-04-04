@@ -24,7 +24,7 @@ const Terms = () => (
 
           <section>
             <h2 className="text-base font-semibold text-foreground mb-3">2. Services</h2>
-            <p>ALPAGU provides mobility compliance infrastructure, including evidence ingestion, integrity verification, and policy enforcement tools for enterprise and government clients. Access to platform features requires a valid service agreement.</p>
+            <p>ALPAGU provides overwatch and compliance infrastructure, including evidence ingestion, integrity verification, and policy enforcement tools for enterprise and government clients. Access to platform features requires a valid service agreement.</p>
           </section>
 
           <section>

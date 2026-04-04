@@ -209,7 +209,7 @@ export function ArchitectureDiagram() {
           <div className="relative z-10 mt-8 flex items-center justify-center gap-4 text-xs text-muted-foreground">
             <Shield className="w-3 h-3" />
             <span className="font-mono">
-              Vertical Palantir for cross-border mobility compliance
+              Vertical Palantir for cross-border overwatch & compliance
             </span>
           </div>
         </div>
