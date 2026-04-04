@@ -77,14 +77,6 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-3">
             <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleTalkToSales}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Talk to sales
-            </Button>
-            <Button
               size="sm"
               onClick={handleRequestAccess}
               className="bg-foreground text-background hover:bg-foreground/90"
@@ -121,16 +113,6 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
                 </button>
               ))}
               <div className="px-4 pt-4 space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    handleTalkToSales();
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  Talk to sales
-                </Button>
                 <Button
                   className="w-full bg-foreground text-background hover:bg-foreground/90"
                   onClick={() => {
