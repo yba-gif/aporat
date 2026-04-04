@@ -112,17 +112,6 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
                   {link.label}
                 </button>
               ))}
-              <div className="px-4 pt-4 space-y-2">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    handleTalkToSales();
-                    setIsMobileMenuOpen(false);
-                  }}
-                >
-                  Talk to sales
-                </Button>
                 <Button
                   className="w-full bg-foreground text-background hover:bg-foreground/90"
                   onClick={() => {
