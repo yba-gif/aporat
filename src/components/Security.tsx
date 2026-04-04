@@ -1,6 +1,4 @@
-import { Button } from '@/components/ui/button';
-import { analytics } from '@/lib/analytics';
-import { Lock, Server, Cloud, Wifi, Shield, FileText } from 'lucide-react';
+import { Server, Cloud, Wifi, Shield } from 'lucide-react';
 
 const deploymentModes = [
   { icon: Server, label: 'On-Premise' },
