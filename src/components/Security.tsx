@@ -16,10 +16,6 @@ const certifications = [
 ];
 
 export function Security() {
-  const handleDownloadBrief = () => {
-    analytics.trackCTA('security_brief', 'security');
-    analytics.trackDownload('security_brief');
-  };
 
   return (
     <section id="security" className="section-padding bg-foreground text-background">
