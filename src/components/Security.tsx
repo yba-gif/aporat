@@ -20,7 +20,7 @@ export function Security() {
   return (
     <section id="security" className="section-padding bg-foreground text-background">
       <div className="container-wide">
-        <div className="grid lg:grid-cols-2 gap-16">
+        <div className="max-w-2xl">
           {/* Left: Content */}
           <div>
             <p className="text-xs font-medium uppercase tracking-widest text-background/50 mb-4">
