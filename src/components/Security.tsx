@@ -63,35 +63,6 @@ export function Security() {
             </div>
           </div>
 
-          {/* Right: Clearance */}
-          <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-background/50 mb-4">
-              Clearance
-            </p>
-            <p className="text-background/70 mb-8">
-              Cryptographic clearance certificates. Portable. Tamper-proof. QR-verifiable. Accepted in 40+ countries.
-            </p>
-
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              <div className="p-6 border border-background/10 text-center">
-                <p className="text-2xl font-semibold text-background mb-1">CHF 89</p>
-                <p className="text-sm text-background/50">Standard</p>
-              </div>
-              <div className="p-6 border border-accent/40 bg-accent/5 text-center">
-                <p className="text-2xl font-semibold text-accent mb-1">CHF 149</p>
-                <p className="text-sm text-background/50">Enhanced</p>
-              </div>
-            </div>
-
-            <Button
-              variant="outline"
-              onClick={handleDownloadBrief}
-              className="border-background/20 text-background hover:bg-background hover:text-foreground transition-colors"
-            >
-              <FileText className="w-4 h-4 mr-2" />
-              Download security brief
-            </Button>
-          </div>
         </div>
       </div>
     </section>
