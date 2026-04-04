@@ -112,6 +112,7 @@ export function Navbar({ onRequestAccess }: NavbarProps) {
                   {link.label}
                 </button>
               ))}
+              <div className="px-4 pt-4 space-y-2">
                 <Button
                   className="w-full bg-foreground text-background hover:bg-foreground/90"
                   onClick={() => {
