@@ -68,9 +68,6 @@ export function Security() {
             <p className="text-xs font-medium uppercase tracking-widest text-background/50 mb-4">
               Clearance
             </p>
-            <h3 className="text-2xl font-semibold text-background mb-4">
-              Verified credibility. Recognized worldwide.
-            </h3>
             <p className="text-background/70 mb-8">
               Cryptographic clearance certificates. Portable. Tamper-proof. QR-verifiable. Accepted in 40+ countries.
             </p>
